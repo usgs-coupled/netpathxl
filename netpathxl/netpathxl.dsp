@@ -66,8 +66,8 @@ LINK32=link.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "netpathxl___Win32_Debug"
-# PROP Intermediate_Dir "netpathxl___Win32_Debug"
+# PROP Output_Dir "Debug"
+# PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE F90 /check:bounds /compile_only /debug:full /nologo /traceback /warn:argument_checking /warn:nofileopt /libs:qwins
 # ADD F90 /browser /check:bounds /compile_only /debug:full /nologo /traceback /warn:argument_checking /warn:nofileopt /libs:qwins
@@ -96,53 +96,52 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat;f90;for;f;fpp"
 # Begin Source File
 
-SOURCE=.\ADOBJS.F90
-DEP_F90_ADOBJ=\
-	".\netpathxl___Win32_Debug\EXCEL97A.MOD"\
+SOURCE=..\ADOBJS.F90
+NODEP_F90_ADOBJ=\
+	".\Release\excel97a.mod"\
 	
 # End Source File
 # Begin Source File
 
-SOURCE=.\excel5en32.f90
+SOURCE=..\excel5en32.f90
 # End Source File
 # Begin Source File
 
-SOURCE=.\EXCEL97A.F90
+SOURCE=..\EXCEL97A.F90
 # End Source File
 # Begin Source File
 
-SOURCE=.\netpath.f90
-DEP_F90_NETPA=\
-	".\netpathxl___Win32_Debug\np_characters.mod"\
+SOURCE=..\netpath.f90
+NODEP_F90_NETPA=\
+	".\Release\filenames.mod"\
 	
 # End Source File
 # Begin Source File
 
-SOURCE=.\npexcel.F90
-DEP_F90_NPEXC=\
-	".\netpathxl___Win32_Debug\ADOBJECTS.MOD"\
-	".\netpathxl___Win32_Debug\EXCEL97A.MOD"\
-	".\netpathxl___Win32_Debug\excel_headings.mod"\
-	".\netpathxl___Win32_Debug\filenames.mod"\
-	".\netpathxl___Win32_Debug\np_characters.mod"\
+SOURCE=..\npexcel.F90
+NODEP_F90_NPEXC=\
+	".\Release\ADOBJECTS.MOD"\
+	".\Release\excel97a.mod"\
+	".\Release\excel_headings.mod"\
+	".\Release\filenames.mod"\
 	
 # End Source File
 # Begin Source File
 
-SOURCE=.\npmod.f90
+SOURCE=..\npmod.f90
 # End Source File
 # Begin Source File
 
-SOURCE=.\npwinscreen.f90
-DEP_F90_NPWIN=\
-	".\netpathxl___Win32_Debug\np_characters.mod"\
+SOURCE=..\npwinscreen.f90
+NODEP_F90_NPWIN=\
+	".\Release\filenames.mod"\
 	
 # End Source File
 # Begin Source File
 
-SOURCE=.\wateqfp.f90
-DEP_F90_WATEQ=\
-	".\netpathxl___Win32_Debug\np_characters.mod"\
+SOURCE=..\wateqfp.f90
+NODEP_F90_WATEQ=\
+	".\Release\filenames.mod"\
 	
 # End Source File
 # End Group

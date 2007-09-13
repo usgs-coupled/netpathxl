@@ -161,6 +161,7 @@ subroutine configdb
 
  LOGICAL(4)     result
  TYPE (qwinfo)  winfo
+ INTEGER*2 i1, i2, i3, i4
 
  ! Maximize frame window
  winfo%TYPE = QWIN$SET
@@ -173,7 +174,11 @@ subroutine configdb
  result =     SETWSIZEQQ(QWIN$FRAMEWINDOW, winfo)
 
  result = DISPLAYCURSOR ($GCURSORON)
- CALL SETTEXTWINDOW (1, 1, 35, 80) 
+ i1 = 1
+ i2 = 1
+ i3 = 35
+ i4 = 80
+ CALL SETTEXTWINDOW (i1, i2, i3, i4) 
  return
 end subroutine configdb
 !
@@ -254,7 +259,7 @@ SUBROUTINE WELLFILE_LON
  result = CHANGEDIRQQ (path)
 
  RETURN
-9000 FORMAT (' DB - Version 2.14 (May 15, 2005)',/,&
+9000 FORMAT (' DB - Version 2.14.1 (September 14, 2007)',/,&
       ' ----------------')
 END SUBROUTINE WELLFILE_LON
 !	

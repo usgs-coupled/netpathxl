@@ -33,13 +33,17 @@
 
     Subroutine NewExcel
 
-	  USE DFLIB
-	  USE DFWIN
-	  USE DFCOM
-	  USE DFCOMTY
-	  USE DFAUTO
+	  USE IFWINTY
+	  USE IFAUTO
+	  USE IFCOM
+	  !USE IFLIB
+	  !USE IFWIN
+	  !USE IFCOM
+	  !USE IFCOMTY
+	  !USE IFAUTO
 	  USE ADOBJECTS
-	  USE EXCEL97A
+	  USE EXCEL11
+!	  USE EXCEL97A
 !	  USE EXCEL5EN32
       USE filenames
 	  USE excel_headings
@@ -49,7 +53,8 @@
 !	  CHARACTER*256 string
 
 	! Variables
-	  INTEGER*4 status
+	  INTEGER*4 status, lcid
+	  TYPE (VARIANT) :: template
 	  INTEGER*4 loopCount
 	  INTEGER*4 die1
 	  INTEGER*4 die2
@@ -57,6 +62,7 @@
 	  INTEGER*4 maxScale
 	  CHARACTER (LEN = 32) :: loopc
 	  INTEGER*4   i
+	  LOGICAL*2 l
       REAL*4    rnd
 	  INTEGER*2, DIMENSION(1:12) :: cellCounts
 	  integer*4 excelapp1
@@ -77,12 +83,17 @@
 
 	! Create an Excel object
 	  CALL COMINITIALIZE(status)
-      CALL COMCREATEOBJECT ("Excel.Application", excelapp, status)
+	  CALL COMCreateObjectByProgID("Excel.Application", excelapp, status)
+!      CALL COMCREATEOBJECT ("Excel.Application", excelapp, status)
  	  IF (excelapp == 0) THEN
 		  WRITE (*, '(" Unable to create Excel object; Aborting")')
 		  CALL EXIT()
 	  END IF
-      CALL $Application_SetVisible(excelapp, .FALSE.)
+	  l = .FALSE.
+      CALL $Application_SetVisible(excelapp, l)
+!     lcid = 1033
+!     l = .FALSE.
+!     status = $Application_SetVisible(excelapp, lcid, l)
 
 	! Here is a sketch of the code below in pseudocode...
 	!
@@ -98,7 +109,8 @@
 	!   valueAxis.MaximumScale(loopcount/5)
 
 	! Get the WORKBOOKS object
-	  workbooks = $Application_GetWorkbooks(excelapp, $STATUS = status)
+!	  workbooks = $Application_GetWorkbooks(excelapp, $STATUS = status)
+ 	  workbooks = $Application_GetWorkbooks(excelapp, status)
 	  CALL Check_Status(status, " Unable to get WORKBOOKS object")
 
 	! Open the specified spreadsheet file (note: specify the full file path)
@@ -106,6 +118,7 @@
     !    "C:\PROGRAM FILES\MICROSOFT VISUAL STUDIO\DF98\SAMPLES\ADVANCED\COM\AUTODICE\HISTO.XLS", &
     !    $STATUS = status)
 	  workbook = Workbooks_Add(workbooks,$STATUS = status )
+!      workbook = Workbooks_Add(workbooks, template, lcid, status )
 	  CALL Check_Status(status, " Unable to get WORKBOOK object; ensure that the file path is correct")
  
 	! Get the worksheet
@@ -141,6 +154,7 @@
 	  vBSTR1%VT = VT_R4
 	  vBSTR1%VU%FLOAT_VAL = 30.
 	  call range_setcolumnwidth(range, vBSTR1, status)
+!      status = irange_setcolumnwidth(range, vBSTR1)
 	  CALL Check_Status(status, " Unable to set column width")
 	  status = VariantClear(vBSTR1)
 	  bstr1 = 0
@@ -151,6 +165,7 @@
 	  vBSTR1%VT = VT_R4
 	  vBSTR1%VU%FLOAT_VAL = 4.29
 	  call range_setcolumnwidth(range, vBSTR1, status)
+!      status = irange_setcolumnwidth(range, vBSTR1)
 	  CALL Check_Status(status, " Unable to set column width")
 	  status = VariantClear(vBSTR1)
 	  bstr1 = 0
@@ -161,6 +176,7 @@
 	  vBSTR1%VT = VT_R4
 	  vBSTR1%VU%FLOAT_VAL = 20.
 	  call range_setcolumnwidth(range, vBSTR1, status)
+!      status = irange_setcolumnwidth(range, vBSTR1)
 	  CALL Check_Status(status, " Unable to set column width")
 	  status = VariantClear(vBSTR1)
 	  bstr1 = 0
@@ -169,8 +185,10 @@
 	  call set_range('a7','bg7')
 	  call set_variant_bool(vARG1, .true.)
       call range_SetWrapText(range, vARG1, status)
+!      status = irange_SetWrapText(range, vARG1)
 	  call set_variant_int(vARG1, -4108)
-      call range_SetHorizontalAlignment(range, vARG1, status)
+     call range_SetHorizontalAlignment(range, vARG1, status)
+!      status = irange_SetHorizontalAlignment(range, vARG1)
 	  CALL Check_Status(status, " Unable to set horizontal alignment")
 
 	  ! Set default protection false
@@ -178,12 +196,12 @@
       CALL Check_Status(status, " Unable to set range to all cells")
       call set_variant_bool(vARG1, .false.)
 	  call range_setlocked(range, vARG1, status)
-	  
+!	  status = irange_setlocked(range, vARG1)
 	  !Set protection on Headers
 	  call set_range('a1','au7')
 	  call set_variant_bool(vARG1, .true.)
 	  call range_setlocked(range, vARG1, status)
-
+!      status = irange_setlocked(range, vARG1)
 
  
  	  !Set protection on worksheet
@@ -219,24 +237,29 @@
 !
     Subroutine SaveExcel
 
-	  USE DFLIB
-	  USE DFWIN
-	  USE DFCOM
-	  USE DFCOMTY
-	  USE DFAUTO
+!	  USE IFLIB
+	  USE IFWIN
+	  USE IFCOM
+	  USE IFCOMTY
+	  USE IFAUTO
 	  USE ADOBJECTS
-	  USE EXCEL97A
+	  USE EXCEL11
+!	  USE EXCEL97A
 !	  USE EXCEL5EN32
       USE filenames
       IMPLICIT NONE   	  !Save workbook
 	  CHARACTER*256 string
 	  integer lens
+	  integer*4 status, lcid
 	  external lens   
 	  
 	  string = path(1:lens(path)) // '\' // root(1:lens(root)) // '.xls'
 	  call set_variant_char(vARG1, string)
+	  call set_variant_char(vARG2, '')
 	  call $workbook_saveas(workbook, vARG1)
-	  !CALL Check_Status(status, " Unable to save workbook")!
+!      lcid = 1033
+!      status = $workbook_saveas(workbook, vARG1, vARG2,  vARG2, vARG2, vARG2, vARG2, 0, vARG2, vARG2, vARG2, vARG2, vARG2, lcid)
+	  CALL Check_Status(status, " Unable to save workbook")!
 	return
 	end subroutine SaveExcel
 !
@@ -244,13 +267,14 @@
 !
 Subroutine OldExcel
 
-	USE DFLIB
-	USE DFWIN
-	USE DFCOM
-	USE DFCOMTY
-	USE DFAUTO
+	!USE IFLIB
+	!USE IFWIN
+	!USE IFCOM
+	!USE IFCOMTY
+	!USE IFAUTO
 	USE ADOBJECTS
-	USE EXCEL97A
+	USE EXCEL11
+!	USE EXCEL97A
 !	  USE EXCEL5EN32
 	use filenames
 	IMPLICIT NONE   
@@ -259,24 +283,32 @@ Subroutine OldExcel
 	  CHARACTER*256 string
 
 	! Variables
-	  INTEGER*4 status
+	  INTEGER*4 status, lcid
+	  logical*2 l
 	  TYPE (VARIANT) :: vInt
+
 
 	! Initialize object pointers
 	  CALL INITOBJECTS()
 
 	! Create an Excel object
 	  CALL COMINITIALIZE(status)
-      CALL COMCREATEOBJECT ("Excel.Application", excelapp, status)
+	  CALL COMCreateObjectByProgID("Excel.Application", excelapp, status)
+!      CALL COMCREATEOBJECT ("Excel.Application", excelapp, status)
  	  IF (excelapp == 0) THEN
 		  WRITE (*, '(" Unable to create Excel object; Aborting")')
 		  CALL EXIT()
 	  END IF
+	  CALL Check_Status(status, " Unable to create Excel application")
+	  
+      l = .FALSE.
+      CALL $Application_SetVisible(excelapp, l)
 
-      CALL $Application_SetVisible(excelapp, .FALSE.)
-
+!      lcid = 1033
+!      status = $Application_SetVisible(excelapp, lcid, l)
 	! Get the WORKBOOKS object
-	  workbooks = $Application_GetWorkbooks(excelapp, $STATUS = status)
+!	  workbooks = $Application_GetWorkbooks(excelapp, $STATUS = status)
+	  workbooks = $Application_GetWorkbooks(excelapp, status)
 	  CALL Check_Status(status, " Unable to get WORKBOOKS object")
 
 	! Open the specified spreadsheet file (note: specify the full file path)
@@ -284,6 +316,11 @@ Subroutine OldExcel
 	workbook = Workbooks_Open(workbooks, &
         filename, &
         $STATUS = status)
+!    bstr1 = ConvertStringToBSTR(filename) 
+!    call set_variant_char(vARG2, '')
+!	workbook = Workbooks_Open(workbooks, bstr1, vARG2, vARG2, vARG2, vARG2, &
+!	    vARG2, vARG2, vARG2, vARG2, vARG2, vARG2, vARG2, vARG2, vARG2, vARG2, &
+!	    lcid, status )
 !	  workbook = Workbooks_Add(workbooks,$STATUS = status )
 	  CALL Check_Status(status, " Unable to get WORKBOOK object; ensure that the file path is correct")
  
@@ -299,13 +336,14 @@ Subroutine OldExcel
 !
     logical function CheckOldExcel
 
-	  USE DFLIB
-	  USE DFWIN
-	  USE DFCOM
-	  USE DFCOMTY
-	  USE DFAUTO
+!	  USE IFLIB
+	  USE IFWIN
+	  USE IFCOM
+	  USE IFCOMTY
+	  USE IFAUTO
 	  USE ADOBJECTS
-	  USE EXCEL97A
+	  USE EXCEL11
+!	  USE EXCEL97A
 !	  USE EXCEL5EN32
       USE filenames
 	  USE excel_headings
@@ -373,6 +411,7 @@ Subroutine OldExcel
 !		CALL $Application_SetVisible(excelapp, .TRUE.)
 	else
 		CALL $Application_quit(excelapp, status)
+!        status = $Application_quit(excelapp)
 		CALL Check_Status(status, "Quit Excel on incorrect file.")
 	endif
     END function CheckOldExcel
@@ -380,13 +419,14 @@ Subroutine OldExcel
 !
 !
     subroutine VisibleExcel(switch) 
-	  USE DFLIB
-	  USE DFWIN
-	  USE DFCOM
-	  USE DFCOMTY
-	  USE DFAUTO
+!	  USE IFLIB
+	  USE IFWIN
+	  USE IFCOM
+	  USE IFCOMTY
+	  USE IFAUTO
 	  USE ADOBJECTS
-	  USE EXCEL97A
+	  USE EXCEL11
+!	  USE EXCEL97A
 !	  USE EXCEL5EN32
 
       IMPLICIT NONE   
@@ -395,25 +435,34 @@ Subroutine OldExcel
 
 	! Variables
 	  logical switch
+	  integer*4 status, lcid
+	  logical*2 l
+	  
+	  l = switch
 
-	CALL $Application_SetVisible(excelapp, switch)
+	CALL $Application_SetVisible(excelapp, l)
+!    l = status
+!    lcid = 1033
+!    status = $Application_SetVisible(excelapp, lcid, l)
     END subroutine VisibleExcel 
 !
 !
 !
 SUBROUTINE cleanup_com(terminate)
-	USE DFLIB
-	USE DFWIN
-	USE DFCOM
-	USE DFCOMTY
-	USE DFAUTO
+!	USE IFLIB
+	USE IFWIN
+	USE IFCOM
+	USE IFCOMTY
+	USE IFAUTO
 	USE ADOBJECTS
-	USE EXCEL97A
+	USE EXCEL11
+!	USE EXCEL97A
 	INTEGER*4 status
 	logical terminate
 
 	if (terminate) then
 		CALL $Application_Quit(excelapp, status)
+!        status = $Application_Quit(excelapp)
 		CALL Check_Status(status, "Quit Excel failed.")
 	endif
 	! Release all objects
@@ -609,13 +658,14 @@ END SUBROUTINE db2xl
 !
 !
 SUBROUTINE XL2DB
-	USE DFLIB
-	USE DFWIN
-	USE DFCOM
-	USE DFCOMTY
-	USE DFAUTO
+!	USE IFLIB
+	USE IFWIN
+	USE IFCOM
+	USE IFCOMTY
+	USE IFAUTO
 	USE ADOBJECTS
-	USE EXCEL97A
+	USE EXCEL11
+!	USE EXCEL97A
 	use filenames
 
 	IMPLICIT NONE
@@ -837,13 +887,14 @@ END SUBROUTINE xl2db
 subroutine doCreate(string)
 
 
-	  USE DFLIB
-	  USE DFWIN
-	  USE DFCOM
-	  USE DFCOMTY
-	  USE DFAUTO
+!	  USE IFLIB
+	  USE IFWIN
+	  USE IFCOM
+	  USE IFCOMTY
+	  USE IFAUTO
 	  USE ADOBJECTS
-	  USE EXCEL97A
+	  USE EXCEL11
+!	  USE EXCEL97A
 !	  use procinc
 
 character*(*) string
@@ -862,6 +913,7 @@ type (T_PROCESS_INFORMATION)    pi
 integer*4           ret
 
 logical(4)          bret
+integer*4           l
 
 szFileTitle = ""C
 buffer = szFileTitle
@@ -889,13 +941,13 @@ sui%lpReserved2      = 0
 
 buffer = string
 buffer(lens(buffer) + 1: lens(buffer) + 2) = szFileTitle(1:2)
-
+l = 0
 bret = CreateProcess (                              &
                      NULL_CHARACTER,                &
                      buffer,        &
                      NULL_SECURITY_ATTRIBUTES,      &
                      NULL_SECURITY_ATTRIBUTES,      &
-                     .FALSE.,                       &
+                     l,                       &
                      DETACHED_PROCESS,              &
                      NULL,                          &
                      NULL_CHARACTER,                &

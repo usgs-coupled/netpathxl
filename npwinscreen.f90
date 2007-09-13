@@ -164,6 +164,7 @@ subroutine confignetpath
   ! END TYPE QWINFO
 
   LOGICAL(4)     result
+  integer*2 i1, i2, i3, i4
   TYPE (qwinfo)  winfo
 
   ! Maximize frame window
@@ -177,8 +178,12 @@ subroutine confignetpath
   result =     SETWSIZEQQ(QWIN$FRAMEWINDOW, winfo)
 
   result = DISPLAYCURSOR ($GCURSORON)
-  CALL SETTEXTWINDOW (1, 1, 35, 80) 
-
+  i1 = 1
+  i2 = 1
+  i3 = 35
+  i4 = 80
+!  CALL SETTEXTWINDOW (1, 1, 35, 80) 
+  CALL SETTEXTWINDOW (i1, i2, i3, i4)
 
   return
 end subroutine confignetpath
@@ -284,7 +289,7 @@ END SUBROUTINE WELLFILE_PAT
 !
 !
 integer function fileopen_np(wfile,path, fileone)
-  use dfwin
+  USE IFwin
   implicit none
   integer strcmp_nocase
   ! Declare structure used to pass and receive attributes
@@ -374,7 +379,7 @@ integer function fileopen_np(wfile,path, fileone)
   return
 end function fileopen_np
 integer function fileopen_db(Dfile, path, typefile)
-  use dfwin
+  USE IFwin
   implicit none
  INTEGER LENS 
  EXTERNAL LENS

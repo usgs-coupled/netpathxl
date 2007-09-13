@@ -39,7 +39,8 @@
 	  USE DFCOMTY
 	  USE DFAUTO
 	  USE ADOBJECTS
-	  USE EXCEL97A
+	  USE EXCEL11
+!	  USE EXCEL97A
 !	  USE EXCEL5EN32
       USE filenames
 	  USE excel_headings
@@ -71,6 +72,7 @@
 	  TYPE (VARIANT) :: vBSTR5
 
 	  TYPE (VARIANT) :: vInt
+	  LOGICAL*2 l
 
 	! Initialize object pointers
 	  CALL INITOBJECTS()
@@ -82,7 +84,8 @@
 		  WRITE (*, '(" Unable to create Excel object; Aborting")')
 		  CALL EXIT()
 	  END IF
-      CALL $Application_SetVisible(excelapp, .FALSE.)
+	  l = .FALSE.
+      CALL $Application_SetVisible(excelapp, l)
 
 	! Here is a sketch of the code below in pseudocode...
 	!
@@ -225,7 +228,8 @@
 	  USE DFCOMTY
 	  USE DFAUTO
 	  USE ADOBJECTS
-	  USE EXCEL97A
+	  USE EXCEL11
+!	  USE EXCEL97A
 !	  USE EXCEL5EN32
       USE filenames
       IMPLICIT NONE   	  !Save workbook
@@ -250,7 +254,8 @@
 	  USE DFCOMTY
 	  USE DFAUTO
 	  USE ADOBJECTS
-	  USE EXCEL97A
+	  USE EXCEL11
+!	  USE EXCEL97A
 !	  USE EXCEL5EN32
       USE filenames
       IMPLICIT NONE   
@@ -305,7 +310,8 @@
 	  USE DFCOMTY
 	  USE DFAUTO
 	  USE ADOBJECTS
-	  USE EXCEL97A
+	  USE EXCEL11
+!	  USE EXCEL97A
 !	  USE EXCEL5EN32
       USE filenames
 	  USE excel_headings

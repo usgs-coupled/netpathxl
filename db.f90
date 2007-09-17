@@ -14,7 +14,7 @@ PROGRAM DBXL
   REAL Dbdata
   COMMON /DB    / Dbdata(50,45)
   INTEGER Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
-  COMMON /INT4  / Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls, &
+  COMMON /INT4DB/ Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls, &
        Totwell, Tot(50)
   CHARACTER Wllnms*80, Address*40, Lat*40, Formation*17
   COMMON /CHAR1 / Wllnms(50), Address(50,5), Lat(50), Formation(50)
@@ -149,7 +149,7 @@ SUBROUTINE PUTDATA(I)
   REAL Dbdata
   COMMON /DB    / Dbdata(50,45)
   INTEGER Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
-  COMMON /INT4  / Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
+  COMMON /INT4DB/ Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
        Totwell, Tot(50)
   CHARACTER Wllnms*80, Address*40, Lat*40, Formation*17
   COMMON /CHAR1 / Wllnms(50), Address(50,5), Lat(50), Formation(50)
@@ -310,7 +310,7 @@ SUBROUTINE RDDB2
   REAL Dbdata
   COMMON /DB    / Dbdata(50,45)
   INTEGER Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
-  COMMON /INT4  / Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
+  COMMON /INT4DB/ Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
        Totwell, Tot(50)
   CHARACTER Wllnms*80, Address*40, Lat*40, Formation*17
   COMMON /CHAR1 / Wllnms(50), Address(50,5), Lat(50), Formation(50)
@@ -409,7 +409,7 @@ SUBROUTINE RDDB214
   REAL Dbdata
   COMMON /DB    / Dbdata(50,45)
   INTEGER Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
-  COMMON /INT4  / Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
+  COMMON /INT4DB/ Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
        Totwell, Tot(50)
   CHARACTER Wllnms*80, Address*40, Lat*40, Formation*17
   COMMON /CHAR1 / Wllnms(50), Address(50,5), Lat(50), Formation(50)

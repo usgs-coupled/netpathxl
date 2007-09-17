@@ -5851,7 +5851,7 @@ SUBROUTINE WLLIST(II)
         GO TO 50
      END IF
   END IF
-30 IF (i.NE.Nwlls) THEN
+30 IF (i.LE.Nwlls) THEN
      !
      WRITE (*,9015) i, Wllnms(i)(5:36), i+1, Wllnms(i+1)(5:36)
      !

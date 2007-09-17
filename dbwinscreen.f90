@@ -2,7 +2,7 @@
 !
 !
 SUBROUTINE CLPART
-  USE DFLIB
+  USE IFQWIN
   implicit none
   !
   ! The screen is cleared from the cursor 3 lines down. Works for VT100
@@ -18,7 +18,7 @@ SUBROUTINE CLPART
 
   CALL GETTEXTPOSITION (textpos)
   !  Save text window position
-  CALL GETTEXTWINDOW (top, left, bottom, right)
+  CALL GETTEXTWINDOW(top, left, bottom, right)
   CALL SETTEXTWINDOW(textpos.row,textpos.col,textpos.row+int2(2),right)
 
   CALL clearscreen($GWINDOW)
@@ -31,7 +31,7 @@ END SUBROUTINE CLPART
 !
 !
 SUBROUTINE moverelative(i)
-  USE DFLIB
+  USE IFQWIN
   implicit none
   integer i
   !
@@ -56,7 +56,7 @@ END SUBROUTINE moverelative
 !
 !
 SUBROUTINE CLS
-  USE DFLIB
+  USE IFQWIN
   implicit none!
   ! The screen is cleared.  Works for VT100
   !
@@ -75,7 +75,7 @@ end SUBROUTINE CLS
 !
 !
 SUBROUTINE HOME
-  USE DFLIB
+  USE IFQWIN
   implicit none
   !
   ! The screen is cleared.  Works for VT100
@@ -129,7 +129,7 @@ END SUBROUTINE POSCUR
 !
 !
 SUBROUTINE POSCUR_DB
- USE DFLIB
+ USE IFQWIN
  implicit none
  !      CHARACTER*1 esc
  !      INTRINSIC CHAR
@@ -149,7 +149,7 @@ END SUBROUTINE POSCUR_DB
 
 
 subroutine configdb
- USE DFLIB
+ USE IFQWIN
  implicit none	
  !TYPE QWINFO
  !    INTEGER(2) TYPE  ! request type
@@ -172,7 +172,7 @@ subroutine configdb
  result =     SETWSIZEQQ(QWIN$FRAMEWINDOW, winfo)
  winfo%TYPE = QWIN$RESTORE
  result =     SETWSIZEQQ(QWIN$FRAMEWINDOW, winfo)
-
+ result =     SETEXITQQ(QWIN$EXITNOPERSIST)
  result = DISPLAYCURSOR ($GCURSORON)
  i1 = 1
  i2 = 1
@@ -220,6 +220,12 @@ SUBROUTINE WELLFILE_LON
  READ (*,'(a)') yn
  IF (yn.EQ.'1') then
     status = fileopen_db(root, path, "old_lon")
+    if (status == .false.) then
+		write(*,*) "File open failed."
+		write(*,*) "Press enter to continue."
+		READ (*,'(a)') yn
+		goto 10
+	endif 
 	CALL RDDB
 	CALL NewExcel
 	CALL DB2XL
@@ -229,6 +235,12 @@ SUBROUTINE WELLFILE_LON
 	CALL cleanup_com(.FALSE.)
  else if (yn .eq. '2') then
     status = fileopen_db(root, path, "old_xls")
+    if (status == .false.) then
+		write(*,*) "File open failed."
+		write(*,*) "Press enter to continue."
+		READ (*,'(a)') yn
+		goto 10
+	endif    
 	CALL OldExcel
 	result = CheckOldExcel()
 	if (result == .false.) then
@@ -249,6 +261,11 @@ SUBROUTINE WELLFILE_LON
 		CALL SaveExcel
 		CALL VisibleExcel(.TRUE.)
 		CALL cleanup_com(.FALSE.)
+	else
+		write(*,*) "File open failed."
+		write(*,*) "Press enter to continue."
+		READ (*,'(a)') yn
+		goto 10
 	endif
  else if (yn .eq. '4') then
     return

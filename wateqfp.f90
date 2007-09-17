@@ -10,7 +10,7 @@ SUBROUTINE RUNWATEQ(file)
   CHARACTER mfile(200)*40, UPCS80*80
   !
   INTEGER Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
-  COMMON /INT4  / Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
+  COMMON /INT4DB/ Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
        Totwell, Tot(50)
   INTEGER Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
   COMMON /FUNITS/ Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
@@ -135,7 +135,7 @@ SUBROUTINE CONVDATA(I,ERROR)
   REAL Dbdata
   COMMON /DB    / Dbdata(50,45)
   INTEGER Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
-  COMMON /INT4  / Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
+  COMMON /INT4DB/ Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
        Totwell, Tot(50)
   CHARACTER Wllnms*80, Address*40, Lat*40, Formation*17
   COMMON /CHAR1 / Wllnms(50), Address(50,5), Lat(50), Formation(50)
@@ -1217,7 +1217,7 @@ end subroutine CONVDATA
       INTEGER Dbsfg(50,45), Nwlls, Totwell, Tot(50), Idefault(5),  &
              Iu(50,4)
       COMMON /DB    / Dbdata
-      COMMON /INT4  / Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
+      COMMON /INT4DB/ Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
       INTEGER Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
       COMMON /FUNITS/ Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
       INTEGER Lexcept(20), Numexcept, Numreacs, Nreacspec(200),  &
@@ -1461,7 +1461,7 @@ end subroutine CONVDATA
       INTEGER Dbsfg(50,45), Nwlls, Totwell, Tot(50), Idefault(5),  &
              Iu(50,4)
       COMMON /DB    / Dbdata
-      COMMON /INT4  / Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
+      COMMON /INT4DB/ Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
       INTEGER Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
       COMMON /FUNITS/ Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
       INTEGER Lexcept(20), Numexcept, Numreacs, Nreacspec(200),  &

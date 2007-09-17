@@ -31,29 +31,18 @@
   !         CD-ROM for this sample to work correctly.
   !
 
-    Subroutine NewExcel
+	Subroutine NewExcel
 
-	  USE IFWINTY
-	  USE IFAUTO
 	  USE IFCOM
-	  !USE IFLIB
-	  !USE IFWIN
-	  !USE IFCOM
-	  !USE IFCOMTY
-	  !USE IFAUTO
 	  USE ADOBJECTS
-	  USE EXCEL11
-!	  USE EXCEL97A
-!	  USE EXCEL5EN32
-      USE filenames
 	  USE excel_headings
-      IMPLICIT NONE   
+	  
+	  IMPLICIT NONE   
 	  integer lens
 	  external lens                 
-!	  CHARACTER*256 string
 
 	! Variables
-	  INTEGER*4 status, lcid
+	  INTEGER*4 status
 	  TYPE (VARIANT) :: template
 	  INTEGER*4 loopCount
 	  INTEGER*4 die1
@@ -63,7 +52,7 @@
 	  CHARACTER (LEN = 32) :: loopc
 	  INTEGER*4   i
 	  LOGICAL*2 l
-      REAL*4    rnd
+	  REAL*4    rnd
 	  INTEGER*2, DIMENSION(1:12) :: cellCounts
 	  integer*4 excelapp1
 
@@ -85,15 +74,12 @@
 	  CALL COMINITIALIZE(status)
 	  CALL COMCreateObjectByProgID("Excel.Application", excelapp, status)
 !      CALL COMCREATEOBJECT ("Excel.Application", excelapp, status)
- 	  IF (excelapp == 0) THEN
+	  IF (excelapp == 0) THEN
 		  WRITE (*, '(" Unable to create Excel object; Aborting")')
 		  CALL EXIT()
 	  END IF
 	  l = .FALSE.
-      CALL $Application_SetVisible(excelapp, l)
-!     lcid = 1033
-!     l = .FALSE.
-!     status = $Application_SetVisible(excelapp, lcid, l)
+	  CALL $Application_SetVisible(excelapp, l)
 
 	! Here is a sketch of the code below in pseudocode...
 	!
@@ -109,22 +95,20 @@
 	!   valueAxis.MaximumScale(loopcount/5)
 
 	! Get the WORKBOOKS object
-!	  workbooks = $Application_GetWorkbooks(excelapp, $STATUS = status)
- 	  workbooks = $Application_GetWorkbooks(excelapp, status)
+	  workbooks = $Application_GetWorkbooks(excelapp, status)
 	  CALL Check_Status(status, " Unable to get WORKBOOKS object")
 
 	! Open the specified spreadsheet file (note: specify the full file path)
 	!  workbook = Workbooks_Open(workbooks, &
-    !    "C:\PROGRAM FILES\MICROSOFT VISUAL STUDIO\DF98\SAMPLES\ADVANCED\COM\AUTODICE\HISTO.XLS", &
-    !    $STATUS = status)
+	!    "C:\PROGRAM FILES\MICROSOFT VISUAL STUDIO\DF98\SAMPLES\ADVANCED\COM\AUTODICE\HISTO.XLS", &
+	!    $STATUS = status)
 	  workbook = Workbooks_Add(workbooks,$STATUS = status )
-!      workbook = Workbooks_Add(workbooks, template, lcid, status )
 	  CALL Check_Status(status, " Unable to get WORKBOOK object; ensure that the file path is correct")
  
 	! Get the worksheet
 	  vInt%VT = VT_I4
 	  vInt%VU%LONG_VAL = 1
-      worksheet = $Workbook_GetActiveSheet(workbook, status)
+	  worksheet = $Workbook_GetActiveSheet(workbook, status)
 	  CALL Check_Status(status, " Unable to get WORKSHEET object")
 
 	! Set header character strings
@@ -141,20 +125,19 @@
 	  ! Initialize well numbers
 	  DO i=1,2
 		write(cell_location,'("a",i1)') i+7
-	  	call setcell_integer(cell_location, i)
+		call setcell_integer(cell_location, i)
 	  END DO
 	  DO i=3,50
 		write(cell_location,'("a",i2)') i+7
-	  	call setcell_integer(cell_location, i)
+		call setcell_integer(cell_location, i)
 	  END DO
 
-      ! set width for well name
+	  ! set width for well name
 	  call set_range('b1','b1')
 	  CALL VariantInit(vBSTR1)
 	  vBSTR1%VT = VT_R4
 	  vBSTR1%VU%FLOAT_VAL = 30.
 	  call range_setcolumnwidth(range, vBSTR1, status)
-!      status = irange_setcolumnwidth(range, vBSTR1)
 	  CALL Check_Status(status, " Unable to set column width")
 	  status = VariantClear(vBSTR1)
 	  bstr1 = 0
@@ -165,18 +148,16 @@
 	  vBSTR1%VT = VT_R4
 	  vBSTR1%VU%FLOAT_VAL = 4.29
 	  call range_setcolumnwidth(range, vBSTR1, status)
-!      status = irange_setcolumnwidth(range, vBSTR1)
 	  CALL Check_Status(status, " Unable to set column width")
 	  status = VariantClear(vBSTR1)
 	  bstr1 = 0
 
-	       ! set width for well name
+		   ! set width for well name
 	  call set_range('be7','bi7')
 	  CALL VariantInit(vBSTR1)
 	  vBSTR1%VT = VT_R4
 	  vBSTR1%VU%FLOAT_VAL = 20.
 	  call range_setcolumnwidth(range, vBSTR1, status)
-!      status = irange_setcolumnwidth(range, vBSTR1)
 	  CALL Check_Status(status, " Unable to set column width")
 	  status = VariantClear(vBSTR1)
 	  bstr1 = 0
@@ -184,27 +165,22 @@
 	  ! set wrap and center on row 7
 	  call set_range('a7','bg7')
 	  call set_variant_bool(vARG1, .true.)
-      call range_SetWrapText(range, vARG1, status)
-!      status = irange_SetWrapText(range, vARG1)
+	  call range_SetWrapText(range, vARG1, status)
 	  call set_variant_int(vARG1, -4108)
-     call range_SetHorizontalAlignment(range, vARG1, status)
-!      status = irange_SetHorizontalAlignment(range, vARG1)
+	  call range_SetHorizontalAlignment(range, vARG1, status)
 	  CALL Check_Status(status, " Unable to set horizontal alignment")
 
 	  ! Set default protection false
 	  range = $worksheet_getcells(worksheet, status)
-      CALL Check_Status(status, " Unable to set range to all cells")
-      call set_variant_bool(vARG1, .false.)
+	  CALL Check_Status(status, " Unable to set range to all cells")
+	  call set_variant_bool(vARG1, .false.)
 	  call range_setlocked(range, vARG1, status)
-!	  status = irange_setlocked(range, vARG1)
 	  !Set protection on Headers
 	  call set_range('a1','au7')
 	  call set_variant_bool(vARG1, .true.)
 	  call range_setlocked(range, vARG1, status)
-!      status = irange_setlocked(range, vARG1)
-
  
- 	  !Set protection on worksheet
+	  !Set protection on worksheet
 	  !call $worksheet_protect(worksheet)
 
 	  !Save workbook
@@ -231,34 +207,25 @@
 	!  CALL RELEASEOBJECTS()
 	!  CALL COMUNINITIALIZE()
 
-    END subroutine NewExcel
+	END subroutine NewExcel
 !
 !
 !
-    Subroutine SaveExcel
+	Subroutine SaveExcel
 
-!	  USE IFLIB
-	  USE IFWIN
-	  USE IFCOM
-	  USE IFCOMTY
-	  USE IFAUTO
 	  USE ADOBJECTS
-	  USE EXCEL11
-!	  USE EXCEL97A
-!	  USE EXCEL5EN32
-      USE filenames
-      IMPLICIT NONE   	  !Save workbook
+	  USE filenames
+	  
+	  IMPLICIT NONE   	  !Save workbook
 	  CHARACTER*256 string
 	  integer lens
-	  integer*4 status, lcid
+	  integer*4 status
 	  external lens   
 	  
 	  string = path(1:lens(path)) // '\' // root(1:lens(root)) // '.xls'
 	  call set_variant_char(vARG1, string)
 	  call set_variant_char(vARG2, '')
 	  call $workbook_saveas(workbook, vARG1)
-!      lcid = 1033
-!      status = $workbook_saveas(workbook, vARG1, vARG2,  vARG2, vARG2, vARG2, vARG2, 0, vARG2, vARG2, vARG2, vARG2, vARG2, lcid)
 	  CALL Check_Status(status, " Unable to save workbook")!
 	return
 	end subroutine SaveExcel
@@ -267,23 +234,16 @@
 !
 Subroutine OldExcel
 
-	!USE IFLIB
-	!USE IFWIN
-	!USE IFCOM
-	!USE IFCOMTY
-	!USE IFAUTO
 	USE ADOBJECTS
-	USE EXCEL11
-!	USE EXCEL97A
-!	  USE EXCEL5EN32
 	use filenames
+	
 	IMPLICIT NONE   
 	  integer lens
 	  external lens                 
 	  CHARACTER*256 string
 
 	! Variables
-	  INTEGER*4 status, lcid
+	  INTEGER*4 status
 	  logical*2 l
 	  TYPE (VARIANT) :: vInt
 
@@ -295,59 +255,43 @@ Subroutine OldExcel
 	  CALL COMINITIALIZE(status)
 	  CALL COMCreateObjectByProgID("Excel.Application", excelapp, status)
 !      CALL COMCREATEOBJECT ("Excel.Application", excelapp, status)
- 	  IF (excelapp == 0) THEN
+	  IF (excelapp == 0) THEN
 		  WRITE (*, '(" Unable to create Excel object; Aborting")')
 		  CALL EXIT()
 	  END IF
 	  CALL Check_Status(status, " Unable to create Excel application")
 	  
-      l = .FALSE.
-      CALL $Application_SetVisible(excelapp, l)
+	  l = .FALSE.
+	  CALL $Application_SetVisible(excelapp, l)
 
-!      lcid = 1033
-!      status = $Application_SetVisible(excelapp, lcid, l)
 	! Get the WORKBOOKS object
-!	  workbooks = $Application_GetWorkbooks(excelapp, $STATUS = status)
 	  workbooks = $Application_GetWorkbooks(excelapp, status)
 	  CALL Check_Status(status, " Unable to get WORKBOOKS object")
 
 	! Open the specified spreadsheet file (note: specify the full file path)
 	filename = path(1:lens(path)) // '\' // root(1:lens(root)) // '.xls'
 	workbook = Workbooks_Open(workbooks, &
-        filename, &
-        $STATUS = status)
-!    bstr1 = ConvertStringToBSTR(filename) 
-!    call set_variant_char(vARG2, '')
-!	workbook = Workbooks_Open(workbooks, bstr1, vARG2, vARG2, vARG2, vARG2, &
-!	    vARG2, vARG2, vARG2, vARG2, vARG2, vARG2, vARG2, vARG2, vARG2, vARG2, &
-!	    lcid, status )
-!	  workbook = Workbooks_Add(workbooks,$STATUS = status )
+		filename, &
+		$STATUS = status)
+
 	  CALL Check_Status(status, " Unable to get WORKBOOK object; ensure that the file path is correct")
  
 	! Get the worksheet
 	  vInt%VT = VT_I4
 	  vInt%VU%LONG_VAL = 1
-      worksheet = $Workbook_GetActiveSheet(workbook, status)
+	  worksheet = $Workbook_GetActiveSheet(workbook, status)
 	  CALL Check_Status(status, " Unable to get WORKSHEET object")
 
-    END subroutine OldExcel
+	END subroutine OldExcel
 !
 !
 !
-    logical function CheckOldExcel
+	logical function CheckOldExcel
 
-!	  USE IFLIB
-	  USE IFWIN
-	  USE IFCOM
-	  USE IFCOMTY
-	  USE IFAUTO
 	  USE ADOBJECTS
-	  USE EXCEL11
-!	  USE EXCEL97A
-!	  USE EXCEL5EN32
-      USE filenames
 	  USE excel_headings
-      IMPLICIT NONE   
+	  
+	  IMPLICIT NONE   
 	  integer lens
 	  external lens                 
 	  CHARACTER*256 string
@@ -361,7 +305,7 @@ Subroutine OldExcel
 	  INTEGER*4 maxScale
 	  logical npxlfile
 	  INTEGER*4   i
-      REAL*4    rnd
+	  REAL*4    rnd
 	  INTEGER*2, DIMENSION(1:12) :: cellCounts
 	  integer*4 excelapp1
 	
@@ -385,7 +329,6 @@ Subroutine OldExcel
 		call set_range(headings(1,1),headings(1,1))
 		status = AUTOGETPROPERTY (range, "VALUE", string)
 		CALL Check_Status(status, "Read cell")
-		!if (string(1:lens(string)) .ne. headings(2,1)(1:lens(headings(2,1)))) then
 		if (string .ne. headings(2,1)) then
 			npxlfile = .false.
 			exit
@@ -407,62 +350,45 @@ Subroutine OldExcel
 	  enddo
 
 	CheckOldExcel = npxlfile
-    if (npxlfile) then
+	if (npxlfile) then
 !		CALL $Application_SetVisible(excelapp, .TRUE.)
 	else
 		CALL $Application_quit(excelapp, status)
-!        status = $Application_quit(excelapp)
 		CALL Check_Status(status, "Quit Excel on incorrect file.")
 	endif
-    END function CheckOldExcel
+	END function CheckOldExcel
 !
 !
 !
-    subroutine VisibleExcel(switch) 
-!	  USE IFLIB
-	  USE IFWIN
-	  USE IFCOM
-	  USE IFCOMTY
-	  USE IFAUTO
+	subroutine VisibleExcel(switch) 
 	  USE ADOBJECTS
-	  USE EXCEL11
-!	  USE EXCEL97A
-!	  USE EXCEL5EN32
 
-      IMPLICIT NONE   
-          
+	  IMPLICIT NONE   
+		  
 	  CHARACTER*256 string
 
 	! Variables
 	  logical switch
-	  integer*4 status, lcid
+	  integer*4 status
 	  logical*2 l
 	  
 	  l = switch
 
 	CALL $Application_SetVisible(excelapp, l)
-!    l = status
-!    lcid = 1033
-!    status = $Application_SetVisible(excelapp, lcid, l)
-    END subroutine VisibleExcel 
+
+	END subroutine VisibleExcel 
 !
 !
 !
 SUBROUTINE cleanup_com(terminate)
-!	USE IFLIB
-	USE IFWIN
-	USE IFCOM
-	USE IFCOMTY
-	USE IFAUTO
+
 	USE ADOBJECTS
-	USE EXCEL11
-!	USE EXCEL97A
+
 	INTEGER*4 status
 	logical terminate
 
 	if (terminate) then
 		CALL $Application_Quit(excelapp, status)
-!        status = $Application_Quit(excelapp)
 		CALL Check_Status(status, "Quit Excel failed.")
 	endif
 	! Release all objects
@@ -473,7 +399,7 @@ END subroutine cleanup_com
 
 	SUBROUTINE Check_Status(olestatus, errorMsg)
 	  USE ADOBJECTS
-      IMPLICIT NONE                       
+	  IMPLICIT NONE                       
 
 	  INTEGER*4 olestatus
 	  CHARACTER (LEN = *) :: errorMsg
@@ -488,7 +414,7 @@ END subroutine cleanup_com
 	  CALL SLEEPQQ(5000)
 	  CALL EXIT(-1)
 
-    END SUBROUTINE
+	END SUBROUTINE
 	!
 !
 !
@@ -507,8 +433,8 @@ SUBROUTINE DB2XL
   REAL Dbdata
   COMMON /DB    / Dbdata(50,45)
   INTEGER Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
-  COMMON /INT4  / Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
-       Totwell, Tot(50)
+  COMMON /INT4DB/ Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
+	   Totwell, Tot(50)
   CHARACTER Wllnms*80, Address*40, Lat*40, Formation*17
   COMMON /CHAR1 / Wllnms(50), Address(50,5), Lat(50), Formation(50)
   INTEGER Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
@@ -519,21 +445,21 @@ SUBROUTINE DB2XL
   INTRINSIC CHAR, ICHAR
   !
   DATA words/'Temperature     ', 'pH              ',  &
-       'Dissolved Oxygen', 'Alkalinity      ', 'Tritium         ',  &
-       'H2S as S        ', 'Calcium         ', 'Eh              ',  &
-       'Magnesium       ', 'Sodium          ', 'Potassium       ',  &
-       'Chloride        ', 'Sulfate         ', 'Fluoride        ',  &
-       'Silica          ', 'Bromide         ', 'Boron           ',  &
-       'Barium          ', 'Lithium         ', 'Strontium       ',  &
-       'Iron            ', 'Manganese       ', 'Nitrate         ',  &
-       'Ammonium        ', 'Phosphate       ', 'DOC             ',  &
-       'Sp. Cond.       ', 'Density         ', 'Delta C-13 TDIC ',  &
-       'Carbon 14 TDIC  ', 'Delta S-34 (SO4)', 'Delta S-34 (H2S)',  &
-       'Delta Deuterium ', 'Delta O-18      ', 'CH4 (aq)        ',  &
-       'Sr 87/86        ', 'Aluminum        ', 'N2 (aq)         ',  &
-       'N-15 of N2 (aq) ', 'N-15 of Nitrate ', 'N-15 of Ammonium',  &
-       'Depth           ', 'Casing          ', 'Elevation       ',  &
-       'RS of DOC       '/
+	   'Dissolved Oxygen', 'Alkalinity      ', 'Tritium         ',  &
+	   'H2S as S        ', 'Calcium         ', 'Eh              ',  &
+	   'Magnesium       ', 'Sodium          ', 'Potassium       ',  &
+	   'Chloride        ', 'Sulfate         ', 'Fluoride        ',  &
+	   'Silica          ', 'Bromide         ', 'Boron           ',  &
+	   'Barium          ', 'Lithium         ', 'Strontium       ',  &
+	   'Iron            ', 'Manganese       ', 'Nitrate         ',  &
+	   'Ammonium        ', 'Phosphate       ', 'DOC             ',  &
+	   'Sp. Cond.       ', 'Density         ', 'Delta C-13 TDIC ',  &
+	   'Carbon 14 TDIC  ', 'Delta S-34 (SO4)', 'Delta S-34 (H2S)',  &
+	   'Delta Deuterium ', 'Delta O-18      ', 'CH4 (aq)        ',  &
+	   'Sr 87/86        ', 'Aluminum        ', 'N2 (aq)         ',  &
+	   'N-15 of N2 (aq) ', 'N-15 of Nitrate ', 'N-15 of Ammonium',  &
+	   'Depth           ', 'Casing          ', 'Elevation       ',  &
+	   'RS of DOC       '/
   character*2 location(45)
   data location/' G', ' H', &
 		'AD', ' P', 'AO', &
@@ -569,35 +495,35 @@ SUBROUTINE DB2XL
 	if (char_linenum(1:1) == ' ') then
 		char_linenum = char_linenum(2:2)
 	endif
-     !   write(cell_location,'("a",i1)') i+7
-     !       Wellnms
-     ! WRITE (Iw1,9005,ERR=50) Iu(n,1), Iu(n,2), Iu(n,3), Iu(n,4),  &
-     !     Wllnms(n)(5:80)
+	 !   write(cell_location,'("a",i1)') i+7
+	 !       Wellnms
+	 ! WRITE (Iw1,9005,ERR=50) Iu(n,1), Iu(n,2), Iu(n,3), Iu(n,4),  &
+	 !     Wllnms(n)(5:80)
 !9005 FORMAT (4(I1),A76)
-     cell_location = "B" // char_linenum
+	 cell_location = "B" // char_linenum
 	 call setcell_character(cell_location, wllnms(n)(5:80))
-     cell_location = "C" // char_linenum
+	 cell_location = "C" // char_linenum
 	 call setcell_integer(cell_location, iu(n,1))
-     cell_location = "D" // char_linenum
+	 cell_location = "D" // char_linenum
 	 call setcell_integer(cell_location, iu(n,2))
-     cell_location = "E" // char_linenum
+	 cell_location = "E" // char_linenum
 	 call setcell_integer(cell_location, iu(n,3))
-     cell_location = "F" // char_linenum
+	 cell_location = "F" // char_linenum
 	 call setcell_integer(cell_location, iu(n,4))
-     !       Lat/lon
-     !WRITE (Iw1,'(a40,T60,"# Lat/lon")') Lat(n)
+	 !       Lat/lon
+	 !WRITE (Iw1,'(a40,T60,"# Lat/lon")') Lat(n)
 	 cell_location = "AZ" // char_linenum
 	 call setcell_character(cell_location, lat(n))
-     !       Well num
-     !WRITE (Iw1,'(I15,T60,"# Well number")') Tot(n)
-     cell_location = "A" // char_linenum
+	 !       Well num
+	 !WRITE (Iw1,'(I15,T60,"# Well number")') Tot(n)
+	 cell_location = "A" // char_linenum
 	 call setcell_integer(cell_location, tot(n))
-     !       Total number of wells
-     !WRITE (Iw1,'(I15,T60,"# Total wells")') Totwell
-     !DO i = 1, 5
-        !       Address
-        !WRITE (Iw1,'(A,T60,"# Address",I1)') Address(n,i), i
-     !enddo		
+	 !       Total number of wells
+	 !WRITE (Iw1,'(I15,T60,"# Total wells")') Totwell
+	 !DO i = 1, 5
+		!       Address
+		!WRITE (Iw1,'(A,T60,"# Address",I1)') Address(n,i), i
+	 !enddo		
 	 cell_location = "BE" // char_linenum
 	 call setcell_character(cell_location, address(n,1))
 	 cell_location = "BF" // char_linenum
@@ -608,23 +534,23 @@ SUBROUTINE DB2XL
 	 call setcell_character(cell_location, address(n,4))
 	 cell_location = "BI" // char_linenum
 	 call setcell_character(cell_location, address(n,5))
-     jcounter = 41
-     !do j = 1, jcounter 
-     !   IF (Dbsfg(n,j).GE.0) THEN
-     !      frmt = '(F15.'//CHAR(ICHAR('0')+Dbsfg(n,j))// &
-     !           ',T60,"# ",A)'
-     !      WRITE(Iw1,frmt) Dbdata(n,j), words(j)
-     !   ELSE IF (Dbsfg(n,j).EQ.-2) THEN
-     !      WRITE(Iw1,'("<",F14.3,T60,"# ",A)') Dbdata(n,j), words(j)
-     !   ELSE
-     !      WRITE(Iw1,'("               ",T60,"# ",A)') words(j)
-     !   END IF
-     !enddo     ! 1 well
+	 jcounter = 41
+	 !do j = 1, jcounter 
+	 !   IF (Dbsfg(n,j).GE.0) THEN
+	 !      frmt = '(F15.'//CHAR(ICHAR('0')+Dbsfg(n,j))// &
+	 !           ',T60,"# ",A)'
+	 !      WRITE(Iw1,frmt) Dbdata(n,j), words(j)
+	 !   ELSE IF (Dbsfg(n,j).EQ.-2) THEN
+	 !      WRITE(Iw1,'("<",F14.3,T60,"# ",A)') Dbdata(n,j), words(j)
+	 !   ELSE
+	 !      WRITE(Iw1,'("               ",T60,"# ",A)') words(j)
+	 !   END IF
+	 !enddo     ! 1 well
 	 do j = 1, 45
 		cell_location = location(j) // char_linenum
 		call setcell_float(cell_location, dbdata(n,j))
 	 enddo
-     !WRITE (Iw1,'(A,T60,"# Formation")') Formation(n)
+	 !WRITE (Iw1,'(A,T60,"# Formation")') Formation(n)
 	 linenum = linenum + 1
   enddo       ! all wells
  ! close (Iw1)
@@ -639,10 +565,10 @@ SUBROUTINE DB2XL
   call moverelative(-2)
   call clpart 
   IF (UPCS(ans).EQ.'Y') THEN
-     CLOSE (Iw1, STATUS='DELETE')
-     GOTO 70
+	 CLOSE (Iw1, STATUS='DELETE')
+	 GOTO 70
   ELSE IF (UPCS(ans).NE.'N') THEN
-     GOTO 80
+	 GOTO 80
   END IF
   !
   RETURN
@@ -651,22 +577,15 @@ SUBROUTINE DB2XL
 9015 FORMAT ('<',F9.3)
 9020 FORMAT (A17)
 9030 FORMAT ('WARNING: Error writing to file: ',A40/ &
-       'File may be write protected.'/)
+	   'File may be write protected.'/)
 9040 FORMAT ('Do you want to OVERWRITE the file (y or n)?')
 END SUBROUTINE db2xl
 !
 !
 !
 SUBROUTINE XL2DB
-!	USE IFLIB
-	USE IFWIN
-	USE IFCOM
-	USE IFCOMTY
-	USE IFAUTO
+
 	USE ADOBJECTS
-	USE EXCEL11
-!	USE EXCEL97A
-	use filenames
 
 	IMPLICIT NONE
 	INTEGER*4 status
@@ -682,8 +601,8 @@ SUBROUTINE XL2DB
   REAL Dbdata
   COMMON /DB    / Dbdata(50,45)
   INTEGER Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
-  COMMON /INT4  / Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
-       Totwell, Tot(50)
+  COMMON /INT4DB/ Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
+	   Totwell, Tot(50)
   CHARACTER Wllnms*80, Address*40, Lat*40, Formation*17
   COMMON /CHAR1 / Wllnms(50), Address(50,5), Lat(50), Formation(50)
   INTEGER Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
@@ -694,21 +613,21 @@ SUBROUTINE XL2DB
   INTRINSIC CHAR, ICHAR
   !
   DATA words/'Temperature     ', 'pH              ',  &
-       'Dissolved Oxygen', 'Alkalinity      ', 'Tritium         ',  &
-       'H2S as S        ', 'Calcium         ', 'Eh              ',  &
-       'Magnesium       ', 'Sodium          ', 'Potassium       ',  &
-       'Chloride        ', 'Sulfate         ', 'Fluoride        ',  &
-       'Silica          ', 'Bromide         ', 'Boron           ',  &
-       'Barium          ', 'Lithium         ', 'Strontium       ',  &
-       'Iron            ', 'Manganese       ', 'Nitrate         ',  &
-       'Ammonium        ', 'Phosphate       ', 'DOC             ',  &
-       'Sp. Cond.       ', 'Density         ', 'Delta C-13 TDIC ',  &
-       'Carbon 14 TDIC  ', 'Delta S-34 (SO4)', 'Delta S-34 (H2S)',  &
-       'Delta Deuterium ', 'Delta O-18      ', 'CH4 (aq)        ',  &
-       'Sr 87/86        ', 'Aluminum        ', 'N2 (aq)         ',  &
-       'N-15 of N2 (aq) ', 'N-15 of Nitrate ', 'N-15 of Ammonium',  &
-       'Depth           ', 'Casing          ', 'Elevation       ',  &
-       'RS of DOC       '/
+	   'Dissolved Oxygen', 'Alkalinity      ', 'Tritium         ',  &
+	   'H2S as S        ', 'Calcium         ', 'Eh              ',  &
+	   'Magnesium       ', 'Sodium          ', 'Potassium       ',  &
+	   'Chloride        ', 'Sulfate         ', 'Fluoride        ',  &
+	   'Silica          ', 'Bromide         ', 'Boron           ',  &
+	   'Barium          ', 'Lithium         ', 'Strontium       ',  &
+	   'Iron            ', 'Manganese       ', 'Nitrate         ',  &
+	   'Ammonium        ', 'Phosphate       ', 'DOC             ',  &
+	   'Sp. Cond.       ', 'Density         ', 'Delta C-13 TDIC ',  &
+	   'Carbon 14 TDIC  ', 'Delta S-34 (SO4)', 'Delta S-34 (H2S)',  &
+	   'Delta Deuterium ', 'Delta O-18      ', 'CH4 (aq)        ',  &
+	   'Sr 87/86        ', 'Aluminum        ', 'N2 (aq)         ',  &
+	   'N-15 of N2 (aq) ', 'N-15 of Nitrate ', 'N-15 of Ammonium',  &
+	   'Depth           ', 'Casing          ', 'Elevation       ',  &
+	   'RS of DOC       '/
   character*2 location(45)
   character*100 stringx
   data location/' G', ' H', &
@@ -747,10 +666,10 @@ SUBROUTINE XL2DB
 	if (char_linenum(1:1) == ' ') then
 		char_linenum = char_linenum(2:2)
 	endif
-     !   write(cell_location,'("a",i1)') i+7
-     !       Wellnms
-     ! WRITE (Iw1,9005,ERR=50) Iu(n,1), Iu(n,2), Iu(n,3), Iu(n,4),  &
-     !     Wllnms(n)(5:80)
+	 !   write(cell_location,'("a",i1)') i+7
+	 !       Wellnms
+	 ! WRITE (Iw1,9005,ERR=50) Iu(n,1), Iu(n,2), Iu(n,3), Iu(n,4),  &
+	 !     Wllnms(n)(5:80)
 !9005 FORMAT (4(I1),A76)
 	cell_location = "B" // char_linenum
 	call set_range(cell_location, cell_location)
@@ -759,46 +678,42 @@ SUBROUTINE XL2DB
 	! read number
 	wllnms(n)(5:80) = string
 
-    cell_location = "C" // char_linenum
-!	 call setcell_integer(cell_location, iu(n,1))
+	cell_location = "C" // char_linenum
 	call set_range(cell_location, cell_location)
 	status = AUTOGETPROPERTY (range, "VALUE", iu(n,1))
 
-    cell_location = "D" // char_linenum
-!	 call setcell_integer(cell_location, iu(n,2))
+	cell_location = "D" // char_linenum
 	call set_range(cell_location, cell_location)
 	status = AUTOGETPROPERTY (range, "VALUE", iu(n,2))
 
-    cell_location = "E" // char_linenum
-!	 call setcell_integer(cell_location, iu(n,3))
+	cell_location = "E" // char_linenum
 	call set_range(cell_location, cell_location)
 	status = AUTOGETPROPERTY (range, "VALUE", iu(n,3))
 
-     cell_location = "F" // char_linenum
-!	 call setcell_integer(cell_location, iu(n,4))
+	 cell_location = "F" // char_linenum
 	call set_range(cell_location, cell_location)
 	status = AUTOGETPROPERTY (range, "VALUE", iu(n,4))
 
-     !       Lat/lon
-     !WRITE (Iw1,'(a40,T60,"# Lat/lon")') Lat(n)
+	 !       Lat/lon
+	 !WRITE (Iw1,'(a40,T60,"# Lat/lon")') Lat(n)
 	 cell_location = "AZ" // char_linenum
 !	 call setcell_character(cell_location, lat(n))
 	call set_range(cell_location, cell_location)
 	status = AUTOGETPROPERTY (range, "VALUE", lat(n))
 
-     !       Well num
-     !WRITE (Iw1,'(I15,T60,"# Well number")') Tot(n)
-    cell_location = "A" // char_linenum
+	 !       Well num
+	 !WRITE (Iw1,'(I15,T60,"# Well number")') Tot(n)
+	cell_location = "A" // char_linenum
 !	 call setcell_integer(cell_location, tot(n))
 	call set_range(cell_location, cell_location)
 	status = AUTOGETPROPERTY (range, "VALUE", tot(n))
 
-     !       Total number of wells
-     !WRITE (Iw1,'(I15,T60,"# Total wells")') Totwell
-     !DO i = 1, 5
-        !       Address
-        !WRITE (Iw1,'(A,T60,"# Address",I1)') Address(n,i), i
-     !enddo		
+	 !       Total number of wells
+	 !WRITE (Iw1,'(I15,T60,"# Total wells")') Totwell
+	 !DO i = 1, 5
+		!       Address
+		!WRITE (Iw1,'(A,T60,"# Address",I1)') Address(n,i), i
+	 !enddo		
 	cell_location = "BE" // char_linenum
 !	 call setcell_character(cell_location, address(n,1))
 	call set_range(cell_location, cell_location)
@@ -824,32 +739,32 @@ SUBROUTINE XL2DB
 	call set_range(cell_location, cell_location)
 	status = AUTOGETPROPERTY (range, "VALUE", address(n,5))
 
-     jcounter = 41
-     !do j = 1, jcounter 
-     !   IF (Dbsfg(n,j).GE.0) THEN
-     !      frmt = '(F15.'//CHAR(ICHAR('0')+Dbsfg(n,j))// &
-     !           ',T60,"# ",A)'
-     !      WRITE(Iw1,frmt) Dbdata(n,j), words(j)
-     !   ELSE IF (Dbsfg(n,j).EQ.-2) THEN
-     !      WRITE(Iw1,'("<",F14.3,T60,"# ",A)') Dbdata(n,j), words(j)
-     !   ELSE
-     !      WRITE(Iw1,'("               ",T60,"# ",A)') words(j)
-     !   END IF
-     !enddo     ! 1 well
+	 jcounter = 41
+	 !do j = 1, jcounter 
+	 !   IF (Dbsfg(n,j).GE.0) THEN
+	 !      frmt = '(F15.'//CHAR(ICHAR('0')+Dbsfg(n,j))// &
+	 !           ',T60,"# ",A)'
+	 !      WRITE(Iw1,frmt) Dbdata(n,j), words(j)
+	 !   ELSE IF (Dbsfg(n,j).EQ.-2) THEN
+	 !      WRITE(Iw1,'("<",F14.3,T60,"# ",A)') Dbdata(n,j), words(j)
+	 !   ELSE
+	 !      WRITE(Iw1,'("               ",T60,"# ",A)') words(j)
+	 !   END IF
+	 !enddo     ! 1 well
 	 do j = 1, 45
 		cell_location = location(j) // char_linenum
 !		call setcell_float(cell_location, dbdata(n,j))
 		call set_range(cell_location, cell_location)
-	    status = AUTOGETPROPERTY (range, "VALUE", stringx)
+		status = AUTOGETPROPERTY (range, "VALUE", stringx)
 
 		status = AUTOGETPROPERTY (range, "VALUE", dbdata(n,j))
 		if (stringx .eq. " ") then
-		    dbsfg(n,j) = -1
+			dbsfg(n,j) = -1
 		else
-            dbsfg(n,j) = 0
+			dbsfg(n,j) = 0
 		endif		
 	 enddo
-     !WRITE (Iw1,'(A,T60,"# Formation")') Formation(n)
+	 !WRITE (Iw1,'(A,T60,"# Formation")') Formation(n)
 	 !linenum = linenum + 1
 	 n = n+1
   enddo       ! all wells
@@ -866,10 +781,10 @@ SUBROUTINE XL2DB
   call moverelative(-2)
   call clpart 
   IF (UPCS(ans).EQ.'Y') THEN
-     CLOSE (Iw1, STATUS='DELETE')
-     GOTO 70
+	 CLOSE (Iw1, STATUS='DELETE')
+	 GOTO 70
   ELSE IF (UPCS(ans).NE.'N') THEN
-     GOTO 80
+	 GOTO 80
   END IF
   !
   RETURN
@@ -878,7 +793,7 @@ SUBROUTINE XL2DB
 9015 FORMAT ('<',F9.3)
 9020 FORMAT (A17)
 9030 FORMAT ('WARNING: Error writing to file: ',A40/ &
-       'File may be write protected.'/)
+	   'File may be write protected.'/)
 9040 FORMAT ('Do you want to OVERWRITE the file (y or n)?')
 END SUBROUTINE xl2db
 !
@@ -886,16 +801,8 @@ END SUBROUTINE xl2db
 !
 subroutine doCreate(string)
 
-
-!	  USE IFLIB
 	  USE IFWIN
-	  USE IFCOM
-	  USE IFCOMTY
-	  USE IFAUTO
 	  USE ADOBJECTS
-	  USE EXCEL11
-!	  USE EXCEL97A
-!	  use procinc
 
 character*(*) string
 
@@ -943,18 +850,16 @@ buffer = string
 buffer(lens(buffer) + 1: lens(buffer) + 2) = szFileTitle(1:2)
 l = 0
 bret = CreateProcess (                              &
-                     NULL_CHARACTER,                &
-                     buffer,        &
-                     NULL_SECURITY_ATTRIBUTES,      &
-                     NULL_SECURITY_ATTRIBUTES,      &
-                     l,                       &
-                     DETACHED_PROCESS,              &
-                     NULL,                          &
-                     NULL_CHARACTER,                &
+					 NULL_CHARACTER,                &
+					 buffer,        &
+					 NULL_SECURITY_ATTRIBUTES,      &
+					 NULL_SECURITY_ATTRIBUTES,      &
+					 l,                       &
+					 DETACHED_PROCESS,              &
+					 NULL,                          &
+					 NULL_CHARACTER,                &
 					 sui, &
 					 pi)
- !                    sui,                           &
- !                    pi)
 
 return
 

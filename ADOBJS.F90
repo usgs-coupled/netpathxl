@@ -20,8 +20,7 @@
 
   ! Object Pointers
 
-	  !INTEGER*4 excelapp
-      INTEGER(INT_PTR_KIND()) :: excelapp	 ! Object Pointer	  
+	  INTEGER*4 excelapp
 	  INTEGER*4 workbooks
 	  INTEGER*4 workbook
 	  INTEGER*4 worksheets
@@ -44,9 +43,6 @@
 	CONTAINS
 
 	  SUBROUTINE INITOBJECTS()
-	
-		  USE IFCOM
-	
 		  INTEGER i;
 
 		  excelapp = 0
@@ -99,14 +95,6 @@
 !
 !
 Subroutine setcell_character(cell, string)
-!	  USE IFLIB
-	  USE IFWIN
-	  USE IFCOM
-	  USE IFCOMTY
-	  USE IFAUTO
-	  USE EXCEL11
-!	  USE EXCEL97A
-!	  USE excel5en32
       IMPLICIT NONE   
 
 	  INTEGER*4 status
@@ -126,14 +114,6 @@ end subroutine
 !
 !
 Subroutine setcell_integer(cell, i)
-!	  USE IFLIB
-	  USE IFWIN
-	  USE IFCOM
-	  USE IFCOMTY
-	  USE IFAUTO
-	  USE EXCEL11
-!	  USE EXCEL97A
-!	  USE EXCEL5EN32
       IMPLICIT NONE   
 
 	  INTEGER*4 status, i
@@ -152,14 +132,6 @@ end subroutine
 !
 !
 Subroutine setcell_float(cell, f)
-!	  USE IFLIB
-	  USE IFWIN
-	  USE IFCOM
-	  USE IFCOMTY
-	  USE IFAUTO
-	  USE EXCEL11
-!	  USE EXCEL97A
-!	  USE EXCEL5EN32
       IMPLICIT NONE   
 
 	  INTEGER*4 status
@@ -179,14 +151,7 @@ end subroutine
 !
 !
 subroutine set_range(str1, str2)
-!  USE IFLIB
-  USE IFWIN
   USE IFCOM
-  USE IFCOMTY
-  USE IFAUTO
-  USE EXCEL11
-! USE EXCEL97A
-! USE excel5en32
   IMPLICIT NONE   
   character*(*) str1, str2
   INTEGER*4 status
@@ -225,13 +190,7 @@ end subroutine set_range
 !
 !
 subroutine set_variant_bool(vARG, bool_value)
-!  USE IFLIB
-  USE IFWIN
   USE IFCOM
-  USE IFCOMTY
-  USE IFAUTO
-  USE EXCEL11
-! USE EXCEL97A
   implicit none
   
   type (variant) vARG
@@ -248,13 +207,7 @@ end subroutine set_variant_bool
 !
 !
 subroutine set_variant_char(vARG, char_value)
-!  USE IFLIB
-  USE IFWIN
   USE IFCOM
-  USE IFCOMTY
-  USE IFAUTO
-  USE EXCEL11
-! USE EXCEL97A
   implicit none
   
   type (variant) vARG
@@ -272,13 +225,7 @@ end subroutine set_variant_char
 !
 !
 subroutine set_variant_int(vARG, int_value)
-!  USE IFLIB
-  USE IFWIN
   USE IFCOM
-  USE IFCOMTY
-  USE IFAUTO
-  USE EXCEL11
-! USE EXCEL97A
   implicit none
   
   type (variant) vARG

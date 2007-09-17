@@ -2,7 +2,7 @@
 !
 !
 SUBROUTINE CLPART
-  USE DFLIB
+  USE IFQWIN
   implicit none
   !
   ! The screen is cleared from the cursor 3 lines down. Works for VT100
@@ -31,7 +31,7 @@ END SUBROUTINE CLPART
 !
 !
 SUBROUTINE moverelative(i)
-  USE DFLIB
+  USE IFQWIN
   implicit none
   integer i
   !
@@ -56,8 +56,8 @@ END SUBROUTINE moverelative
 !
 !
 SUBROUTINE CLS
-  USE DFLIB
-    implicit none
+  USE IFQWIN
+  implicit none
   !
   ! The screen is cleared.  Works for VT100
   !
@@ -75,7 +75,7 @@ end SUBROUTINE CLS
 !
 !
 SUBROUTINE HOME
-  USE DFLIB
+  USE IFQWIN
   implicit none
   !
   ! The screen is cleared.  Works for VT100
@@ -130,7 +130,7 @@ end SUBROUTINE POSCUR
 !
 !
 SUBROUTINE POSCUR_DB
-  USE DFLIB
+  USE IFQWIN
   implicit none
   !      CHARACTER*1 esc
   !      INTRINSIC CHAR
@@ -153,7 +153,7 @@ END SUBROUTINE POSCUR_DB
 !
 !
 subroutine confignetpath
-  USE DFLIB
+  USE IFQWIN
   implicit none
   !TYPE QWINFO
   !    INTEGER(2) TYPE  ! request type
@@ -176,13 +176,12 @@ subroutine confignetpath
   result =     SETWSIZEQQ(QWIN$FRAMEWINDOW, winfo)
   winfo%TYPE = QWIN$RESTORE
   result =     SETWSIZEQQ(QWIN$FRAMEWINDOW, winfo)
-
+  result =     SETEXITQQ(QWIN$EXITNOPERSIST) 
   result = DISPLAYCURSOR ($GCURSORON)
   i1 = 1
   i2 = 1
   i3 = 35
   i4 = 80
-!  CALL SETTEXTWINDOW (1, 1, 35, 80) 
   CALL SETTEXTWINDOW (i1, i2, i3, i4)
 
   return
@@ -200,7 +199,11 @@ SUBROUTINE WELLFILE_PAT
   ! The initial well data file to be used is selected here.  The program
   ! terminates if no well files have been prepared.
   !
-
+  INTEGER Well, Tunit, Iflag, Inum, Nrun
+  COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
+  INTEGER db_Dbsfg, db_Idefault, db_Iu, db_Nwlls, db_Totwell, db_Tot
+  COMMON /INT4DB/ db_Dbsfg(50,45), db_Idefault(5), db_Iu(50,4), db_Nwlls,  &
+	   db_Totwell, db_Tot(50)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
   COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50), &
        Isdocrs(0:5)
@@ -226,6 +229,12 @@ SUBROUTINE WELLFILE_PAT
 	READ (*,'(a)') yn
 	IF (yn.EQ.'1') then
 		status = fileopen_db(root, path, "old_xls")
+		if (status .eq. 0) then
+			write(*,*) "Excel file not opened."
+			write(*,*) "Press enter to continue."
+			READ (*,'(a)') yn
+			goto 10
+		endif
 		CALL OldExcel
 		result = CheckOldExcel()
 		if (result == .false.) then
@@ -236,7 +245,13 @@ SUBROUTINE WELLFILE_PAT
 			goto 10
 		endif 
 		call xl2db
-		call cleanup_com(.TRUE.)  
+		call cleanup_com(.TRUE.)
+		IF (db_NWlls .LE. 1) THEN
+            WRITE(*,*) "Sorry, not enough wells for inverse modeling", db_NWlls
+		    write(*,*) "Press enter to continue."
+		    READ (*,'(a)') yn
+            goto 10
+        ENDIF  
 		CALL RUNWATEQ(root)
 		wfile = root
 		fileone = root(1:lens(root))//'.pat'
@@ -247,6 +262,12 @@ SUBROUTINE WELLFILE_PAT
 			goto 10
 		endif
 		CALL RDPATH(fileone)
+		IF (NWlls .LE. 1) THEN
+            WRITE(*,*) "Sorry, not enough wells for inverse modeling", NWlls
+			write(*,*) "Press enter to continue."
+			READ (*,'(a)') yn
+            goto 10
+        ENDIF
 	else if (yn .eq. '3') then
 		stop
 	else
@@ -272,7 +293,7 @@ SUBROUTINE WELLFILE_PAT
 
   return
 
-9000 FORMAT (' NETPATH - Version 2.14 (May 15, 2005)',/,&
+9000 FORMAT (' NETPATH - Version 2.14.1 (September 14, 2007)',/,&
        ' ----------------')
 9005 FORMAT (I4,':  ',A40)
 9010 FORMAT (/,' Enter number of file to use, or ''Q'' to quit:')

@@ -166,6 +166,7 @@ subroutine confignetpath
   LOGICAL(4)     result
   integer*2 i1, i2, i3, i4
   TYPE (qwinfo)  winfo
+  TYPE (windowconfig) wc
 
   ! Maximize frame window
   winfo%TYPE = QWIN$SET
@@ -177,19 +178,20 @@ subroutine confignetpath
   winfo%TYPE = QWIN$RESTORE
   result =     SETWSIZEQQ(QWIN$FRAMEWINDOW, winfo)
   result =     SETEXITQQ(QWIN$EXITNOPERSIST) 
-  result = DISPLAYCURSOR ($GCURSORON)
+  result =     DISPLAYCURSOR ($GCURSORON)
   i1 = 1
   i2 = 1
   i3 = 35
   i4 = 80
   CALL SETTEXTWINDOW (i1, i2, i3, i4)
-
+  CALL SETMESSAGEQQ("Main", QWIN$MSG_TITLETEXT)
+  
   return
 end subroutine confignetpath
 !
 !
 !
-SUBROUTINE WELLFILE_PAT
+SUBROUTINE WELLFILE_PAT(initial)
   use filenames
   implicit none
   integer status, result, CHANGEDIRQQ
@@ -216,6 +218,7 @@ SUBROUTINE WELLFILE_PAT
   EXTERNAL CLS, RDPATH, WELLS, INITVALS, MODELS, UPCS80, LENS, UPCS
   integer fileopen_db, CheckOldExcel
   external fileopen_db, CheckOldExcel
+  logical initial
   !
    icase = 0
 10 continue 
@@ -252,10 +255,11 @@ SUBROUTINE WELLFILE_PAT
 		    READ (*,'(a)') yn
             goto 10
         ENDIF  
-		CALL RUNWATEQ(root)
+		CALL RUNWATEQ(root, .false.)
 		wfile = root
 		fileone = root(1:lens(root))//'.pat'
-		call rdpath(fileone) 
+		call rdpath(fileone)
+		excel_file = .true. 
 	else if (yn .eq. '2') then
 		status = fileopen_np(wfile, path, fileone)
 		if (status .ne. 1) then
@@ -268,15 +272,24 @@ SUBROUTINE WELLFILE_PAT
 			READ (*,'(a)') yn
             goto 10
         ENDIF
+        excel_file = .false.
 	else if (yn .eq. '3') then
-		stop
+		if (initial) then
+		    stop  
+		else
+		     return
+		endif
 	else
 		goto 10
 	endif
 
 
-  result = CHANGEDIRQQ (path)
-
+    result = CHANGEDIRQQ (path)
+    
+    ! Save for reread
+    excel_filename = filename
+    excel_path = path
+    excel_root = root
 
   IF (Iedit.EQ.2) THEN
      CALL CLS
@@ -306,6 +319,73 @@ SUBROUTINE WELLFILE_PAT
 9035 FORMAT (' Do you want to keep the current model? <Enter for no>')
 9040 FORMAT (A)
 END SUBROUTINE WELLFILE_PAT
+!
+!
+!
+SUBROUTINE REREAD_EXCEL
+    USE filenames
+    USE IFwin
+    implicit none
+    INTEGER LENS 
+    EXTERNAL LENS
+    integer result, CHANGEDIRQQ
+    integer fileopen_np
+    character*20 yn  
+    integer fileopen_db, CheckOldExcel
+    external fileopen_db, CheckOldExcel
+    INTEGER db_Dbsfg, db_Idefault, db_Iu, db_Nwlls, db_Totwell, db_Tot
+    COMMON /INT4DB/ db_Dbsfg(50,45), db_Idefault(5), db_Iu(50,4), db_Nwlls,  &
+    db_Totwell, db_Tot(50)
+    CHARACTER*140 fileone
+	! Declare structure used to pass and receive attributes
+    !
+    type(T_OPENFILENAME) ofn
+
+    ! Declare filter specification.  This is a concatenation of
+    ! pairs of null-terminated strings.  The first string in each pair
+    ! is the file type name, the second is a semicolon-separated list
+    ! of file types for the given name.  The list ends with a trailing
+    ! null-terminated empty string.
+    !
+    character*(*),parameter :: filter_spec_lon = "DB files"C//"*.lon"C  
+    character*(*),parameter :: filter_spec_xls = "Excel files"C//"*.xls"C
+
+    ! Declare string variable to return the file specification.
+    ! Initialize with an initial filespec, if any - null string
+    ! otherwise
+    !
+    character*10 suffix
+    character*512 :: file_spec = ""C
+    integer status,ilen, i, strcmp_nocase
+    
+    ! Save for reread
+    filename = excel_filename
+    path = excel_path 
+    root = excel_root 
+
+	CALL OldExcel
+	result = CheckOldExcel()
+    if (result == .false.) then
+	    write(*,*) "File is not a NetpathXL file."
+	    write(*,*) "One of the cells A1, A7-AU7 did not match template."
+	    write(*,*) "Press enter to continue."
+	    READ (*,'(a)') yn
+	    return
+    endif 
+	call xl2db
+	call cleanup_com(.TRUE.)
+	IF (db_NWlls .LE. 1) THEN
+        WRITE(*,*) "Sorry, not enough wells for inverse modeling", db_NWlls
+	    write(*,*) "Press enter to continue."
+	    READ (*,'(a)') yn
+        return
+    ENDIF  
+	CALL RUNWATEQ(root, .true.)
+	fileone = root(1:lens(root))//'.pat'
+	call rdpath(fileone)
+	excel_file = .true. 
+  return
+END SUBROUTINE REREAD_EXCEL
 !
 !
 !
@@ -399,6 +479,9 @@ integer function fileopen_np(wfile,path, fileone)
   fileopen_np = status
   return
 end function fileopen_np
+!
+!
+!
 integer function fileopen_db(Dfile, path, typefile)
   USE IFwin
   implicit none

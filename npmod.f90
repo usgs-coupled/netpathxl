@@ -10,6 +10,9 @@ module filenames
      'P ', 'RS', 'I1', 'I2', 'I3', 'I4', 'I9', 'D ', '18', 'TR',  &
      'I5', 'I6', 'I7', 'I8', 'I0', 'EX', 'X1', 'X2', 'X3', 'X4',  &
      'X5'/
+  character *256 excel_root, excel_filename, excel_path, excel_wfile
+  character *256 excel_wateq_filename
+  logical excel_file
 end module filenames
 
 module excel_headings

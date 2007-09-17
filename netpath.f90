@@ -196,7 +196,7 @@ PROGRAM NETPATHXL
   !
   call confignetpath
 
-  CALL WELLFILE_PAT
+  CALL WELLFILE_PAT(.true.)
   CALL INITVALS(0)
   CALL MODELS214
   CALL SCREEN
@@ -1028,6 +1028,8 @@ SUBROUTINE EDIT
        EDITMIX,  &
        EDITEVAP, EDITIONEX, EDITXCA, EDTXCO2, EDITRS, EDITCISO, &
        ISOTDATA, EDITC14, EDITFACT, SCREEN, WELLS, LENS
+  integer choice(15), max
+  character*20 yn
   !
 10 iex = 0
   ico2 = 0
@@ -1036,19 +1038,41 @@ SUBROUTINE EDIT
      IF (Phase(i).EQ.'CO2-CH4 ') ico2 = 1
   enddo
   CALL CLS
+  WRITE (*,9005)
   i = 1
+  ! Excel file = 15
+  if (excel_file == .true.) then
+    WRITE (*,9010) i, filename(1:LENS(filename))
+    choice(i) = 15
+    i = i + 1
+  endif
+  
+  ! Well file = 1
   WRITE (*,9015) i, Wfile(1:LENS(Wfile))
+  
+  ! Entire model = 2
+  choice(i) = 1
   i = i+1
+  choice(i) = 2
   WRITE (*,9020) i
+  
+  ! Phases = 3
   i = i+1
+  choice(i) = 3
   WRITE (*,9050) i
+  
+  ! Mixing = 4
   i = i+1
+  choice(i) = 4
   IF (Iflag(1).GT.0) THEN
      WRITE (*,9025) i, 'Yes'
   ELSE
      WRITE (*,9025) i, 'No '
   END IF
+  
+  ! Wells = 5
   i = i+1
+  choice(i) = 5
   IF (Iflag(1).LE.2) THEN
      WRITE (*,9030) i, Wllnms(Well(1))(5:LENS(Wllnms(Well(1))))
      DO icount = 2, Iflag(1)+1
@@ -1059,32 +1083,56 @@ SUBROUTINE EDIT
   ELSE
      WRITE (*,9045) i
   END IF
+  
+  ! EVAPORATION/DILUTION = 6
   i = i+1
+  choice(i) = 6
   WRITE (*,9055) i, Yes(Iflag(6))
+  
+  ! ION EXCHANGE = 7
+  ! Ca fraction = 8
   IF (iex.EQ.1) THEN
      i = i+1
+     choice(i) = 7
      WRITE (*,9060) i, Ion(Iflag(2))
      IF (Iflag(2).EQ.4) THEN
         i = i+1
+        choice(i) = 8
         WRITE (*,9065) i, P(2)
      END IF
   END IF
+  
+  ! Fraction CO2 = 9
   IF (ico2.EQ.1) THEN
      i = i+1
+     choice(i) = 9
      WRITE (*,9070) i, P(1)
   END IF
+  
+  ! Redox state of DOC = 10
   i = i+1
+  choice(i) = 10
   WRITE (*,9075) i
-  i = i+1
+  
+  ! EDIT CALCULATION OF RAYLEIGH ISOTOPIC NUMBERS = 11
+  ! EDIT ISOTOPIC DATA = 12
+  ! EDIT C14 MODEL = 13
+  ! EDIT FRACTIONATION FACTORS = 14
+  i = i+1 
+  choice(i) = 11
   WRITE (*,9080) i, Yes(Iflag(3))
   IF (Iflag(3).EQ.1) THEN
      i = i+1
+     choice(i) = 12
      WRITE (*,9085) i
      i = i+1
+     choice(i) = 13
      WRITE (*,9090) i, Model(Iflag(4))
      i = i+1
+     choice(i) = 14
      WRITE (*,9095) i, Ffact(Iflag(5))
   END IF
+  max = i
   !  This line needed to have all the poscur calls work correctly
   IF (Iflag(1).LE.2) i = i+Iflag(1)+1
 40 CALL POSCUR(i)
@@ -1093,11 +1141,22 @@ SUBROUTINE EDIT
   READ (*,'(A)') line
   IF (line.NE.' ') THEN
      READ (line,9000,ERR=40) j
-     IF (j.GT.6 .AND. iex.EQ.0) j = j+2
-     IF (j.GT.7 .AND. iex.EQ.1 .AND. Iflag(2).NE.4) j = j+1
-     IF (ico2.EQ.0 .AND. j.GT.8) j = j+1
-     IF (Iflag(3).EQ.0 .AND. j.GT.11) j = j+3
-     IF (j.EQ.2) THEN
+     !IF (j.GT.6 .AND. iex.EQ.0) j = j+2
+     !IF (j.GT.7 .AND. iex.EQ.1 .AND. Iflag(2).NE.4) j = j+1
+     !IF (ico2.EQ.0 .AND. j.GT.8) j = j+1
+     !IF (Iflag(3).EQ.0 .AND. j.GT.11) j = j+3
+     if (j .lt. 1 .or. j .gt. max) then
+        write(*,*) "Selection is not within the range of choices."
+		write(*,*) "Press enter to continue."
+		READ (*,'(a)') yn
+		goto 10
+     endif
+     j = choice(j)
+     IF (j.EQ.1) THEN
+        ! EDIT WELL FILE
+        Iedit = 2
+        CALL WELLFILE_PAT(.false.)
+     ELSE IF (j .EQ. 2) THEN
         ! EDIT MODEL
         Iedit = 2
         CALL MODELS214
@@ -1139,17 +1198,18 @@ SUBROUTINE EDIT
      ELSE IF (j.EQ.14) THEN
         ! EDIT FRACTIONATION FACTORS
         CALL EDITFACT(i+1)
-     ELSE
-        ! EDIT WELL FILE
-        Iedit = 2
-        CALL WELLFILE_PAT
-     END IF
+     ELSE IF (j.EQ.15) THEN
+        CALL REREAD_EXCEL
+        ! REREAD EXCEL file
+     ENDIF
      GO TO 10
   END IF
   CALL SCREEN
   RETURN
 9000 FORMAT (I4)
-9015 FORMAT ('  General',/,I5,') Well file               : ',A)
+9005 FORMAT ('  General')
+9010 FORMAT (I5,') Reread Excel file       : ',A)
+9015 FORMAT (I5,') Well file               : ',A)
 9020 FORMAT (I5,') Entire model')
 9025 FORMAT (' Wells',/,I5,') Mixing                  : ',A)
 9030 FORMAT (I5,') Initial well            : ',A)

@@ -1,116 +1,126 @@
 !
 !
 !
-SUBROUTINE RUNWATEQ(file)
-  use filenames
-  IMPLICIT NONE
-  LOGICAL error
-  INTEGER icort, i, inumf, LENS
-  CHARACTER*1 yn
-  CHARACTER mfile(200)*40, UPCS80*80
-  !
-  INTEGER Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
-  COMMON /INT4DB/ Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
+SUBROUTINE RUNWATEQ(file, silent)
+    use filenames
+    IMPLICIT NONE
+    LOGICAL error
+    INTEGER icort, i, inumf, LENS
+    CHARACTER*1 yn
+    CHARACTER mfile(200)*40, UPCS80*80
+    !
+    INTEGER Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
+    COMMON /INT4DB/ Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
        Totwell, Tot(50)
-  INTEGER Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
-  COMMON /FUNITS/ Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
-  character*(*) file
-  !CHARACTER*256 Dfile, path
-  !COMMON /FILEC / Dfile, path
-  !
-  EXTERNAL INITIALIZE, READFILE, CONVDATA, WRAPUP, ITERATE, &
+    INTEGER Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
+    COMMON /FUNITS/ Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
+    character*(*) file
+    !CHARACTER*256 Dfile, path
+    !COMMON /FILEC / Dfile, path
+    !
+    EXTERNAL INITIALIZE, READFILE, CONVDATA, WRAPUP, ITERATE, &
        OUTWRITE, PATWRITE214, LENS, UPCS80
-  character*256 string
-  !
+    character*256 string
+    logical silent
+    !
 	Ir = 7
 	Iw1 = 8
 	Iw2 = 9
 	Iex1 = 10
 	Io1 = 11
 	Iscr2 = 13
-  WRITE (*,9000)
-  READ (*,9005) yn
-  call moverelative(-2)
-  call clpart 
-  call moverelative(-2)
-  call clpart 
-  icort = 0
-  IF (yn.EQ.'Y' .OR. yn.EQ.'y') icort = 1
-  CALL INITIALIZE(root)
-  CALL READFILE
-  !
-  WRITE (*,9015)
-  !
-  DO i = 1, Nwlls
-     IF ((i/5)*5.EQ.i) then
-        call moverelative(-1)
+	if (.not. silent) then
+        WRITE (*,9000)
+        READ (*,9005) yn
+        call moverelative(-2)
         call clpart 
-        WRITE (*,9010) i
-     endif
-     error = .FALSE.
-     CALL CONVDATA(i,error)
-     IF (error) THEN
-	   WRITE (*,*) "Error converting data, well ", i
-	   WRITE (*,"(A,$)") "Enter to continue "
-	   READ (*,9005) yn
-	   cycle
- !       CALL WRAPUP
- !       GOTO 70
-     END IF
-     CALL ITERATE(icort,error)
-     IF (error) THEN
-	    WRITE (*,*) "Wateq did not converge, well ", i
-		WRITE (*,"(A,$)") "Enter to continue "
-	    READ (*,9005) yn
-	    cycle
- !       WRITE (*,9020) i
- !       CALL WRAPUP
+        call moverelative(-2)
+        call clpart 
+        icort = 0
+        IF (yn.EQ.'Y' .OR. yn.EQ.'y') icort = 1
+        excel_cb = icort
+    else
+        icort = excel_cb
+        if (icort == 0) then
+            WRITE(*,*) "Charge balance for speciation calculations: No"
+        else
+            WRITE(*,*) "Charge balance for speciation calculations: Yes"
+        endif
+    endif
+    CALL INITIALIZE(root)
+    CALL READFILE(silent)
+    !
+    WRITE (*,9015)
+    !
+    DO i = 1, Nwlls
+        IF ((i/5)*5.EQ.i) then
+            call moverelative(-1)
+            call clpart 
+            WRITE (*,9010) i
+         endif
 
+        error = .FALSE.
+        CALL CONVDATA(i,error)
+        IF (error) THEN
+	        WRITE (*,*) "Error converting data, well ", i
+	        WRITE (*,"(A,$)") "Enter to continue "
+	        READ (*,9005) yn
+	        cycle
+ !       CALL WRAPUP
  !       GOTO 70
-     END IF
-     !
-     CALL OUTWRITE
-     CALL PATWRITE214(i,error)
-	 if (error) then 
-	    WRITE (*,*) "Error converting data, well ", i
-		WRITE (*,"(A,$)") "Enter to continue "
-	    READ (*,9005) yn
-	    cycle
-	 endif
- !    IF (error) GOTO 70
-  enddo
+        END IF
+        CALL ITERATE(icort,error)
+        IF (error) THEN
+	        WRITE (*,*) "Wateq did not converge, well ", i
+		    WRITE (*,"(A,$)") "Enter to continue "
+	        READ (*,9005) yn
+	        cycle
+    !       WRITE (*,9020) i
+    !       CALL WRAPUP
+
+    !       GOTO 70
+        END IF
+        !
+        CALL OUTWRITE
+        CALL PATWRITE214(i,error)
+        if (error) then 
+            WRITE (*,*) "Error converting data, well ", i
+            WRITE (*,"(A,$)") "Enter to continue "
+            READ (*,9005) yn
+            cycle
+        endif
+    !      IF (error) GOTO 70
+    enddo
   !
-  OPEN (unit=Io1,file='netpath.fil')
-  inumf = 0
-20 READ (Io1,9030,err=30,end=30) mfile(inumf+1)
-  inumf = inumf+1
-  IF (UPCS80(mfile(inumf)).EQ.UPCS80(file) .AND. Icase.EQ.0) &
+    OPEN (unit=Io1,file='netpath.fil')
+    inumf = 0
+20  READ (Io1,9030,err=30,end=30) mfile(inumf+1)
+    inumf = inumf+1
+    IF (UPCS80(mfile(inumf)).EQ.UPCS80(file) .AND. Icase.EQ.0) &
        GO TO 50
-  IF (mfile(inumf).NE.file) GO TO 20
-  GO TO 50
-30 CLOSE (Io1,status='DELETE')
-  OPEN (Io1,file='netpath.fil')
-  DO i = 1, inumf
-     WRITE (Io1,'(A)') mfile(i)(:LENS(mfile(i)))
-  enddo
-  WRITE (Io1,'(A)') file(1:LENS(file))
-50 CLOSE (Io1)
-   WRITE (*,9025) file(1:LENS(file)), file(1:LENS(file))
-60 WRITE (*,9035)
-	READ (*,'(A1)') yn
-	call moverelative(-2)
-	call clpart 
-!	IF (yn.NE.'n' .AND. yn.NE.'N' .AND. yn.NE.'Y' .AND. yn.NE.'y') &
-!		GO TO 60
-	IF (yn.EQ.'Y' .OR. yn.EQ.'y') then
-		string='notepad '//path(1:lens(path))//'\'//file(1:lens(file))//'.out'
-		!call system(string)
-		call docreate(string)
+    IF (mfile(inumf).NE.file) GO TO 20
+    GO TO 50
+30  CLOSE (Io1,status='DELETE')
+    OPEN (Io1,file='netpath.fil')
+    DO i = 1, inumf
+        WRITE (Io1,'(A)') mfile(i)(:LENS(mfile(i)))
+    enddo
+    WRITE (Io1,'(A)') file(1:LENS(file))
+50  CLOSE (Io1)
+    WRITE (*,9025) file(1:LENS(file)), file(1:LENS(file))
+60  WRITE (*,9035)
+    READ (*,'(A1)') yn
+    call moverelative(-2)
+    call clpart 
+    IF (yn.EQ.'Y' .OR. yn.EQ.'y') then
+	    string='notepad '//path(1:lens(path))//'\'//file(1:lens(file))//'.out'
+	    !call system(string)
+	    call docreate(string)
 	endif
-  CALL WRAPUP
+    CALL WRAPUP
   !
-70 continue
-  RETURN
+70  continue
+    RETURN
 9000 FORMAT (/,' Do you want to adjust the .pat file to approximate',/, &
        ' charge balance in the input data?',/,' <Enter> = no')
 9005 FORMAT (A1)
@@ -1780,7 +1790,9 @@ end subroutine CONVDATA
 !
 !
 !
-      SUBROUTINE READFILE
+      SUBROUTINE READFILE(silent)
+      USE filenames
+      IMPLICIT none
       INTEGER Lexcept(20), Numexcept, Numreacs, Nreacspec(200),  &
              Reacmflg(200), Reacspec(200,10), Speckflg(250),  &
              Specgflg(250), Specspec(250,10), Speclist(30,0:200),  &
@@ -1800,6 +1812,7 @@ end subroutine CONVDATA
       EXTERNAL LENS, UPCS80
       DATA card/'ELEMENTS', 'SPECIES ', 'LOOK MIN', 'SPECIAL ',  &
           'END     '/
+      logical silent
 !
 !!!!! DATA VALUES NEED TO BE ZEROED OUT BEFORE ANY READING IS DONE.
 !
@@ -1818,11 +1831,16 @@ end subroutine CONVDATA
 !
 !                               DATA FILE FOR WATEQFP
 !
-      stat = 'old'
-      query = 'Enter name of db thermodynamic data file. '
-      datafile = 'db.dat'
-      CALL OPENIT(query,datafile,Ir,stat,batch,Iscr2)
-      IF (opened) CLOSE (Iscr2)
+    if (.not. silent) then 
+        stat = 'old'
+        query = 'Enter name of db thermodynamic data file. '
+        datafile = 'db.dat'
+        CALL OPENIT(query,datafile,Ir,stat,batch,Iscr2)
+        excel_wateq_filename = datafile
+    ELSE
+        OPEN (UNIT=Ir,FILE=excel_wateq_filename,STATUS=STAT,ERR=20)       
+    ENDIF
+    IF (opened) CLOSE (Iscr2)
 !
 !   Loop to read keyword data blocks
 !

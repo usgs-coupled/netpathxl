@@ -12,7 +12,7 @@ module filenames
      'X5'/
   character *256 excel_root, excel_filename, excel_path, excel_wfile
   character *256 excel_wateq_filename
-  logical excel_file
+  logical excel_file, excel_cb
 end module filenames
 
 module excel_headings

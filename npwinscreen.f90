@@ -166,7 +166,6 @@ subroutine confignetpath
   LOGICAL(4)     result
   integer*2 i1, i2, i3, i4
   TYPE (qwinfo)  winfo
-  TYPE (windowconfig) wc
 
   ! Maximize frame window
   winfo%TYPE = QWIN$SET
@@ -184,7 +183,6 @@ subroutine confignetpath
   i3 = 35
   i4 = 80
   CALL SETTEXTWINDOW (i1, i2, i3, i4)
-  CALL SETMESSAGEQQ("Main", QWIN$MSG_TITLETEXT)
   
   return
 end subroutine confignetpath

@@ -4609,6 +4609,7 @@ END SUBROUTINE SAVERUN
 !
 SUBROUTINE SCREEN
   use filenames
+  use version
   implicit none
   !
   ! The important aspects of the current model are displayed on the
@@ -4631,15 +4632,13 @@ SUBROUTINE SCREEN
   COMMON /INT6  / Iele(36), Noele, Ilength
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
   COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
-  CHARACTER*32 versnam, datestr
   CHARACTER first3rd*26, middle*28, last3rd*23
   LOGICAL inoc
   DOUBLE PRECISION C14
   INTEGER LENS, iforce, iex, ico2, i, j, n, m, l, iskip, ijk
   EXTERNAL CLS, WARN, C14, LENS
   INTRINSIC INT
-  DATA versnam/'         NETPATH 2.14           '/
-  DATA datestr/'         May 15, 2005           '/
+   
   !
   iforce = 0
   iex = 0

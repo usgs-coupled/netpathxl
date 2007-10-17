@@ -1838,6 +1838,7 @@ end subroutine CONVDATA
         CALL OPENIT(query,datafile,Ir,stat,batch,Iscr2)
         excel_wateq_filename = datafile
     ELSE
+        WRITE(*,*) "Using wateq data file: ", excel_wateq_filename(1:lens(excel_wateq_filename))
         OPEN (UNIT=Ir,FILE=excel_wateq_filename,STATUS=STAT,ERR=20)       
     ENDIF
     IF (opened) CLOSE (Iscr2)

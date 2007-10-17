@@ -340,7 +340,7 @@ Subroutine OldExcel
 		call set_range(colheadings(1,i),colheadings(1,i))
 		status = AUTOGETPROPERTY (range, "VALUE", string)
 		CALL Check_Status(status, "Read cell")
-		if (string .ne. colheadings(2,i)) then
+		if (string .ne. colheadings(2,i)(1:lens(string))) then
 			npxlfile = .false.
 			exit
 		endif

@@ -191,6 +191,7 @@ end subroutine confignetpath
 !
 SUBROUTINE WELLFILE_PAT(initial)
   use filenames
+  use version
   implicit none
   integer status, result, CHANGEDIRQQ
   integer fileopen_np
@@ -221,12 +222,12 @@ SUBROUTINE WELLFILE_PAT(initial)
    icase = 0
 10 continue 
 	CALL CLS
-	WRITE (*,9000)
+	WRITE (*,9000) versnam, datestr
 
 	write(*,*)  "   (1) Open NetpathXL file"
 	write(*,*)  "   (2) Open .pat file"
 	write(*,*)  "   (3) Quit"
-	write(*,'(A,$)') "Select an option> "
+	write(*,'(/A,$)') "Select an option> "
 	READ (*,'(a)') yn
 	IF (yn.EQ.'1') then
 		status = fileopen_db(root, path, "old_xls")
@@ -304,8 +305,8 @@ SUBROUTINE WELLFILE_PAT(initial)
 
   return
 
-9000 FORMAT (' NETPATH - Version 2.14.1 (September 14, 2007)',/,&
-       ' ----------------')
+9000 FORMAT (1x, A20, A30,/,&
+       ' ----------------',/)
 9005 FORMAT (I4,':  ',A40)
 9010 FORMAT (/,' Enter number of file to use, or ''Q'' to quit:')
 9015 FORMAT (/,' Enter number of file, or <ENTER> to see more', &

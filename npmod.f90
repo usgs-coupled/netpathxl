@@ -15,6 +15,12 @@ module filenames
   logical excel_file, excel_cb
 end module filenames
 
+module version
+  CHARACTER*32 versnam, datestr
+  DATA versnam/'NetpathXL 2.14.2'/
+  DATA datestr/'October 17, 2007'/
+end module version
+
 module excel_headings
 	  character*50, dimension(2, 21) :: headings
 	  data headings / &
@@ -58,7 +64,7 @@ module excel_headings
 		'l7','Na', &
 		'm7','K', &
 		'n7','Cl', &
-		'o7','SO4', &
+		'o7','SO4 as SO4', &
 		'p7','Alk/TDIC', &
 		'q7','Fe', &
 		'r7','Mn', &
@@ -70,8 +76,8 @@ module excel_headings
 		'x7','Ba', &
 		'y7','Li', &
 		'z7','Sr', &
-		'aa7','NO3', &
-		'ab7','NH4', &
+		'aa7','NO3 as N', &
+		'ab7','NH4 as N', &
 		'ac7','P', &
 		'ad7','O2(aq)', &
 		'ae7','H2S(aq)', &

@@ -186,6 +186,7 @@ end subroutine configdb
 !
 SUBROUTINE WELLFILE_LON
  use filenames
+ use version
  implicit none
  !
  ! The well data file to be used is selected here.
@@ -209,13 +210,12 @@ SUBROUTINE WELLFILE_LON
  icase = 0
 10 continue 
  CALL CLS
- WRITE (*,9000)
- write(*,*) "Select an option:"
+ WRITE (*,9000) versnam, datestr
  write(*,*) "  (1) Create NetpathXL file from a .lon file."
  write(*,*) "  (2) Open existing NetpathXL file." 
  write(*,*) "  (3) Create new NetpathXL file."
  write(*,*) "  (4) Exit program"
- write(*,'(A,$)') "Select an option> "
+ write(*,'(/A,$)') "Select an option> "
 
  READ (*,'(a)') yn
  IF (yn.EQ.'1') then
@@ -276,8 +276,8 @@ SUBROUTINE WELLFILE_LON
  result = CHANGEDIRQQ (path)
 
  RETURN
-9000 FORMAT (' DB - Version 2.14.1 (September 14, 2007)',/,&
-      ' ----------------')
+9000 FORMAT (1x, A20, A30,/,&
+       ' ----------------',/)
 END SUBROUTINE WELLFILE_LON
 !	
 !		

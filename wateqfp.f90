@@ -1791,6 +1791,7 @@ end subroutine CONVDATA
 !
 !
       SUBROUTINE READFILE(silent)
+      USE IFWIN
       USE filenames
       IMPLICIT none
       INTEGER Lexcept(20), Numexcept, Numreacs, Nreacspec(200),  &
@@ -1801,7 +1802,8 @@ end subroutine CONVDATA
       COMMON /WDBINT/ Lexcept, Numexcept, Numreacs, Nreacspec, Reacmflg,  &
                      Reacspec, Speckflg, Specgflg, Specspec, Speclist,  &
                      Nspecspec, Lcalk, Lnoncalk, Specinp
-      CHARACTER*80 datafile
+      CHARACTER*200 datafile, exename
+      INTEGER i
       CHARACTER*8 card(5), line
       INTEGER Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
       COMMON /FUNITS/ Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
@@ -1832,9 +1834,17 @@ end subroutine CONVDATA
 !                               DATA FILE FOR WATEQFP
 !
     if (.not. silent) then 
+    
+        ! Get name of executable
+        i = GetModuleFileName (GetModuleHandle(NULL_CHARACTER), exename, 200)
+
+        ! Strip netpathxl.exe off end
+        i = index(exename, "\", .TRUE.)
+        datafile = exename(1:i) // "..\database\db.dat"
+        
         stat = 'old'
         query = 'Enter name of db thermodynamic data file. '
-        datafile = 'db.dat'
+        !datafile = 'c:/programs/netpathxl/database/db.dat'
         CALL OPENIT(query,datafile,Ir,stat,batch,Iscr2)
         excel_wateq_filename = datafile
     ELSE

@@ -2333,6 +2333,7 @@ END SUBROUTINE INCLISO
 !
 !
 SUBROUTINE INITVALS(INEW)
+  USE IFWIN
   use filenames
   implicit none
   !
@@ -2368,6 +2369,8 @@ SUBROUTINE INITVALS(INEW)
   INTEGER i, iii, kkk, lll, jjj, INEW, k
   LOGICAL YN
   EXTERNAL YN
+  character*200 dbname, exename
+  character*1 ans
   !
   IF (INEW.EQ.1) GO TO 50
   OPEN (Runit,FILE='netpath.dat',STATUS='OLD',ERR=110)
@@ -2432,14 +2435,34 @@ SUBROUTINE INITVALS(INEW)
   enddo
   Wllnms(0) = '    *UNDEFINED*'
   RETURN
-110 Flin = 0
-  WRITE (*,9000)
-  IF (YN('Y')) GO TO 40
-  STOP
-9000 FORMAT (' Warning - There is no netpath.dat file.',/, &
-       ' An empty file will be created. To use an existing mineral file, please quit',/, & 
-       ' and copy the netpath.dat file into your directory.',/, &
-       ' Do you wish to continue (<Enter>=yes)')
+  
+  ! find netpath.dat file
+110 continue
+   write (*,*) "No Netpath.dat file found in working directory."
+
+   ! Get name of executable
+   i = GetModuleFileName (GetModuleHandle(NULL_CHARACTER), exename, 200)
+
+   ! Strip netpathxl.exe off end
+   i = index(exename, "\", .TRUE.)
+   dbname = exename(1:i) // "..\database\netpath.dat"
+   
+   ! test if file exists
+   OPEN (Runit,FILE=dbname,STATUS='OLD',ERR=200)
+   
+   ! copy file relative to executable  
+   i = copyfile(dbname, "netpath.dat", 1)  
+   write (*,*) "Netpath.dat file copied from ", trim(dbname)
+   write(*,*) "Return to continue"
+   read(*,"(A)") ans
+   goto 10
+   
+   ! Exit, could not find netpath.dat
+ 200 continue
+   write(*,*) "Could not find Netpath.dat in working directory or ", trim(dbname)
+   write(*,*) "Execution terminating."
+   read(*,"(A)") ans
+   stop
 END SUBROUTINE INITVALS
 !
 !
@@ -7908,3 +7931,4 @@ logical function nextpair(line, e, c)
 	nextpair = .true.
 	return
 end function nextpair
+

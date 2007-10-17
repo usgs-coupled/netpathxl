@@ -1,0 +1,133 @@
+ Initial Well : Chapelle-Knobel (1985) Fd-12    
+ Final Well   : Chapelle-Knobel (1985) Ff-35    
+
+          Final     Initial
+ C       5.9742      3.0741
+ CA      0.0749      1.0232
+ NA      6.0930      0.1653
+ RS     24.7092     13.4833
+ FE      0.0000      0.0000
+ S       0.1354      0.1978
+ 
+ CALCITE  CA   1.0000 C    1.0000 RS   4.0000 I1   1.1000 I2   0.0000
+ EXCHANGE CA  -1.0000 NA   2.0000 MG   0.0000
+ GOETHITE FE   1.0000 RS   3.0000
+ GYPSUM   CA   1.0000 S    1.0000 RS   6.0000 I3  22.0000
+ PYRITE   FE   1.0000 S    2.0000 RS   0.0000 I3 -60.0000
+ LIGNITE  C    1.0000 RS  -0.4000 I1 -22.0000 I2   0.0000
+
+                      1 model checked
+                      1 model found
+
+
+            MODEL   1
+  CALCITE              0.91086      999.999 exchanged
+  EXCHANGE             2.96382
+  GOETHITE             0.58353
+  GYPSUM    +          1.10461
+  PYRITE    -         -0.58353
+  LIGNITE   +          1.98929
+                Computed    Observed
+ Carbon-13        0.3510     -6.2000
+ C-14 (% mod)     0.0000      3.1000
+ Sulfur-34       66.9879   Undefined
+ Strontium-87      Insufficient data
+ Nitrogen-15       Insufficient data
+ 
+     Model                 A0     Computed  Observed    age
+ (for initial A0)      (initial) (no decay)           (final)
+ ------------------------------------------------------------
+ 
+
+ Data used for Carbon-13   
+
+ Initial Value: -12.6000000        Modeled Final Value:   0.3510093
+
+  2 dissolving phases:
+ Phase       Delta C     Isotopic composition (o/oo)
+ CALCITE  1000.9098597            1.1000000
+ LIGNITE     1.9892903          -22.0000000
+
+  1 precipitating phases:                             Average
+ Phase       Delta C     Fractionation factor Isotopic composition (o/oo)
+ CALCITE  -999.99900             0.7050               0.9262153
+
+          Isotopic composition of precipitating CALCITE 
+
+             +--------------------------------------------------+
+       1.0562| *************************************************|Avg =   0.9262
+             |                                                  |              
+             |                                                  |              
+             |                                                  |              
+ Carbon-13   |                                                  |              
+     o/oo    |                                                  |              
+             |                                                  |              
+             |                                                  |              
+             |                                                  |              
+      -5.4339|*                                                 |
+             +--------------------------------------------------+
+          Initial                                             Final
+
+ Data used for C-14 (% mod)
+
+ Initial Value:  50.0000000        Modeled Final Value:   0.0000000
+
+  2 dissolving phases:
+ Phase       Delta C     Isotopic composition (% modern)
+ CALCITE  1000.9098597            0.0000000
+ LIGNITE     1.9892903            0.0000000
+
+  1 precipitating phases:                             Average
+ Phase       Delta C     Fractionation factor Isotopic composition (% modern)
+ CALCITE  -999.99900             1.4099               0.5022541
+
+          Isotopic composition of precipitating CALCITE 
+
+             +--------------------------------------------------+
+      25.0739|*                                                 |
+             |                                                  |              
+             |                                                  |              
+             |                                                  |              
+ C-14 (% mod)|                                                  |              
+             |                                                  |              
+             |                                                  |              
+             |                                                  |              
+             |                                                  |              
+       0.0000| *************************************************|Avg =   0.5023
+             +--------------------------------------------------+
+          Initial                                             Final
+
+ Data used for Sulfur-34   
+
+ Initial Value:   0.0000000        Modeled Final Value:  66.9879405
+
+  1 dissolving phases:
+ Phase       Delta S     Isotopic composition (o/oo)
+ GYPSUM      1.1046103           22.0000000
+
+  1 precipitating phases:                             Average
+ Phase       Delta S     Fractionation factor Isotopic composition (o/oo)
+ PYRITE     -1.16705           -40.0000              13.0396215
+
+          Isotopic composition of precipitating PYRITE  
+
+             +--------------------------------------------------+
+      24.2996|                    ******************************|
+             |               *****                              |Avg =  13.0396
+             |           ****                                   |              
+             |         **                                       |              
+ Sulfur-34   |       **                                         |              
+     o/oo    |     **                                           |              
+             |    *                                             |              
+             |   *                                              |              
+             | **                                               |              
+     -36.7236|*                                                 |
+             +--------------------------------------------------+
+          Initial                                             Final
+
+ Data used for Strontium-87
+       Insufficient data
+
+ Data used for Nitrogen-15 
+       Insufficient data
+ 

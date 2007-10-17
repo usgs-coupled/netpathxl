@@ -1,0 +1,80 @@
+ Initial Well 1 : Pinal Cr. background, #404      
+ Initial Well 2 : Pinal Cr pH<4 plume, #51        
+ Final well     : Pinal Cr pH 4-5, #402           
+
+          Final    Initial 1   Initial 2   
+ C       4.6956      3.9020      4.2204
+ S      34.5357      0.1875     92.8765
+ CA     13.5447      0.9984     11.1301
+ AL      0.3726      0.0000      9.3939
+ MG      7.8567      0.5349     16.2636
+ NA      4.8102      1.1749      9.2610
+ CL      3.9699      0.2257      9.7230
+ SI      1.6062      0.5328      1.6874
+ FE      9.7207      0.0000     50.8313
+ MN      1.2078      0.0018      1.3841
+ RS    247.9333     17.4742    678.6411
+ 
+ CALCITE  CA   1.0000 C    1.0000 RS   4.0000 I1   0.0000 I2   0.0000
+ CO2 GAS  C    1.0000 RS   4.0000 I1 -25.0000 I2 100.0000
+ GYPSUM   CA   1.0000 S    1.0000 RS   6.0000 I3  22.0000
+ ALBITE   NA   1.0000 AL   1.0000 SI   3.0000
+ O2 GAS   RS   4.0000
+ GIBBSITE AL   1.0000
+ GOETHITE FE   1.0000 RS   3.0000
+ DOLOMITE CA   1.0000 MG   1.0000 C    2.0000 RS   8.0000 I1   0.0000
+          I2   0.0000
+ MnOOH    MN   1.0000 RS   3.0000
+ KAOLINIT AL   2.0000 SI   2.0000
+ SiO2     SI   1.0000
+
+                     11 models checked
+                      3 models found
+
+
+
+
+
+            MODEL   1
+  Init 1    + F        0.60576
+  Init 2    + F        0.39424
+  CALCITE              9.62443
+  CO2 GAS            -11.19810
+  GYPSUM              -2.19327
+  ALBITE    +          0.44746
+  O2 GAS    +          2.31577
+  GIBBSITE            -3.05421
+  GOETHITE           -10.31891
+  DOLOMITE  +          1.12089
+  MnOOH                0.66099
+  KAOLINIT            -0.36204
+
+
+            MODEL   2
+  Init 1    + F        0.60576
+  Init 2    + F        0.39424
+  CALCITE              9.62443
+  CO2 GAS            -11.19810
+  GYPSUM              -2.19327
+  ALBITE    +          0.44746
+  O2 GAS    +          2.31577
+  GIBBSITE            -3.77829
+  GOETHITE           -10.31891
+  DOLOMITE  +          1.12089
+  MnOOH                0.66099
+  SiO2                -0.72409
+
+
+            MODEL   3
+  Init 1    + F        0.60576
+  Init 2    + F        0.39424
+  CALCITE              9.62443
+  CO2 GAS            -11.19810
+  GYPSUM              -2.19327
+  ALBITE    +          0.44746
+  O2 GAS    +          2.31577
+  GOETHITE           -10.31891
+  DOLOMITE  +          1.12089
+  MnOOH                0.66099
+  KAOLINIT            -1.88915
+  SiO2                 3.05421

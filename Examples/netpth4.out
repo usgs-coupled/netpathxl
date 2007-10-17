@@ -1,0 +1,45 @@
+ Initial Well : GSL, Bear R. weighted 1961      
+ Final Well   : GSL, S. arm at RR Oct. 1960.    
+
+          Final     Initial
+ C       6.3060      6.0210
+ S     291.4270      0.6980
+ CA     11.2170      1.6980
+ NA   5428.6160      9.4490
+ CL   5834.6400      9.2340
+ 
+ CO2 GAS  C    1.0000 RS   4.0000 I1 -25.0000 I2 100.0000
+ NaCl     NA   1.0000 CL   1.0000
+ ARAGONIT CA   1.0000 C    1.0000 RS   4.0000
+ MIRABILI NA   2.0000 S    1.0000 RS   6.0000
+ GYPSUM   CA   1.0000 S    1.0000 RS   6.0000 I3  22.0000
+
+                      5 models checked
+                      3 models found
+
+
+
+
+
+            MODEL   1
+  CO2 GAS             -4.32887
+  NaCl                -2.26579
+  ARAGONIT            -1.68460
+  MIRABILI            -0.34995
+  Evaporation factor:    837.323      1.194g H2O remain
+
+
+            MODEL   2
+  CO2 GAS             -4.13876
+  ARAGONIT            -1.87226
+  MIRABILI            -0.42879
+  GYPSUM               0.19201
+  Evaporation factor:    631.865      1.583g H2O remain
+
+
+            MODEL   3
+  NaCl                49.32956
+  ARAGONIT            -5.95771
+  MIRABILI            -2.14518
+  GYPSUM               4.37229
+  Evaporation factor:     99.629     10.037g H2O remain

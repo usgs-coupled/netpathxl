@@ -23,13 +23,13 @@
 				<Tool Name="VFPreLinkEventTool"/></Configuration></Configurations>
 	<Files>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
-		<File RelativePath="..\ADOBJS.F90"/>
-		<File RelativePath="..\EXCEL11.f90"/>
-		<File RelativePath="..\netpath.f90"/>
-		<File RelativePath="..\npexcel.F90"/>
-		<File RelativePath="..\npmod.f90"/>
-		<File RelativePath="..\npwinscreen.f90"/>
-		<File RelativePath="..\wateqfp.f90"/></Filter>
+		<File RelativePath="..\src\adobjs.f90"/>
+		<File RelativePath="..\src\excel11.f90"/>
+		<File RelativePath="..\src\netpath.f90"/>
+		<File RelativePath="..\src\npexcel.f90"/>
+		<File RelativePath="..\src\npmod.f90"/>
+		<File RelativePath="..\src\npwinscreen.f90"/>
+		<File RelativePath="..\src\wateqfp.f90"/></Filter>
 		<Filter Name="Header Files" Filter="fi;fd"/>
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/></Files>
 	<Globals/></VisualStudioProject>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?include Guids.wxi ?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi">
+  <Product Id="????????-????-????-????-????????????" Name="$(var.Name)" Language="1033" Version="$(var.Version)" Manufacturer="USGS" UpgradeCode="$(var.UpgradeCode)">
+    <Package Id="????????-????-????-????-????????????" Description="USGS $(var.Name)" Comments="USGS $(var.Name) Installer Package" InstallerVersion="200" Compressed="yes" />
+
+    <!-- Major upgrade -->
+    <Upgrade Id="$(var.UpgradeCode)">
+      <UpgradeVersion Minimum="$(var.Version)" OnlyDetect="yes" Property="NEWERVERSIONDETECTED" />
+      <UpgradeVersion Minimum="0.4.0.0" IncludeMinimum="yes" Maximum="$(var.Version)" IncludeMaximum="no" Property="OLDERVERSIONBEINGUPGRADED" />
+    </Upgrade>
+
+	<!--
+    <Condition Message="An administrator must approve or install [ProductName].">Privileged</Condition>
+    -->
+    <Condition Message="A later version of [ProductName] is already installed.">NOT NEWERVERSIONDETECTED</Condition>
+    <Condition Message='This installer requires that Microsoft Excel be installed. Please install it and try again.' ><![CDATA[EXCEL_CLSID == ""]]></Condition>
+
+
+    <!-- Media -->
+    <Media Id="1" Cabinet="$(var.Name).cab" EmbedCab="yes" />
+
+    <!-- Icons -->
+    <Icon Id="netpathxl.exe" SourceFile="$(var.ExeSource)\netpathxl.exe" />
+    <Icon Id="dbxl.exe" SourceFile="$(var.ExeSource)\dbxl.exe" />
+
+    <!-- Properties -->
+	<Property Id="ALLUSERS" Value="2" />
+    <Property Id="ARPPRODUCTICON" Value="netpathxl.exe" />
+	<Property Id="EXCEL_CLSID">
+      <RegistrySearch Id="ExcelSearch" Root="HKCR" Key="HKEY_CLASSES_ROOT\Excel.Application" Name="CLSID" Type="raw" />
+    </Property>
+
+    <!--
+    <Property Id="ARPHELPLINK" Value="http://sourceforge.net/support/getsupport.php?group_id=105970" />
+    <Property Id="ARPURLINFOABOUT" Value="http://wix.sourceforge.net" />
+    <Property Id="ARPURLUPDATEINFO" Value="http://wix.sourceforge.net" />
+    -->
+
+    <!-- Feature -->
+    <Feature Id="ProductFeature" Title="Program" Description='The main executables.' TypicalDefault='install' Level="1" ConfigurableDirectory="INSTALLLOCATION">
+      <ComponentGroupRef Id="MainExecutable" />
+      <Feature Id="ExamplesFeature" Title="Examples" Description='Example input files.' TypicalDefault='install' Level="1" AllowAdvertise="no">
+        <ComponentGroupRef Id="Examples" />
+      </Feature>
+    </Feature>
+
+    <!-- Install Sequences -->
+    <InstallExecuteSequence>
+      <RemoveExistingProducts After="InstallValidate" />
+    </InstallExecuteSequence>
+
+	<!--
+    <UIRef Id="WixUI_FeatureTree" />
+    <UIRef Id="WixUI_Mondo" />
+    <UIRef Id="WixUI_Minimal" />
+    -->
+
+	<Property Id="WIXUI_INSTALLDIR" Value="INSTALLLOCATION" />
+    <UIRef Id="WixUI_InstallDir" />
+	<UIRef Id="WixUI_ErrorProgressText" />
+
+
+  </Product>
+</Wix>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?include Guids.wxi ?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi">
+  <Fragment>
+
+    <!-- Directories -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id='USGS' Name='USGS'>
+          <Directory Id="INSTALLLOCATION" Name="$(var.ShortDirectoryName)" LongName="$(var.LongDirectoryName)">
+            <Directory Id="BinDir" Name="bin" />
+            <Directory Id="ExamplesDir" Name="examples" />
+            <Directory Id="DatabaseDir" Name="database" />
+          </Directory>
+        </Directory>
+      </Directory>
+      <Directory Id='ProgramMenuFolder' Name='ProgMenu'>
+        <Directory Id='ShortCutFolder' Name='$(var.ShortDirectoryName)' LongName="$(var.LongDirectoryName)" />
+      </Directory>
+    </Directory>
+
+    <!-- Components -->
+    <DirectoryRef Id="INSTALLLOCATION">
+      <Component Id="RootFiles" Guid="$(var.RootFilesGuid)">
+        <File Id="README" Name="README" Vital="yes" DiskId='1' src="$(var.RootSource)\README.TXT" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="BinDir">
+      <Component Id="Executables" Guid="$(var.ExecutablesGuid)">
+        <File Id="netpathxl.exe" Name="netpathx.exe" LongName='netpathxl.exe' Vital="yes" DiskId='1' Source="$(var.ExeSource)\netpathxl$(var.DebugLetter).exe">
+          <Shortcut Id='NetpathXLShortcut' Directory='ShortCutFolder' Name='NetpathX' LongName='NetpathXL' Icon="netpathxl.exe" IconIndex="0" Advertise='yes' WorkingDirectory="INSTALLLOCATION"/>
+        </File>
+        <File Id="dbxl.exe" Name="dbxl.exe" Vital="yes" DiskId='1' Source="$(var.ExeSource)\dbxl$(var.DebugLetter).exe">
+          <Shortcut Id='DBXLShortcut' Directory='ShortCutFolder' Name='HTPOST' LongName='DBXL' Icon="dbxl.exe" IconIndex="0" Advertise='yes' WorkingDirectory="INSTALLLOCATION"/>
+        </File>
+<!--
+        <ProgId Id="HTI.Document" Description="Hydrotherm Interactive Document" Icon='[#hti.exe]' IconIndex='0'>
+          <Extension Id="hti">
+            <Verb Id="open" Target='[#hti.exe]' Argument='"%1"'/>
+          </Extension>
+        </ProgId>
+-->
+        <RemoveFolder Id="RemoveShortCutFolder" Directory="ShortCutFolder" On="uninstall"/>
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="DatabaseDir">
+      <Component Id="Database" Guid="$(var.DatabaseGuid)">
+        <File Id="db.dat" Name="db.dat" Vital="yes" DiskId='1' Source="$(var.DatabaseSource)\db.dat" />
+        <File Id="netpath.dat" Name="netpath.dat" Vital="yes" DiskId='1' Source="$(var.DatabaseSource)\netpath.dat" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="ExamplesDir">
+      <Component Id="Examples" Guid="$(var.ExamplesGuid)">
+        <File Id="class.xls" Name="class.xls" DiskId='1' src="$(var.ExamplesSource)\class.xls" />
+      </Component>
+    </DirectoryRef>
+
+
+    <ComponentGroup Id="MainExecutable">
+      <ComponentRef Id="RootFiles" />
+      <ComponentRef Id="Executables" />
+      <ComponentRef Id="Database" />
+    </ComponentGroup>
+
+    <ComponentGroup Id="Examples">
+      <ComponentRef Id="Examples" />
+    </ComponentGroup>
+
+  </Fragment>
+</Wix>

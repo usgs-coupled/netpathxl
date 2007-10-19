@@ -15,7 +15,7 @@
     <Condition Message="An administrator must approve or install [ProductName].">Privileged</Condition>
     -->
     <Condition Message="A later version of [ProductName] is already installed.">NOT NEWERVERSIONDETECTED</Condition>
-    <Condition Message='This installer requires that Microsoft Excel be installed. Please install it and try again.' ><![CDATA[EXCEL_CLSID == ""]]></Condition>
+    <Condition Message='This installer requires that Microsoft Excel be installed. Please install it and try again.' ><![CDATA[EXCEL_CLSID <> ""]]></Condition>
 
 
     <!-- Media -->
@@ -29,7 +29,7 @@
 	<Property Id="ALLUSERS" Value="2" />
     <Property Id="ARPPRODUCTICON" Value="netpathxl.exe" />
 	<Property Id="EXCEL_CLSID">
-      <RegistrySearch Id="ExcelSearch" Root="HKCR" Key="HKEY_CLASSES_ROOT\Excel.Application" Name="CLSID" Type="raw" />
+      <RegistrySearch Id="ExcelSearch" Root="HKCR" Key="Excel.Application\CLSID" Type="raw" />
     </Property>
 
     <!--

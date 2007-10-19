@@ -1,0 +1,83 @@
+ Initial Well : Sierra Nevada (Ephemeral Spr.)  
+ Final Well   : Sierra Nevada (Perennial Spr.)  
+
+          Final     Initial
+ C       1.1993      0.7825
+ S       0.0250      0.0100
+ CA      0.2600      0.0780
+ MG      0.0710      0.0290
+ NA      0.2590      0.1340
+ CL      0.0300      0.0140
+ SI      0.4100      0.2730
+ AL      0.0000      0.0000
+ 
+ NaCl     NA   1.0000 CL   1.0000
+ GYPSUM   CA   1.0000 S    1.0000 RS   6.0000 I3  22.0000
+ KAOLINIT AL   2.0000 SI   2.0000
+ Ca-MONT  CA   0.1670 AL   2.3300 SI   3.6700
+ CO2 GAS  C    1.0000 RS   4.0000 I1 -25.0000 I2 100.0000
+ CALCITE  CA   1.0000 C    1.0000 RS   4.0000 I1   0.0000 I2   0.0000
+ SiO2     SI   1.0000
+ BIOTITE  AL   1.0000 MG   3.0000 K    1.0000 SI   3.0000
+ PLAGAN38 CA   0.3800 NA   0.6200 AL   1.3800 SI   2.6200
+
+                      9 models checked
+                      5 models found
+
+
+
+
+
+            MODEL   1
+  NaCl      +          0.01600
+  GYPSUM    +          0.01500
+  KAOLINIT            -0.03355
+  Ca-MONT             -0.08136
+  CO2 GAS              0.30296
+  CALCITE              0.11380
+  BIOTITE              0.01400
+  PLAGAN38  +          0.17584
+
+
+            MODEL   2
+  NaCl      +          0.01600
+  GYPSUM    +          0.01500
+  KAOLINIT            -0.82741
+  Ca-MONT              0.60007
+  CO2 GAS              0.41676
+  SiO2                -0.91311
+  BIOTITE              0.01400
+  PLAGAN38  +          0.17584
+
+
+            MODEL   3
+  NaCl      +          0.01600
+  GYPSUM    +          0.01500
+  KAOLINIT             2.07993
+  Ca-MONT             -1.89550
+  CALCITE              0.41676
+  SiO2                 2.43096
+  BIOTITE              0.01400
+  PLAGAN38  +          0.17584
+
+
+            MODEL   4
+  NaCl      +          0.01600
+  GYPSUM    +          0.01500
+  KAOLINIT            -0.12833
+  CO2 GAS              0.31655
+  CALCITE              0.10021
+  SiO2                -0.10902
+  BIOTITE              0.01400
+  PLAGAN38  +          0.17584
+
+
+            MODEL   5
+  NaCl      +          0.01600
+  GYPSUM    +          0.01500
+  Ca-MONT             -0.11015
+  CO2 GAS              0.29815
+  CALCITE              0.11861
+  SiO2                 0.03859
+  BIOTITE              0.01400
+  PLAGAN38  +          0.17584

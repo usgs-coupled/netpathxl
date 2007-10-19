@@ -1,0 +1,145 @@
+ Initial Well : Chapelle-Knobel (1985) Fd-12    
+ Final Well   : Chapelle-Knobel (1985) Ff-35    
+
+          Final     Initial
+ C       5.9742      3.0741
+ CA      0.0749      1.0232
+ NA      6.0930      0.1653
+ RS     24.7092     13.4833
+ FE      0.0000      0.0000
+ S       0.1354      0.1978
+ 
+ CALCITE  CA   1.0000 C    1.0000 RS   4.0000 I1   1.1000 I2   0.0000
+ EXCHANGE CA  -1.0000 NA   2.0000 MG   0.0000
+ GOETHITE FE   1.0000 RS   3.0000
+ GYPSUM   CA   1.0000 S    1.0000 RS   6.0000 I3  22.0000
+ PYRITE   FE   1.0000 S    2.0000 RS   0.0000 I3 -60.0000
+ LIGNITE  C    1.0000 RS  -0.4000 I1 -22.0000 I2   0.0000
+
+                      1 model checked
+                      1 model found
+
+
+            MODEL   1
+  CALCITE              0.91086        5.200 exchanged
+  EXCHANGE             2.96382
+  GOETHITE             0.58353
+  GYPSUM    +          1.10461
+  PYRITE    -         -0.58353
+  LIGNITE   +          1.98929
+                Computed    Observed
+ Carbon-13       -6.2068     -6.2000
+ C-14 (% mod)     7.8031*     3.1000
+ Sulfur-34       66.9879   Undefined
+ Strontium-87      Insufficient data
+ Nitrogen-15       Insufficient data
+ -------------------------------------------------------------------------
+ Adjusted C-14 age in years:   7631.*     * = based on User-defined        
+ 
+     Model                 A0     Computed  Observed    age
+ (for initial A0)      (initial) (no decay)           (final)
+ ------------------------------------------------------------
+ Original Data            33.90      5.29      3.10     4419.
+ Mass Balance             55.75      8.70      3.10     8531.
+ Vogel                    85.00     13.27      3.10    12018.
+ Tamers                   52.75      8.23      3.10     8074.
+ Ingerson and Pearson     50.40      7.87      3.10     7697.
+ Mook                     34.25      5.34      3.10     4503.
+ Fontes and Garnier       50.35      7.86      3.10     7688.
+      F-G K     -2.41
+ Eichinger                47.91      7.48      3.10     7278.
+ User-defined             50.00      7.80      3.10     7631.
+ 
+
+ Data used for Carbon-13   
+
+ Initial Value: -12.6000000        Modeled Final Value:  -6.2067633
+
+  2 dissolving phases:
+ Phase       Delta C     Isotopic composition (o/oo)
+ CALCITE     6.1108597            1.1000000
+ LIGNITE     1.9892903          -22.0000000
+
+  1 precipitating phases:                             Average
+ Phase       Delta C     Fractionation factor Isotopic composition (o/oo)
+ CALCITE    -5.20000             0.7050              -7.4419761
+
+          Isotopic composition of precipitating CALCITE 
+
+             +--------------------------------------------------+
+      -5.5225|                                   ***************|
+             |                           ********               |              
+             |                    *******                       |              
+             |                ****                              |Avg =  -7.4420
+ Carbon-13   |            ****                                  |              
+     o/oo    |         ***                                      |              
+             |      ***                                         |              
+             |    **                                            |              
+             |  **                                              |              
+     -11.7110|**                                                |
+             +--------------------------------------------------+
+          Initial                                             Final
+
+ Data used for C-14 (% mod)
+
+ Initial Value:  50.0000000        Modeled Final Value:   7.8030894
+
+  2 dissolving phases:
+ Phase       Delta C     Isotopic composition (% modern)
+ CALCITE     6.1108597            0.0000000
+ LIGNITE     1.9892903            0.0000000
+
+  1 precipitating phases:                             Average
+ Phase       Delta C     Fractionation factor Isotopic composition (% modern)
+ CALCITE    -5.20000             1.4099              20.5974527
+
+          Isotopic composition of precipitating CALCITE 
+
+             +--------------------------------------------------+
+      48.7958|**                                                |
+             |  **                                              |              
+             |    **                                            |              
+             |      ***                                         |              
+ C-14 (% mod)|         ***                                      |              
+             |            ****                                  |              
+             |                ****                              |Avg =  20.5975
+             |                    *******                       |              
+             |                           ********               |              
+       7.9221|                                   ***************|
+             +--------------------------------------------------+
+          Initial                                             Final
+
+ Data used for Sulfur-34   
+
+ Initial Value:   0.0000000        Modeled Final Value:  66.9879405
+
+  1 dissolving phases:
+ Phase       Delta S     Isotopic composition (o/oo)
+ GYPSUM      1.1046103           22.0000000
+
+  1 precipitating phases:                             Average
+ Phase       Delta S     Fractionation factor Isotopic composition (o/oo)
+ PYRITE     -1.16705           -40.0000              13.0396215
+
+          Isotopic composition of precipitating PYRITE  
+
+             +--------------------------------------------------+
+      24.2996|                    ******************************|
+             |               *****                              |Avg =  13.0396
+             |           ****                                   |              
+             |         **                                       |              
+ Sulfur-34   |       **                                         |              
+     o/oo    |     **                                           |              
+             |    *                                             |              
+             |   *                                              |              
+             | **                                               |              
+     -36.7236|*                                                 |
+             +--------------------------------------------------+
+          Initial                                             Final
+
+ Data used for Strontium-87
+       Insufficient data
+
+ Data used for Nitrogen-15 
+       Insufficient data
+ 

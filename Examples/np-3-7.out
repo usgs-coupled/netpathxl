@@ -1,0 +1,20 @@
+ Initial Well : Chapelle-Knobel (1985) Fd-12    
+ Final Well   : Chapelle-Knobel (1985) Ff-35    
+
+          Final     Initial
+ C       5.9742      3.0741
+ CA      0.0749      1.0232
+ NA      6.0930      0.1653
+ 
+ CALCITE  CA   1.0000 C    1.0000 RS   4.0000 I1   0.0000 I2   0.0000
+ CO2 GAS  C    1.0000 RS   4.0000 I1 -25.0000 I2 100.0000
+ H-Exch   NA   1.6000 CA  -1.0000
+
+                      1 model checked
+                      1 model found
+
+
+            MODEL   1
+  CALCITE              2.75643
+  CO2 GAS              0.14373
+  H-Exch               3.70478

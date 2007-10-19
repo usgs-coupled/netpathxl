@@ -1,0 +1,131 @@
+ Initial Well : Bemidjii Site AA                
+ Final Well   : Bemidjii Site BB                
+
+          Final     Initial
+ C      12.4730     22.6890
+ CA      3.0460      3.3220
+ FE      0.0790      1.0550
+ MN      0.1270      0.0160
+ N       0.1450      0.1680
+ RS     38.1867     56.9640
+ 
+ MnO2     MN   1.0000 RS   4.0000
+ GOETHITE FE   1.0000 RS   3.0000
+ SIDERITE FE   1.0000 C    1.0000 RS   6.0000 I1   0.0000 I2   0.0000
+ Sorb NH4 N   -1.0000 RS   3.0000
+ CO2-CH4  C    1.0000 RS  -2.8800 I1 -49.5540 I2   0.0000
+ CALCITE  CA   1.0000 C    1.0000 RS   4.0000 I1   0.0000 I2   0.0000
+
+                      1 model checked
+                      1 model found
+
+
+            MODEL   1
+  MnO2                 0.11100
+  GOETHITE             6.48751
+  SIDERITE            -7.46351
+  Sorb NH4             0.02300
+  CO2-CH4             -2.47649
+  CALCITE             -0.27600
+                Computed    Observed
+ Carbon-13       -9.7397     -9.7385
+ DIC C-13        -5.9515     -5.9500
+ C-14 (% mod)      Insufficient data
+ Sulfur-34        0.0000   Undefined
+ Strontium-87      Insufficient data
+ Nitrogen-15       Insufficient data
+ 
+ 
+
+ Data used for Carbon-13   
+
+ Initial Value: -12.3291154        Modeled Final Value:  -9.7397235
+
+
+  4 precipitating phases:                             Average
+ Phase       Delta C     Fractionation factor Isotopic composition (o/oo)
+ SIDERITE   -7.46351             6.4576              -4.7777560
+ CO2 GAS    -0.34671            -3.4255             -14.5505174
+ CH4 GAS    -2.12978           -43.9000             -54.5732021
+ CALCITE    -0.27600             6.4576              -4.7777560
+
+          Isotopic composition of precipitating SIDERITE
+
+             +--------------------------------------------------+
+      -3.3804|                                              ****|
+             |                                          ****    |              
+             |                                      ****        |              
+             |                                 *****            |              
+ Carbon-13   |                             ****                 |              
+     o/oo    |                        *****                     |Avg =  -4.7778
+             |                  ******                          |              
+             |             *****                                |              
+             |       ******                                     |              
+      -5.9315|*******                                           |
+             +--------------------------------------------------+
+          Initial                                             Final
+
+          Isotopic composition of precipitating CO2 GAS 
+
+             +--------------------------------------------------+
+     -13.1669|                                              ****|
+             |                                          ****    |              
+             |                                      ****        |              
+             |                                 *****            |              
+ Carbon-13   |                             ****                 |              
+     o/oo    |                        *****                     |Avg = -14.5505
+             |                  ******                          |              
+             |             *****                                |              
+             |       ******                                     |              
+     -15.6929|*******                                           |
+             +--------------------------------------------------+
+          Initial                                             Final
+
+          Isotopic composition of precipitating CH4 GAS 
+
+             +--------------------------------------------------+
+     -53.2458|                                              ****|
+             |                                          ****    |              
+             |                                      ****        |              
+             |                                 *****            |              
+ Carbon-13   |                             ****                 |              
+     o/oo    |                        *****                     |Avg = -54.5732
+             |                  ******                          |              
+             |             *****                                |              
+             |       ******                                     |              
+     -55.6692|*******                                           |
+             +--------------------------------------------------+
+          Initial                                             Final
+
+          Isotopic composition of precipitating CALCITE 
+
+             +--------------------------------------------------+
+      -3.3804|                                              ****|
+             |                                          ****    |              
+             |                                      ****        |              
+             |                                 *****            |              
+ Carbon-13   |                             ****                 |              
+     o/oo    |                        *****                     |Avg =  -4.7778
+             |                  ******                          |              
+             |             *****                                |              
+             |       ******                                     |              
+      -5.9315|*******                                           |
+             +--------------------------------------------------+
+          Initial                                             Final
+
+ Data used for C-14 (% mod)
+       Insufficient data
+
+ Data used for Sulfur-34   
+
+ Initial Value:   0.0000000        Modeled Final Value:   0.0000000
+
+ No incoming or outgoing phases
+
+
+ Data used for Strontium-87
+       Insufficient data
+
+ Data used for Nitrogen-15 
+       Insufficient data
+ 

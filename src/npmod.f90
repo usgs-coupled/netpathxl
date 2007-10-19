@@ -17,8 +17,8 @@ end module filenames
 
 module version
   CHARACTER*32 versnam, datestr
-  DATA versnam/'NetpathXL 2.14.2'/
-  DATA datestr/'October 17, 2007'/
+  DATA versnam/'NetpathXL 1.1'/
+  DATA datestr/'October 19, 2007'/
 end module version
 
 module excel_headings

@@ -325,6 +325,9 @@ SUBROUTINE REREAD_EXCEL
     USE filenames
     USE IFwin
     implicit none
+    DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
+    COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40), &
+       Disalong, Usera(5)
     INTEGER LENS 
     EXTERNAL LENS
     integer result, CHANGEDIRQQ
@@ -348,6 +351,7 @@ SUBROUTINE REREAD_EXCEL
     !
     character*(*),parameter :: filter_spec_lon = "DB files"C//"*.lon"C  
     character*(*),parameter :: filter_spec_xls = "Excel files"C//"*.xls"C
+    double precision dbsave(0:50,0:50)
 
     ! Declare string variable to return the file specification.
     ! Initialize with an initial filespec, if any - null string
@@ -355,12 +359,26 @@ SUBROUTINE REREAD_EXCEL
     !
     character*10 suffix
     character*512 :: file_spec = ""C
-    integer status,ilen, i, strcmp_nocase
+    integer status,ilen, i, strcmp_nocase, j
     
     ! Save for reread
     filename = excel_filename
     path = excel_path 
     root = excel_root 
+
+    ! Save user defined values
+    ! 44: C-13 of CH4
+    ! 45: C-13 of DOC
+    ! 46: C-14 of CH4
+    ! 47: C-14 of DOC
+    ! Not user defined48: RS of DOC
+    ! 49: User-entered RS of DOC
+    do i = 0, 50
+        do j = 44,49
+            if (j == 48) cycle
+            dbsave(i, j) = dbdata(i, j)
+        enddo
+    enddo    
 
 	CALL OldExcel
 	result = CheckOldExcel()
@@ -383,6 +401,12 @@ SUBROUTINE REREAD_EXCEL
 	fileone = root(1:lens(root))//'.pat'
 	call rdpath(fileone)
 	excel_file = .true. 
+	do i = 0, 50
+        do j = 44,49
+            if (j == 48) cycle
+            dbdata(i, j) = dbsave(i, j) 
+        enddo
+    enddo   
   return
 END SUBROUTINE REREAD_EXCEL
 !

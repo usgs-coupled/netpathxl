@@ -1,15 +1,31 @@
  Carbon-13   
-  0 dissolving:
-  4 precipitating:
-        7.463512       6.460584
-        0.346708      -3.422534
-        2.129780     -43.900000
-        0.276000       6.460584
-CFINAL    12.47300 CINIT    22.68900
-EXPONENT    -0.00437 EPSBAR    -5.98675
-BETA     1.00000 PHACOMP -1000.00000 EPSGAM     0.00000
-EXPON     1.00262 SMGAM     1.36879 GAMMA     0.00000
+  2 dissolving:
+        7.060000       4.000000
+        0.870772     -25.000000
+  2 precipitating:
+        5.317225       2.384364
+        0.043547      -5.920167
+CFINAL     6.87000 CINIT     4.30000
+EXPONENT    -3.09074 EPSBAR     2.33588
+BETA     1.00157 PHACOMP     0.81590 EPSGAM     1.56610
+EXPON     0.23500 SMGAM     1.00819 GAMMA     1.49152
+ C-14 (% mod)
+  2 dissolving:
+        7.060000   -1000.000000
+        0.870772   -1000.000000
+  2 precipitating:
+        5.317225       4.768727
+        0.043547     -11.840335
+CFINAL     6.87000 CINIT     4.30000
+EXPONENT    -3.09557 EPSBAR     4.67176
+BETA     1.00313 PHACOMP -1000.00000 EPSGAM     3.13220
+EXPON     0.23447 SMGAM     1.00819 GAMMA     1.49152
  Sulfur-34   
-  0 dissolving:
-  0 precipitating:
- No phases in or out
+  1 dissolving:
+       20.147225      15.500000
+  1 precipitating:
+        0.188225     -37.895790
+CFINAL    20.11900 CINIT     0.16000
+EXPONENT    -1.00907 EPSBAR   -37.89579
+BETA     0.99965 PHACOMP    15.50000 EPSGAM    -0.35404
+EXPON     0.00761 SMGAM     1.00000 GAMMA   107.03780

@@ -548,7 +548,7 @@ SUBROUTINE DB2XL
 	 !enddo     ! 1 well
 	 do j = 1, 45
 		cell_location = location(j) // char_linenum
-		call setcell_float(cell_location, dbdata(n,j))
+		call setcell_float(cell_location, dbdata(n,j), dbsfg(n,j))
 	 enddo
 	 !WRITE (Iw1,'(A,T60,"# Formation")') Formation(n)
 	 linenum = linenum + 1

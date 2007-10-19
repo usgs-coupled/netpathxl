@@ -131,20 +131,21 @@ end subroutine
 !
 !
 !
-Subroutine setcell_float(cell, f)
+Subroutine setcell_float(cell, f, isig)
       IMPLICIT NONE   
 
 	  INTEGER*4 status
 	  REAL f
+	  INTEGER isig
 	  character*(*) cell
 
 	  call set_range(cell, cell)
 
 	  CALL Check_Status(status, " Unable to get RANGE object")
-
-	  status = AUTOSETPROPERTY (range, "VALUE", f)
-	  CALL Check_Status(status, " Unable to set string in cell")
-
+      if (isig >= 0) then
+	    status = AUTOSETPROPERTY (range, "VALUE", f)
+	    CALL Check_Status(status, " Unable to set string in cell")
+      endif  
 	  return
 end subroutine
 !

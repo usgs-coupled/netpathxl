@@ -152,13 +152,11 @@ reconf() {
 }
 build() {
   (cd ${topdir} && \
-# build hti.jar htiHelp.jar htipostHelp.jar
-  cd ${objdir}/hti && \
-  ant jar && \
-# build netpathxl.exe dbxl.exe
+# build netpathxl.exe
   cd ${objdir} && \
   export SLN=`cygpath -w ${objdir}/netpathxl/netpathxl.sln` && \
   "${DEVENV}" "${SLN}" /out netpathxl.log /build Release && \
+# build dbxl.exe
   cd ${objdir} && \
   export SLN=`cygpath -w ${objdir}/dbxl/dbxl.sln` && \
   "${DEVENV}" "${SLN}" /out dbxl.log /build Release && \

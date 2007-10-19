@@ -27,6 +27,8 @@
 #  
 #   To build a Windows zip file package pass -zip.
 
+NAME=NetpathXL
+
 # echo everything
 # set -x
 
@@ -129,7 +131,7 @@ else
   REPOS_PATH="`echo $REPOS_PATH | sed 's/^\/*//'`"
 fi
 
-DISTNAME="hti-${VERSION}${VER_NUMTAG}"
+DISTNAME="${NAME}-${VERSION}${VER_NUMTAG}"
 DIST_SANDBOX=.dist_sandbox
 DISTPATH="$DIST_SANDBOX/$DISTNAME"
 
@@ -143,21 +145,11 @@ rm -rf "$DIST_SANDBOX"
 mkdir "$DIST_SANDBOX"
 echo "Removed and recreated $DIST_SANDBOX"
 
-echo "Exporting revision $REVISION of hti into sandbox..."
+echo "Exporting revision $REVISION of $NAME into sandbox..."
 (cd "$DIST_SANDBOX" && \
  	${SVN:-svn} export -q $EXTRA_EXPORT_OPTIONS --ignore-externals -r "$REVISION" \
-	     "http://internalbrr.cr.usgs.gov/svn_GW/ht_gui/$REPOS_PATH" \
+	     "http://internalbrr.cr.usgs.gov/svn_GW/NetpathXL/$REPOS_PATH" \
 	     "$DISTNAME")
-
-(cd "$DIST_SANDBOX" && \
- 	${SVN:-svn} export -q $EXTRA_EXPORT_OPTIONS --ignore-externals -r "$REVISION" \
-	     "http://internalbrr.cr.usgs.gov/svn_GW/mp2/trunk" \
-	     "$DISTNAME/mp2")
-
-(cd "$DIST_SANDBOX" && \
- 	${SVN:-svn} export -q $EXTRA_EXPORT_OPTIONS --ignore-externals -r "$REVISION" \
-	     "http://internalbrr.cr.usgs.gov/svn_GW/htJni/trunk" \
-	     "$DISTNAME/htJni")
 
 ver_major=`echo $VERSION | cut -d '.' -f 1`
 ver_minor=`echo $VERSION | cut -d '.' -f 2`
@@ -169,7 +161,7 @@ fi
 
 VERSION_LONG="$ver_major.$ver_minor.$ver_patch.$REVISION_SVN"
 
-SED_FILES="$DISTPATH/htJni/hti-setup/Guids.wxi"
+SED_FILES="$DISTPATH/setup/Guids.wxi"
 
 for vsn_file in $SED_FILES
 do

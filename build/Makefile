@@ -15,7 +15,7 @@
 # 3g. make finish
 #
 
-NAME := hti
+NAME := NetpathXL
 
 FORCE_UPDATE := $(shell svn up ..)
 

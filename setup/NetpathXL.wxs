@@ -24,7 +24,7 @@
     <!-- Components -->
     <DirectoryRef Id="INSTALLLOCATION">
       <Component Id="RootFiles" Guid="$(var.RootFilesGuid)">
-        <File Id="README" Name="README" Vital="yes" DiskId='1' src="$(var.RootSource)\README.TXT" />
+        <File Id="README" Name="README.TXT" Vital="yes" DiskId='1' src="$(var.RootSource)\README.TXT" />
       </Component>
     </DirectoryRef>
 
@@ -56,10 +56,56 @@
 
     <DirectoryRef Id="ExamplesDir">
       <Component Id="Examples" Guid="$(var.ExamplesGuid)">
-        <File Id="class.xls" Name="class.xls" DiskId='1' src="$(var.ExamplesSource)\class.xls" />
+        <File Id="class.lon" Name="class.lon" DiskId='1' Source="$(var.ExamplesSource)\class.lon" />
+        <File Id="class.out" Name="class.out" DiskId='1' Source="$(var.ExamplesSource)\class.out" />
+        <File Id="class.pat" Name="class.pat" DiskId='1' Source="$(var.ExamplesSource)\class.pat" />
+        <File Id="class.xls" Name="class.xls" DiskId='1' Source="$(var.ExamplesSource)\class.xls" />
+        <File Id="db.fil" Name="db.fil" DiskId='1' Source="$(var.ExamplesSource)\db.fil" />
+        <File Id="model.fil" Name="model.fil" DiskId='1' Source="$(var.ExamplesSource)\model.fil" />
+        <File Id="netpath.fil" Name="netpath.fil" DiskId='1' Source="$(var.ExamplesSource)\netpath.fil" />
+        <File Id="netpath.out" Name="netpath.out" DiskId='1' Source="$(var.ExamplesSource)\netpath.out" />
+        <File Id="netpth1.out" Name="netpth1.out" DiskId='1' Source="$(var.ExamplesSource)\netpth1.out" />
+        <File Id="netpth10.out" Name="netpth10.out" DiskId='1' Source="$(var.ExamplesSource)\netpth10.out" />
+        <File Id="netpth11.out" Name="netpth11.out" DiskId='1' Source="$(var.ExamplesSource)\netpth11.out" />
+        <File Id="netpth12.out" Name="netpth12.out" DiskId='1' Source="$(var.ExamplesSource)\netpth12.out" />
+        <File Id="netpth13.out" Name="netpth13.out" DiskId='1' Source="$(var.ExamplesSource)\netpth13.out" />
+        <File Id="netpth14.out" Name="netpth14.out" DiskId='1' Source="$(var.ExamplesSource)\netpth14.out" />
+        <File Id="netpth15.out" Name="netpth15.out" DiskId='1' Source="$(var.ExamplesSource)\netpth15.out" />
+        <File Id="netpth16.out" Name="netpth16.out" DiskId='1' Source="$(var.ExamplesSource)\netpth16.out" />
+        <File Id="netpth17.out" Name="netpth17.out" DiskId='1' Source="$(var.ExamplesSource)\netpth17.out" />
+        <File Id="netpth18.out" Name="netpth18.out" DiskId='1' Source="$(var.ExamplesSource)\netpth18.out" />
+        <File Id="netpth19.out" Name="netpth19.out" DiskId='1' Source="$(var.ExamplesSource)\netpth19.out" />
+        <File Id="netpth2.out" Name="netpth2.out" DiskId='1' Source="$(var.ExamplesSource)\netpth2.out" />
+        <File Id="netpth20.out" Name="netpth20.out" DiskId='1' Source="$(var.ExamplesSource)\netpth20.out" />
+        <File Id="netpth3.out" Name="netpth3.out" DiskId='1' Source="$(var.ExamplesSource)\netpth3.out" />
+        <File Id="netpth4.out" Name="netpth4.out" DiskId='1' Source="$(var.ExamplesSource)\netpth4.out" />
+        <File Id="netpth5.out" Name="netpth5.out" DiskId='1' Source="$(var.ExamplesSource)\netpth5.out" />
+        <File Id="netpth6.out" Name="netpth6.out" DiskId='1' Source="$(var.ExamplesSource)\netpth6.out" />
+        <File Id="netpth7.out" Name="netpth7.out" DiskId='1' Source="$(var.ExamplesSource)\netpth7.out" />
+        <File Id="netpth8.out" Name="netpth8.out" DiskId='1' Source="$(var.ExamplesSource)\netpth8.out" />
+        <File Id="netpth9.out" Name="netpth9.out" DiskId='1' Source="$(var.ExamplesSource)\netpth9.out" />
+        <File Id="np.1a.dat" Name="np-1a.dat" DiskId='1' Source="$(var.ExamplesSource)\np-1a.dat" />
+        <File Id="np.1b.dat" Name="np-1b.dat" DiskId='1' Source="$(var.ExamplesSource)\np-1b.dat" />
+        <File Id="np.1c.dat" Name="np-1c.dat" DiskId='1' Source="$(var.ExamplesSource)\np-1c.dat" />
+        <File Id="np.2.dat" Name="np-2.dat" DiskId='1' Source="$(var.ExamplesSource)\np-2.dat" />
+        <File Id="np.3.1.dat" Name="np-3-1.dat" DiskId='1' Source="$(var.ExamplesSource)\np-3-1.dat" />
+        <File Id="np.3.2.dat" Name="np-3-2.dat" DiskId='1' Source="$(var.ExamplesSource)\np-3-2.dat" />
+        <File Id="np.3.3a.dat" Name="np-3-3a.dat" DiskId='1' Source="$(var.ExamplesSource)\np-3-3a.dat" />
+        <File Id="np.3.3b.dat" Name="np-3-3b.dat" DiskId='1' Source="$(var.ExamplesSource)\np-3-3b.dat" />
+        <File Id="np.3.4.dat" Name="np-3-4.dat" DiskId='1' Source="$(var.ExamplesSource)\np-3-4.dat" />
+        <File Id="np.3.5.dat" Name="np-3-5.dat" DiskId='1' Source="$(var.ExamplesSource)\np-3-5.dat" />
+        <File Id="np.3.6.dat" Name="np-3-6.dat" DiskId='1' Source="$(var.ExamplesSource)\np-3-6.dat" />
+        <File Id="np.3.7.dat" Name="np-3-7.dat" DiskId='1' Source="$(var.ExamplesSource)\np-3-7.dat" />
+        <File Id="np.4.dat" Name="np-4.dat" DiskId='1' Source="$(var.ExamplesSource)\np-4.dat" />
+        <File Id="np.5.1.dat" Name="np-5-1.dat" DiskId='1' Source="$(var.ExamplesSource)\np-5-1.dat" />
+        <File Id="np.5.2.dat" Name="np-5-2.dat" DiskId='1' Source="$(var.ExamplesSource)\np-5-2.dat" />
+        <File Id="np.5.3.dat" Name="np-5-3.dat" DiskId='1' Source="$(var.ExamplesSource)\np-5-3.dat" />
+        <File Id="np.5.4.dat" Name="np-5-4.dat" DiskId='1' Source="$(var.ExamplesSource)\np-5-4.dat" />
+        <File Id="np.5.5.dat" Name="np-5-5.dat" DiskId='1' Source="$(var.ExamplesSource)\np-5-5.dat" />
+        <File Id="np.6.dat" Name="np-6.dat" DiskId='1' Source="$(var.ExamplesSource)\np-6.dat" />
+        <File Id="np.7.dat" Name="np-7.dat" DiskId='1' Source="$(var.ExamplesSource)\np-7.dat" />
       </Component>
     </DirectoryRef>
-
 
     <ComponentGroup Id="MainExecutable">
       <ComponentRef Id="RootFiles" />

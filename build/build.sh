@@ -175,14 +175,10 @@ clean() {
 install() {
   (rm -fr ${instdir}/* && \
 # logs
-  /usr/bin/install -m 644 "${objdir}/htJni.log" ${instdir}/. && \
-  /usr/bin/install -m 644 "${objdir}/mp2/src/trimesh/Release/BuildLog.htm" ${instdir}/trimesh.BuildLog.htm && \
-  /usr/bin/install -m 644 "${objdir}/htJni/htpost/Release/BuildLog.htm" ${instdir}/htpost.BuildLog.htm && \
-  /usr/bin/install -m 644 "${objdir}/htJni/Jni/f90Release/BuildLog.htm" ${instdir}/htF90.BuildLog.htm && \
-  /usr/bin/install -m 644 "${objdir}/htJni/Jni/Release/BuildLog.htm" ${instdir}/Jni.BuildLog.htm && \
-  /usr/bin/install -m 644 "${objdir}/htJni/hti/Release/BuildLog.htm" ${instdir}/hti.BuildLog.htm && \
+  /usr/bin/install -m 644 "${objdir}/netpathxl.log" ${instdir}/. && \
+  /usr/bin/install -m 644 "${objdir}/dbxl.log" ${instdir}/. && \
 # MSI file
-  /usr/bin/install -m 755 "${objdir}/htJni/hti-setup/bin/Release/hti.msi" ${instdir}/${FULLPKG}.msi && \
+  /usr/bin/install -m 755 "${objdir}/setup/bin/Release/netpathxl.msi" ${instdir}/${FULLPKG}.msi && \
   if [ -x /usr/bin/md5sum ]; then \
     cd ${instdir} && \
     find . -type f ! -name md5sum | sed 's/^/\"/' | sed 's/$/\"/' | xargs md5sum > md5sum ; \

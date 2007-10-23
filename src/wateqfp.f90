@@ -1841,7 +1841,7 @@ end subroutine CONVDATA
 
         ! Strip netpathxl.exe off end
         i = index(exename, "\", .TRUE.)
-        datafile = exename(1:i) // "..\database\db.dat"
+        datafile = exename(1:i) // "..\database\db.dat" // char(0)
         i = GetFullPathName(datafile, MAX_PATH, buffer, filepart)
         datafile = buffer
         

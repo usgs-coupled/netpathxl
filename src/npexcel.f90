@@ -409,9 +409,11 @@ END subroutine cleanup_com
 	  END IF
 
 	! Error handling code
-	  CALL RELEASEOBJECTS()
+
 	  WRITE (*, '(A, "; OLE error status = 0x", Z8.8, "; Aborting")') TRIM(errorMsg), olestatus
 	  CALL SLEEPQQ(5000)
+	  
+	  CALL RELEASEOBJECTS()
 	  CALL EXIT(-1)
 
 	END SUBROUTINE

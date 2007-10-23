@@ -181,7 +181,7 @@
 	  call range_setlocked(range, vARG1, status)
  
 	  !Set protection on worksheet
-	  !call $worksheet_protect(worksheet)
+	  call $worksheet_protect(worksheet)
 
 	  !Save workbook
 	  !string = path(1:lens(path)) // '\' // dfile(1:lens(dfile)) // '.xls'

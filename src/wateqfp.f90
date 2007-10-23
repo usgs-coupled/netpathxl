@@ -1802,7 +1802,8 @@ end subroutine CONVDATA
       COMMON /WDBINT/ Lexcept, Numexcept, Numreacs, Nreacspec, Reacmflg,  &
                      Reacspec, Speckflg, Specgflg, Specspec, Speclist,  &
                      Nspecspec, Lcalk, Lnoncalk, Specinp
-      CHARACTER*200 datafile, exename
+      CHARACTER*MAX_PATH datafile, exename, buffer
+      INTEGER(LPSTR) filepart
       INTEGER i
       CHARACTER*8 card(5), line
       INTEGER Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
@@ -1836,11 +1837,13 @@ end subroutine CONVDATA
     if (.not. silent) then 
     
         ! Get name of executable
-        i = GetModuleFileName (GetModuleHandle(NULL_CHARACTER), exename, 200)
+        i = GetModuleFileName (GetModuleHandle(NULL_CHARACTER), exename, MAX_PATH)
 
         ! Strip netpathxl.exe off end
         i = index(exename, "\", .TRUE.)
         datafile = exename(1:i) // "..\database\db.dat"
+        i = GetFullPathName(datafile, MAX_PATH, buffer, filepart)
+        datafile = buffer
         
         stat = 'old'
         query = 'Enter name of db thermodynamic data file. '

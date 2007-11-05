@@ -37,7 +37,7 @@ module excel_headings
 		'j3','2 DO', &
 		'k3','3 Sato DO', &
 		'm3','4 SO4/H2S', &
-		'b4','Alkalinity coefficient flag:', &
+		'b4','Alkalinity/TDIC flag:', &
 		'c4','0 Field alk as HCO3', &
 		'g4','1 Carbonate alk as HCO3', &
 		'j4','2 TDIC', &
@@ -70,7 +70,7 @@ module excel_headings
 		'r7','Mn', &
 		's7','Al', &
 		't7','F', &
-		'u7','Si', &
+		'u7','Si as SiO2', &
 		'v7','Br', &
 		'w7','B', &
 		'x7','Ba', &
@@ -79,11 +79,11 @@ module excel_headings
 		'aa7','NO3 as N', &
 		'ab7','NH4 as N', &
 		'ac7','P', &
-		'ad7','O2(aq)', &
-		'ae7','H2S(aq)', &
-		'af7','N2(aq)', &
-		'ag7','CH4(aq)', &
-		'ah7','DOC', &
+		'ad7','O2(aq) as O2', &
+		'ae7','H2S(aq) as S', &
+		'af7','N2(aq) as N2', &
+		'ag7','CH4(aq) as CH4', &
+		'ah7','DOC as C', &
 		'ai7','RS of DOC', &
 		'aj7','C-13 TDIC', &
 		'ak7','C-14 TDIC', &

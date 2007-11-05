@@ -1211,7 +1211,7 @@ SUBROUTINE EDIT
 9010 FORMAT (I5,') Reread Excel file       : ',A)
 9015 FORMAT (I5,') Well file               : ',A)
 9020 FORMAT (I5,') Entire model')
-9025 FORMAT (' Wells',/,I5,') Mixing                  : ',A)
+9025 FORMAT ('  Wells',/,I5,') Mixing                  : ',A)
 9030 FORMAT (I5,') Initial well            : ',A)
 9035 FORMAT (7X,'Initial well            : ',A)
 9040 FORMAT (7X,'Final well              : ',A)

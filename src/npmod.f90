@@ -81,7 +81,7 @@ module excel_headings
 		'ac7','P', &
 		'ad7','O2(aq) as O2', &
 		'ae7','H2S(aq) as S', &
-		'af7','N2(aq) as N2', &
+		'af7','N2(aq) as N', &
 		'ag7','CH4(aq) as CH4', &
 		'ah7','DOC as C', &
 		'ai7','RS of DOC', &

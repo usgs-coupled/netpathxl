@@ -57,7 +57,9 @@ END SUBROUTINE moverelative
 !
 SUBROUTINE CLS
   USE IFQWIN
+  USE USER32
   implicit none
+  integer i
   !
   ! The screen is cleared.  Works for VT100
   !
@@ -67,7 +69,9 @@ SUBROUTINE CLS
   !      WRITE (*,*) esc//'[2J'//esc//'[H'
   !      RETURN
   !      END
-  CALL CLEARSCREEN($GCLEARSCREEN)
+ 
+  CALL CLEARSCREEN($GWINDOW )
+  i = SENDMESSAGE(GETHWNDQQ(GETACTIVEQQ()), WM_VSCROLL , SB_TOP, 0)
   return
 end SUBROUTINE CLS
 
@@ -154,6 +158,7 @@ END SUBROUTINE POSCUR_DB
 !
 subroutine confignetpath
   USE IFQWIN
+  USE screen_parameters
   implicit none
   !TYPE QWINFO
   !    INTEGER(2) TYPE  ! request type
@@ -163,28 +168,88 @@ subroutine confignetpath
   !    INTEGER(2) W     ! window width
   ! END TYPE QWINFO
 
-  LOGICAL(4)     result
-  integer*2 i1, i2, i3, i4
+  LOGICAL(4)     result, status
+  integer*2 i1, i2, i3, i4, i, fontnum
   TYPE (qwinfo)  winfo
+  TYPE (windowconfig) wc
+  TYPE (FONTINFO) finfo
+  character(25) str1
+  EXTERNAL SmallFont, MediumFont, LargeFont
+  ! Abbreviated version of SHOWFONT.F90.
+    INTEGER(2) grstat, numfonts,indx, curr_height
+    TYPE (xycoord) xyt
+    TYPE (fontinfo) f
+    CHARACTER(6) str     ! 5 chars for font num
+                         ! (max. is 32767), 1 for 'n'
 
   ! Maximize frame window
   winfo%TYPE = QWIN$SET
   winfo%x    = 0
   winfo%y    = 0
   winfo%h    = 600
-  winfo%w    = 800
+  winfo%w    = 850
   result =     SETWSIZEQQ(QWIN$FRAMEWINDOW, winfo)
   winfo%TYPE = QWIN$RESTORE
   result =     SETWSIZEQQ(QWIN$FRAMEWINDOW, winfo)
   result =     SETEXITQQ(QWIN$EXITNOPERSIST) 
-  result =     DISPLAYCURSOR ($GCURSORON)
-  i1 = 1
-  i2 = 1
-  i3 = 35
-  i4 = 80
-  CALL SETTEXTWINDOW (i1, i2, i3, i4)
+
+  result = getwindowconfig(wc)
+  ! Set size of text area
+  !i1 = 1
+  !i2 = 1
+  !i3 = MaxRows
+  !i4 = MaxColumns
+  !CALL SETTEXTWINDOW (i1, i2, i3, i4)
+  !CALL GETTEXTWINDOW (i1, i2, i3, i4)
+  ! Remove Help, Window, State, View, Edit, File Menus
+  !result = DELETEMENUQQ(6, 0)
+  !result = DELETEMENUQQ(5, 0)
+  !result = DELETEMENUQQ(4, 0)
+  !result = DELETEMENUQQ(3, 0)
+  !result = DELETEMENUQQ(2, 0)
+  !result = DELETEMENUQQ(1, 0)
+
+  ! Define new Font Size Menu
+  !str    = 'Font Size'C ! 'A' is a quick-access key
+  !result = INSERTMENUQQ(1, 0, $MENUENABLED, str, WINSTATUS)
   
-  return
+  ! Add items to menu
+  !str1    = 'Small'C ! 'A' is a quick-access key
+  !result = APPENDMENUQQ(1, $MENUENABLED, str1, SmallFont)
+  !str1    = 'Medium'C ! 'A' is a quick-access key
+  !result = APPENDMENUQQ(1, $MENUENABLED, str1, WINFULLSCREEN)
+  !str1    = 'Large'C ! 'A' is a quick-access key
+  !result = APPENDMENUQQ(1, $MENUENABLED, str1, LargeFont)
+  
+  ! Remove status info at bottom of frame
+  !result = clickmenuqq(QWIN$STATUS)
+  !result = initializefonts()
+  !fontnum = SETFONT ('t''Arial''h18w10i')
+  !write(str,"(i)") fontnum
+  !fontnum = SETFONT(str)
+  !call outgtext( "ABCDEFG")
+  ! Fill available frame with child
+  !result = clickmenuqq(QWIN$TILE)
+       ! Set the x & y pixels to 800X600 and font size to 8x12
+ wc%numxpixels  = -1
+ wc%numypixels  = -1
+ wc%numtextcols = MaxColumns*2
+ wc%numtextrows = MaxRows
+ wc%mode = QWIN$SCROLLDOWN
+ wc%title= "1.1"C
+ !wc%fontsize = Z'000C0014'
+ wc%fontsize = QWIN$EXTENDFONT
+ wc%extendfontname = "Lucida Console"//char(0)
+ !wc%extendfontname = "Arial"//char(0)
+ wc%extendfontsize = Z'000B0012'
+ wc%extendfontsize = 16 + 10*65536
+ wc%extendfontattributes = QWIN$EXTENDFONT_NORMAL
+ status = SETWINDOWCONFIG(wc)  ! attempt to set configuration with above values
+    ! if attempt fails, set with system estimated values
+ !!if (.NOT.status) status = SETWINDOWCONFIG(wc)
+ result = getfontinfo(finfo)
+ result =     DISPLAYCURSOR ($GCURSORON)
+return
 end subroutine confignetpath
 !
 !
@@ -608,3 +673,87 @@ integer function fileopen_db(Dfile, path, typefile)
   fileopen_db = status
   return
 end function fileopen_db
+
+logical*4 function INITIALSETTINGSXXX
+  USE IFQWIN
+  implicit none
+  !TYPE QWINFO
+  !    INTEGER(2) TYPE  ! request type
+  !    INTEGER(2) X     ! x coordinate for upper left
+  !    INTEGER(2) Y     ! y coordinate for upper left
+  !    INTEGER(2) H     ! window height
+  !    INTEGER(2) W     ! window width
+  ! END TYPE QWINFO
+
+  LOGICAL(4)     result, status
+  integer*2 i1, i2, i3, i4, i
+  TYPE (qwinfo)  winfo
+  TYPE (windowconfig) wc
+  character(25) str
+  EXTERNAL SmallFont, MediumFont, LargeFont
+  
+  INITIALSETTINGSXXX = .TRUE.
+    
+  ! Maximize frame window
+  winfo%TYPE = QWIN$SET
+  winfo%x    = 0
+  winfo%y    = 0
+  winfo%h    = 600
+  winfo%w    = 800
+  result =     SETWSIZEQQ(QWIN$FRAMEWINDOW, winfo)
+  winfo%TYPE = QWIN$RESTORE
+  result =     SETWSIZEQQ(QWIN$FRAMEWINDOW, winfo)
+  result =     SETEXITQQ(QWIN$EXITNOPERSIST) 
+
+   ! Remove Help, Window, State, View, Edit, File Menus
+  result = DELETEMENUQQ(6, 0)
+  result = DELETEMENUQQ(5, 0)
+  result = DELETEMENUQQ(4, 0)
+  result = DELETEMENUQQ(3, 0)
+  result = DELETEMENUQQ(2, 0)
+  !result = DELETEMENUQQ(1, 0)
+  
+  ! Define new Font Size Menue
+  !str    = 'Font Size'C ! 'A' is a quick-access key
+  !result = INSERTMENUQQ(1, 0, $MENUENABLED, str, WINSTATUS)
+  
+  ! Add items to menu
+  str    = 'Small'C ! 'A' is a quick-access key
+  result = APPENDMENUQQ(1, $MENUENABLED, str, SmallFont)
+  str    = 'Medium'C ! 'A' is a quick-access key
+  result = APPENDMENUQQ(1, $MENUENABLED, str, WINFULLSCREEN)
+  str    = 'Large'C ! 'A' is a quick-access key
+  result = APPENDMENUQQ(1, $MENUENABLED, str, LargeFont)
+
+return
+end function INITIALSETTINGSXXX
+
+SUBROUTINE SmallFont !(checked)
+USE IFQWIN
+logical checked
+logical*4 result, status
+TYPE (windowconfig) wc
+ !result = GETWINDOWCONFIG(wc)
+ wc%numxpixels  = -1
+ wc%numypixels  = -1
+ wc%numtextcols = -1
+ wc%numtextrows = -1
+ wc%numcolors   = -1
+ wc%title= "1.2"C
+ wc%fontsize = Z'000C0010'
+ status = SETWINDOWCONFIG(wc)  ! attempt to set configuration with above values
+    ! if attempt fails, set with system estimated values
+ if (.NOT.status) status = SETWINDOWCONFIG(wc) 
+ result =     DISPLAYCURSOR ($GCURSORON)
+return
+end subroutine SmallFont
+
+SUBROUTINE MediumFont(checked)
+logical checked
+return
+end subroutine MediumFont
+
+SUBROUTINE LargeFont(checked)
+logical checked
+return
+end subroutine LargeFont

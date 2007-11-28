@@ -21,6 +21,11 @@ module version
   DATA datestr/'October 19, 2007'/
 end module version
 
+module screen_parameters
+    integer*2 MaxRows /500/, MaxColumns/90/
+end module screen_parameters
+    
+
 module excel_headings
 	  character*50, dimension(2, 21) :: headings
 	  data headings / &

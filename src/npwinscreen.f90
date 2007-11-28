@@ -150,15 +150,13 @@ SUBROUTINE POSCUR_DB
   RETURN
   ! 9000 FORMAT (1X,A,//////////////////)
 END SUBROUTINE POSCUR_DB
-
-
-
 !
 !
 !
 subroutine confignetpath
   USE IFQWIN
   USE screen_parameters
+  USE version
   implicit none
   !TYPE QWINFO
   !    INTEGER(2) TYPE  ! request type
@@ -169,20 +167,12 @@ subroutine confignetpath
   ! END TYPE QWINFO
 
   LOGICAL(4)     result, status
-  integer*2 i1, i2, i3, i4, i, fontnum
+  integer*2 i1, i2, i3, i4 
   TYPE (qwinfo)  winfo
   TYPE (windowconfig) wc
-  TYPE (FONTINFO) finfo
   character(25) str1
-  EXTERNAL SmallFont, MediumFont, LargeFont
-  ! Abbreviated version of SHOWFONT.F90.
-    INTEGER(2) grstat, numfonts,indx, curr_height
-    TYPE (xycoord) xyt
-    TYPE (fontinfo) f
-    CHARACTER(6) str     ! 5 chars for font num
-                         ! (max. is 32767), 1 for 'n'
 
-  ! Maximize frame window
+  ! Set frame window
   winfo%TYPE = QWIN$SET
   winfo%x    = 0
   winfo%y    = 0
@@ -190,65 +180,27 @@ subroutine confignetpath
   winfo%w    = 850
   result =     SETWSIZEQQ(QWIN$FRAMEWINDOW, winfo)
   winfo%TYPE = QWIN$RESTORE
-  result =     SETWSIZEQQ(QWIN$FRAMEWINDOW, winfo)
+  result =     SETWSIZEQQ(QWIN$FRAMEWINDOW, winfo) ! needed to prevent full screen
   result =     SETEXITQQ(QWIN$EXITNOPERSIST) 
 
-  result = getwindowconfig(wc)
-  ! Set size of text area
-  !i1 = 1
-  !i2 = 1
-  !i3 = MaxRows
-  !i4 = MaxColumns
-  !CALL SETTEXTWINDOW (i1, i2, i3, i4)
-  !CALL GETTEXTWINDOW (i1, i2, i3, i4)
-  ! Remove Help, Window, State, View, Edit, File Menus
-  !result = DELETEMENUQQ(6, 0)
-  !result = DELETEMENUQQ(5, 0)
-  !result = DELETEMENUQQ(4, 0)
-  !result = DELETEMENUQQ(3, 0)
-  !result = DELETEMENUQQ(2, 0)
-  !result = DELETEMENUQQ(1, 0)
-
-  ! Define new Font Size Menu
-  !str    = 'Font Size'C ! 'A' is a quick-access key
-  !result = INSERTMENUQQ(1, 0, $MENUENABLED, str, WINSTATUS)
-  
-  ! Add items to menu
-  !str1    = 'Small'C ! 'A' is a quick-access key
-  !result = APPENDMENUQQ(1, $MENUENABLED, str1, SmallFont)
-  !str1    = 'Medium'C ! 'A' is a quick-access key
-  !result = APPENDMENUQQ(1, $MENUENABLED, str1, WINFULLSCREEN)
-  !str1    = 'Large'C ! 'A' is a quick-access key
-  !result = APPENDMENUQQ(1, $MENUENABLED, str1, LargeFont)
-  
-  ! Remove status info at bottom of frame
-  !result = clickmenuqq(QWIN$STATUS)
-  !result = initializefonts()
-  !fontnum = SETFONT ('t''Arial''h18w10i')
-  !write(str,"(i)") fontnum
-  !fontnum = SETFONT(str)
-  !call outgtext( "ABCDEFG")
-  ! Fill available frame with child
-  !result = clickmenuqq(QWIN$TILE)
-       ! Set the x & y pixels to 800X600 and font size to 8x12
  wc%numxpixels  = -1
  wc%numypixels  = -1
- wc%numtextcols = MaxColumns*2
+ wc%numtextcols = MaxColumns
  wc%numtextrows = MaxRows
  wc%mode = QWIN$SCROLLDOWN
- wc%title= "1.1"C
- !wc%fontsize = Z'000C0014'
+ wc%title= TRIM(VersionNumber)//char(0)
  wc%fontsize = QWIN$EXTENDFONT
  wc%extendfontname = "Lucida Console"//char(0)
- !wc%extendfontname = "Arial"//char(0)
- wc%extendfontsize = Z'000B0012'
- wc%extendfontsize = 16 + 10*65536
+ wc%extendfontsize = Z'000B0012'   ! height is 18, width is 11
+ wc%extendfontsize = 16 + 10*65536 ! height is 16, width is 10
  wc%extendfontattributes = QWIN$EXTENDFONT_NORMAL
  status = SETWINDOWCONFIG(wc)  ! attempt to set configuration with above values
     ! if attempt fails, set with system estimated values
- !!if (.NOT.status) status = SETWINDOWCONFIG(wc)
- result = getfontinfo(finfo)
+    if (.NOT.status) status = SETWINDOWCONFIG(wc)
+    
+ ! need display cursor after setwindowconfig
  result =     DISPLAYCURSOR ($GCURSORON)
+ 
 return
 end subroutine confignetpath
 !
@@ -287,12 +239,11 @@ SUBROUTINE WELLFILE_PAT(initial)
    icase = 0
 10 continue 
 	CALL CLS
-	WRITE (*,9000) versnam, datestr
-
+	WRITE (*,9000) TRIM(ProgramName)//" "//TRIM(VersionNumber)//"   "//datestr
 	write(*,*)  "   (1) Open NetpathXL file"
 	write(*,*)  "   (2) Open .pat file"
 	write(*,*)  "   (3) Quit"
-	write(*,'(/A,$)') "Select an option> "
+	write(*,'(/A,$)') " Select an option> "
 	READ (*,'(a)') yn
 	IF (yn.EQ.'1') then
 		status = fileopen_db(root, path, "old_xls")
@@ -370,8 +321,7 @@ SUBROUTINE WELLFILE_PAT(initial)
 
   return
 
-9000 FORMAT (1x, A20, A30,/,&
-       ' ----------------',/)
+9000 FORMAT (1x, A, /)
 9005 FORMAT (I4,':  ',A40)
 9010 FORMAT (/,' Enter number of file to use, or ''Q'' to quit:')
 9015 FORMAT (/,' Enter number of file, or <ENTER> to see more', &
@@ -674,8 +624,10 @@ integer function fileopen_db(Dfile, path, typefile)
   return
 end function fileopen_db
 
-logical*4 function INITIALSETTINGSXXX
+subroutine font
   USE IFQWIN
+  USE screen_parameters
+  USE version
   implicit none
   !TYPE QWINFO
   !    INTEGER(2) TYPE  ! request type
@@ -686,74 +638,35 @@ logical*4 function INITIALSETTINGSXXX
   ! END TYPE QWINFO
 
   LOGICAL(4)     result, status
-  integer*2 i1, i2, i3, i4, i
+  integer*2 ih, iw
   TYPE (qwinfo)  winfo
   TYPE (windowconfig) wc
-  character(25) str
-  EXTERNAL SmallFont, MediumFont, LargeFont
+  REAL fheight, fwidth
   
-  INITIALSETTINGSXXX = .TRUE.
-    
-  ! Maximize frame window
-  winfo%TYPE = QWIN$SET
-  winfo%x    = 0
-  winfo%y    = 0
-  winfo%h    = 600
-  winfo%w    = 800
-  result =     SETWSIZEQQ(QWIN$FRAMEWINDOW, winfo)
-  winfo%TYPE = QWIN$RESTORE
-  result =     SETWSIZEQQ(QWIN$FRAMEWINDOW, winfo)
-  result =     SETEXITQQ(QWIN$EXITNOPERSIST) 
-
-   ! Remove Help, Window, State, View, Edit, File Menus
-  result = DELETEMENUQQ(6, 0)
-  result = DELETEMENUQQ(5, 0)
-  result = DELETEMENUQQ(4, 0)
-  result = DELETEMENUQQ(3, 0)
-  result = DELETEMENUQQ(2, 0)
-  !result = DELETEMENUQQ(1, 0)
-  
-  ! Define new Font Size Menue
-  !str    = 'Font Size'C ! 'A' is a quick-access key
-  !result = INSERTMENUQQ(1, 0, $MENUENABLED, str, WINSTATUS)
-  
-  ! Add items to menu
-  str    = 'Small'C ! 'A' is a quick-access key
-  result = APPENDMENUQQ(1, $MENUENABLED, str, SmallFont)
-  str    = 'Medium'C ! 'A' is a quick-access key
-  result = APPENDMENUQQ(1, $MENUENABLED, str, WINFULLSCREEN)
-  str    = 'Large'C ! 'A' is a quick-access key
-  result = APPENDMENUQQ(1, $MENUENABLED, str, LargeFont)
-
-return
-end function INITIALSETTINGSXXX
-
-SUBROUTINE SmallFont !(checked)
-USE IFQWIN
-logical checked
-logical*4 result, status
-TYPE (windowconfig) wc
- !result = GETWINDOWCONFIG(wc)
- wc%numxpixels  = -1
- wc%numypixels  = -1
- wc%numtextcols = -1
- wc%numtextrows = -1
- wc%numcolors   = -1
- wc%title= "1.2"C
- wc%fontsize = Z'000C0010'
- status = SETWINDOWCONFIG(wc)  ! attempt to set configuration with above values
+10  continue
+    WRITE (*,"(' Enter font height (Default 16): ')")
+    READ (*,'(G20.0)') fheight
+    if (fheight .le. 0) fheight = 16.0
+    ih = nint(fheight)
+    if (ih .le. 1 .or. ih .gt. 50) goto 10
+    fwidth = real(ih)*0.6
+    iw = nint(fwidth)
+    wc%numxpixels  = -1
+    wc%numypixels  = -1
+    wc%numtextcols = -1
+    wc%numtextrows = 500
+    wc%mode = QWIN$SCROLLDOWN
+    wc%title= TRIM(VersionNumber)//char(0)
+    wc%fontsize = QWIN$EXTENDFONT
+    wc%extendfontname = "Lucida Console"//char(0)
+    wc%extendfontsize = ih + iw*65536 ! height is ih, width is iw
+    wc%extendfontattributes = QWIN$EXTENDFONT_NORMAL
+    status = SETWINDOWCONFIG(wc)  ! attempt to set configuration with above values
     ! if attempt fails, set with system estimated values
- if (.NOT.status) status = SETWINDOWCONFIG(wc) 
+    if (.NOT.status) status = SETWINDOWCONFIG(wc)
+    
+ ! need display cursor after setwindowconfig
  result =     DISPLAYCURSOR ($GCURSORON)
+ 
 return
-end subroutine SmallFont
-
-SUBROUTINE MediumFont(checked)
-logical checked
-return
-end subroutine MediumFont
-
-SUBROUTINE LargeFont(checked)
-logical checked
-return
-end subroutine LargeFont
+end subroutine font

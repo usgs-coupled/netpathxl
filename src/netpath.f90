@@ -217,6 +217,9 @@ PROGRAM NETPATHXL
      CALL SAVE
  ! ELSE IF (ans.EQ.'V') THEN
  !    CALL VIEW
+  ELSE IF (ans.EQ.'F') THEN
+      CALL FONT
+      CALL SCREEN
   ELSE IF (ans.EQ.'Q') THEN
      CALL POSCUR(-1)
      WRITE (*,9005)
@@ -240,7 +243,7 @@ PROGRAM NETPATHXL
   END IF
   GO TO 10
 100 continue
-9000 FORMAT (' Select: <A>dd, <D>elete, <E>dit, <R>un, <S>ave, ', &
+9000 FORMAT (' Select: <A>dd, <D>elete, <E>dit, <F>ont, <R>un, <S>ave, ', &
 		'or <Q>uit')
 !       '<V>iew, or <Q>uit')
 9005 FORMAT (' Do you really want to quit? <Enter> for yes.')
@@ -4676,7 +4679,7 @@ SUBROUTINE SCREEN
   DO i = 1, Iflag(1)
      WRITE (*,9000) Wllnms(Well(i))(5:36)
   enddo
-  WRITE (*,9000) Wllnms(Well(Iflag(1)+1))(5:36), versnam
+  WRITE (*,9000) Wllnms(Well(Iflag(1)+1))(5:36), TRIM(ProgramName)//" "//VersionNumber
   IF (iforce.EQ.0) THEN
      WRITE (*,9005) Wllnms(Well(0))(5:36), datestr, Noele, Nopha
   ELSE

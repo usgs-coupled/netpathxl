@@ -16,13 +16,14 @@ module filenames
 end module filenames
 
 module version
-  CHARACTER*32 versnam, datestr
-  DATA versnam/'NetpathXL 1.1'/
-  DATA datestr/'October 19, 2007'/
+  CHARACTER*32 ProgramName, VersionNumber, datestr
+  DATA ProgramName/'NetpathXL'/
+  DATA VersionNumber/'1.1'/
+  DATA datestr/'December 1, 2007'/
 end module version
 
 module screen_parameters
-    integer*2 MaxRows /500/, MaxColumns/90/
+    integer*2 MaxRows /500/, MaxColumns/160/
 end module screen_parameters
     
 

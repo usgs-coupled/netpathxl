@@ -13,6 +13,7 @@
             <Directory Id="BinDir" Name="bin" />
             <Directory Id="ExamplesDir" Name="examples" />
             <Directory Id="DatabaseDir" Name="database" />
+            <Directory Id="DocDir" Name="doc" />
           </Directory>
         </Directory>
       </Directory>
@@ -25,6 +26,7 @@
     <DirectoryRef Id="INSTALLLOCATION">
       <Component Id="RootFiles" Guid="$(var.RootFilesGuid)">
         <File Id="README" Name="README.TXT" Vital="yes" DiskId='1' src="$(var.RootSource)\README.TXT" />
+        <File Id="NOTICE" Name="NOTICE.TXT" Vital="yes" DiskId='1' src="$(var.RootSource)\NOTICE.TXT" />
       </Component>
     </DirectoryRef>
 
@@ -33,13 +35,6 @@
         <File Id="netpathxl.exe" Name="netpathx.exe" LongName='netpathxl.exe' Vital="yes" DiskId='1' Source="$(var.ExeSource)\netpathxl$(var.DebugLetter).exe">
           <Shortcut Id='NetpathXLShortcut' Directory='ShortCutFolder' Name='NetpathX' LongName='NetpathXL' Icon="netpathxl.exe" IconIndex="0" Advertise='yes' WorkingDirectory="INSTALLLOCATION"/>
         </File>
-<!--
-        <ProgId Id="HTI.Document" Description="Hydrotherm Interactive Document" Icon='[#hti.exe]' IconIndex='0'>
-          <Extension Id="hti">
-            <Verb Id="open" Target='[#hti.exe]' Argument='"%1"'/>
-          </Extension>
-        </ProgId>
--->
         <RemoveFolder Id="RemoveShortCutFolder" Directory="ShortCutFolder" On="uninstall"/>
       </Component>
     </DirectoryRef>
@@ -52,11 +47,21 @@
       </Component>
     </DirectoryRef>
 
-
     <DirectoryRef Id="DatabaseDir">
       <Component Id="Database" Guid="$(var.DatabaseGuid)">
         <File Id="db.dat" Name="db.dat" Vital="yes" DiskId='1' Source="$(var.DatabaseSource)\db.dat" />
         <File Id="netpath.dat" Name="netpath.dat" Vital="yes" DiskId='1' Source="$(var.DatabaseSource)\netpath.dat" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="DocDir">
+      <Component Id="Doc" Guid="$(var.DocGuid)">
+        <File Id="netpathxl.pdf" Name="netpathx.pdf" LongName="netpathxl.pdf" Vital="yes" DiskId='1' Source="$(var.DocSource)\netpathxl.pdf">
+          <Shortcut Id='NetpathXLPDFShortcut' Directory='ShortCutFolder' Name='netpathx.pdf' LongName='NetpathXL Manual' />
+        </File>
+        <File Id="Plummer.pdf" Name="Plummer.pdf" LongName="Plummer et al., 1994 NETPATH Manual.PDF" Vital="yes" DiskId='1' Source="$(var.DocSource)\Plummer et al., 1994 NETPATH Manual.PDF">
+          <Shortcut Id='PlummerPDFShortcut' Directory='ShortCutFolder' Name='Plummer.pdf' LongName='Plummer et al., 1994 NETPATH Manual' />
+        </File>
       </Component>
     </DirectoryRef>
 
@@ -118,6 +123,7 @@
       <ComponentRef Id="Executables" />
       <ComponentRef Id="DBXL" />
       <ComponentRef Id="Database" />
+      <ComponentRef Id="Doc" />
     </ComponentGroup>
 
     <ComponentGroup Id="Examples">

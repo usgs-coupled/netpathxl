@@ -16,6 +16,7 @@
 <?define ExamplesSource         = "..\examples" ?>
 <?define RootSource             = ".." ?>
 <?define DatabaseSource         = "..\Database" ?>
+<?define DocSource              = "..\Doc" ?>
 
 
 <?define ExecutablesGuid        = "91E2BEF7-F8F5-4b1f-BE1E-B8738ED9BD89" ?>
@@ -23,6 +24,7 @@
 <?define RootFilesGuid          = "1B653E5A-012F-42eb-8F55-F13DED9CE71D" ?>
 <?define DatabaseGuid           = "62FBE205-6E0C-4446-A1A7-5153C88E79CE" ?>
 <?define ExamplesGuid           = "E0AE0576-758D-48e4-B4C5-C537DDE1985E" ?>
+<?define DocGuid                = "ECBB187B-3975-4b99-8440-3FB027FBDD46" ?>
 
 
 <Include>

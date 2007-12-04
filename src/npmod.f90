@@ -16,10 +16,11 @@ module filenames
 end module filenames
 
 module version
-  CHARACTER*32 ProgramName, VersionNumber, datestr
+  CHARACTER*32 ProgramName, VersionNumber, datestr, DBXLName
   DATA ProgramName/'NetpathXL'/
+  DATA DBXLName/'DBXL'/
   DATA VersionNumber/'1.1'/
-  DATA datestr/'December 1, 2007'/
+  DATA datestr/'January 2, 2008'/
 end module version
 
 module screen_parameters

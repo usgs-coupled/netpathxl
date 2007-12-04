@@ -27,7 +27,7 @@ SUBROUTINE WELLFILE_LON
  icase = 0
 10 continue 
  CALL CLS
- WRITE (*,9000) TRIM(ProgramName)//" "//TRIM(VersionNumber)//"  "//datestr
+ WRITE (*,9000) TRIM(DBXLName)//" "//TRIM(VersionNumber)//"  "//datestr
  write(*,*) "  (1) Create NetpathXL file from a .lon file."
  write(*,*) "  (2) Open existing NetpathXL file." 
  write(*,*) "  (3) Create new NetpathXL file."

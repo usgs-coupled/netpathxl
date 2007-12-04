@@ -121,8 +121,8 @@ SUBROUTINE RUNWATEQ(file, silent)
   !
 70  continue
     RETURN
-9000 FORMAT (/,' Do you want to adjust the .pat file to approximate',/, &
-       ' charge balance in the input data?',/,' <Enter> = no')
+9000 FORMAT (/,' Do you want to adjust the solution compositions to approximate',/, &
+       ' charge balance?',/,' <Enter> = no')
 9005 FORMAT (A1)
 9010 FORMAT ('   Processing well: ',I2)
 9015 FORMAT ('  Running aqueous model -- please wait')

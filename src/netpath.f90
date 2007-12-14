@@ -1,5 +1,6 @@
 !
 PROGRAM NETPATHXL
+  USE max_size
   use filenames
   implicit none
   ! --------------------------------------
@@ -96,11 +97,10 @@ PROGRAM NETPATHXL
   ! branches are made to the proper subroutines.  Exiting the program
   ! is also handled, including writing netpath.dat.
   !
-
   CHARACTER Pname*8, Ename*2, Force*1
   COMMON /CHAR3 / Pname(39), Ename(39), Force(39)
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1), &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1), &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -117,14 +117,14 @@ PROGRAM NETPATHXL
        Res(100), Sfinal(39), Sinit(5,59), Maxdel(39), &
        Mindel(39), Dfinal
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40), &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40), &
        Disalong, Usera(5)
   DOUBLE PRECISION Para
   COMMON /DP5   / Para(39,16)
   DOUBLE PRECISION Pcoef
   COMMON /DP6   / Pcoef(39,39)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50), &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50), &
        Isdocrs(0:5)
   INTEGER Idis, Ipre, Rwunit
   COMMON /INT2  / Idis, Ipre, Rwunit
@@ -137,7 +137,7 @@ PROGRAM NETPATHXL
   INTEGER Iele, Noele, Ilength
   COMMON /INT6  / Iele(36), Noele, Ilength
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   LOGICAL First, Quit
   COMMON /LOG3  / First, Quit
   LOGICAL Dowehave
@@ -252,19 +252,20 @@ END PROGRAM NETPATHXL
 !
 !
 !
-BLOCK DATA 
+BLOCK DATA
+ USE max_size
   use filenames
 !
 ! The initial values of arrays contained in the common blocks are set.
 !
 
 CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
      Ion(4), Ffact(0:1)
 CHARACTER Elelong*12, Pelt*2
 COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
 DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
      Disalong, Usera(5)
 !
 DATA Model/'Original Data       ', 'Mass Balance        ',  &
@@ -292,12 +293,13 @@ END
 !
 !
 SUBROUTINE ADD
+  USE max_size
   implicit none
   !
   ! The specific add routines are called
   !
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   INTEGER i, nopha1
   EXTERNAL POSCUR, ADDCON, ADDPHA, SCREEN
   !
@@ -361,6 +363,7 @@ END SUBROUTINE ADDCON
 !
 !
 SUBROUTINE ADDPHA(IIOLD)
+  USE max_size
   use filenames
   implicit none
   INTEGER IIOLD
@@ -379,10 +382,10 @@ SUBROUTINE ADDPHA(IIOLD)
   DOUBLE PRECISION Para
   COMMON /DP5   / Para(39,16)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   CHARACTER pelem(36)*2, UPCS*1, line*3
   INTEGER ij, j, i, jp, k, ii, istop
   EXTERNAL CLS, EDITPIEC, PHALIST, DONTHAVE, HAVE, TRANS, UPCS
@@ -482,6 +485,7 @@ END SUBROUTINE ADDPHA
 !
 !
 DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
+  USE max_size
   INTEGER IWHICH, IWELL
   !
   ! The result of a specific A0 model for the selected initial well
@@ -503,7 +507,7 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
   !
 
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   INTEGER Numdrop, Cllines, Maxpos, Minpos, Now, Imix, Igotone,  &
        Iunit, Nmins, Ierror, Numtest
@@ -662,6 +666,7 @@ END FUNCTION C14
 !
 !
 SUBROUTINE CFRACT(FRACTION,ITIME,IWELL,IERROR)
+  USE max_size
   implicit none
   DOUBLE PRECISION FRACTION
   INTEGER ITIME, IWELL, IERROR
@@ -688,7 +693,7 @@ SUBROUTINE CFRACT(FRACTION,ITIME,IWELL,IERROR)
   !                    >0: Use just the selected well.
   !
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
@@ -896,6 +901,7 @@ END SUBROUTINE DELECON
 !
 !
 SUBROUTINE DELEPHA
+  USE max_size
   use filenames
   implicit none
   !
@@ -908,10 +914,10 @@ SUBROUTINE DELEPHA
   DOUBLE PRECISION Para
   COMMON /DP5   / Para(39,16)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   LOGICAL Dowehave
   COMMON /LOG5  / Dowehave(39,2:16)
   CHARACTER*3 bans
@@ -1008,6 +1014,7 @@ END SUBROUTINE DONTHAVE
 !
 !
 SUBROUTINE EDIT
+  USE max_size
   use filenames
   implicit none
   !
@@ -1016,15 +1023,15 @@ SUBROUTINE EDIT
   !
 
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   INTEGER iex, ico2, i, j, icount, LENS
   CHARACTER*4 line
   EXTERNAL CLS, POSCUR, CLPART, WELLFILE_PAT, MODELS, EDITPHA, &
@@ -1236,6 +1243,7 @@ END SUBROUTINE EDIT
 !
 !
 SUBROUTINE EDITC14
+  USE max_size
   implicit none
   !
   ! The model to be used for the initial Carbon-14 value is selected, and
@@ -1243,10 +1251,10 @@ SUBROUTINE EDITC14
   ! may be entered because all the models may be run.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
@@ -1394,6 +1402,7 @@ END SUBROUTINE EDITC14
 !
 !
 SUBROUTINE EDITCISO(IPOS)
+  USE max_size
   implicit none
   INTEGER IPOS
   !
@@ -1401,7 +1410,7 @@ SUBROUTINE EDITCISO(IPOS)
   ! Rayleigh calculations can be selected.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
@@ -1421,12 +1430,13 @@ END SUBROUTINE EDITCISO
 !
 !
 SUBROUTINE EDITEVAP(IPOS)
+  USE max_size
   implicit none
   !
   ! Evaporation can be considered.  This also includes dilution.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
@@ -1447,10 +1457,11 @@ END SUBROUTINE EDITEVAP
 !
 !
 SUBROUTINE EDITFACT(IPOS)
+  USE max_size
   implicit none
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
@@ -1475,6 +1486,7 @@ END SUBROUTINE EDITFACT
 !
 !
 SUBROUTINE EDITIONEX(IPOS)
+  USE max_size
   implicit none
   !
   ! The specific exchange to be used under the general EXCHANGE phase is
@@ -1482,7 +1494,7 @@ SUBROUTINE EDITIONEX(IPOS)
   ! exchange is entered.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
@@ -1507,10 +1519,11 @@ END SUBROUTINE EDITIONEX
 !
 !
 SUBROUTINE EDITMIX(IPOS)
+  USE max_size
   implicit none
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
@@ -1557,6 +1570,7 @@ END SUBROUTINE EDITMIX
 !
 !
 SUBROUTINE EDITPHA(IPOS)
+  USE max_size
   use filenames
   implicit none
   !
@@ -1565,7 +1579,7 @@ SUBROUTINE EDITPHA(IPOS)
   !
 
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   INTEGER IPOS, ij, ie, istop
   CHARACTER*3 bans
   EXTERNAL POSCUR, LISTPHA, CLS, EDITPIEC, TRANS, ADDPHA
@@ -1616,6 +1630,7 @@ END SUBROUTINE EDITPHA
 !
 !
 SUBROUTINE EDITPIEC(IJ,ISTOP)
+  USE max_size
   use filenames
   implicit none
   INTEGER IJ, ISTOP
@@ -1630,10 +1645,10 @@ SUBROUTINE EDITPIEC(IJ,ISTOP)
   DOUBLE PRECISION Evap, Pcoeff
   COMMON /DP1   / Evap, Pcoeff(39,36)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   INTEGER LENS, i, num, ii, j, noldph
   DOUBLE PRECISION coef
   CHARACTER middle*8, bans*3, ans*1, UPCS*1
@@ -1774,16 +1789,17 @@ END SUBROUTINE EDITPIEC
 !
 !
 SUBROUTINE EDITRS(IPOS)
+  USE max_size
   implicit none
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
@@ -1859,13 +1875,14 @@ END SUBROUTINE EDITRS
 !
 !
 SUBROUTINE EDITXCA(IPOS)
+  USE max_size
   implicit none
   !
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   INTEGER IPOS
   DOUBLE PRECISION p2
   CHARACTER*20 line
@@ -1892,6 +1909,7 @@ END SUBROUTINE EDITXCA
 !
 !
 SUBROUTINE EDTXCO2(IPOS)
+  USE max_size
   implicit none
   INTEGER IPOS
   !
@@ -1899,7 +1917,7 @@ SUBROUTINE EDTXCO2(IPOS)
   ! the fraction of CO2 in the mixture is entered.
   !
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   DOUBLE PRECISION p1
   CHARACTER*20 line
@@ -1921,6 +1939,7 @@ END SUBROUTINE EDTXCO2
 !
 !
 INTEGER FUNCTION FINDTOT(I)
+  USE max_size
   !
   !  This function is needed because a reordering of wells in the well
   !  file would cause incorrect wells to be used for a model unless
@@ -1928,10 +1947,10 @@ INTEGER FUNCTION FINDTOT(I)
   !  corresponds to a particular permanent number is located.
   !
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   INTEGER I, j
   !
   j = 0
@@ -2034,6 +2053,7 @@ END SUBROUTINE HAVE
 !
 !
 SUBROUTINE ICCARBON
+  USE max_size
   implicit none
   !
   ! The isotopic compositions of methane and DOC are edited for each of
@@ -2041,15 +2061,15 @@ SUBROUTINE ICCARBON
   ! entered.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   INTEGER ichave(0:5,2), ithis(6), jhave, i, j, LENS
   DOUBLE PRECISION ain
   CHARACTER*80 line
@@ -2166,6 +2186,7 @@ END SUBROUTINE ICCARBON
 !
 !
 SUBROUTINE INCLISO(JE,PC,I,J,IRUN)
+  USE max_size
   use filenames
   implicit none
   !
@@ -2176,7 +2197,7 @@ SUBROUTINE INCLISO(JE,PC,I,J,IRUN)
   !
 
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   DOUBLE PRECISION Para
   COMMON /DP5   / Para(39,16)
@@ -2336,6 +2357,7 @@ END SUBROUTINE INCLISO
 !
 !
 SUBROUTINE INITVALS(INEW)
+  USE max_size
   USE IFWIN
   use filenames
   implicit none
@@ -2345,7 +2367,7 @@ SUBROUTINE INITVALS(INEW)
   !
 
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -2354,21 +2376,21 @@ SUBROUTINE INITVALS(INEW)
   DOUBLE PRECISION Evap, Pcoeff
   COMMON /DP1   / Evap, Pcoeff(39,36)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   DOUBLE PRECISION Para
   COMMON /DP5   / Para(39,16)
   DOUBLE PRECISION Pcoef
   COMMON /DP6   / Pcoef(39,39)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
   INTEGER Iele, Noele, Ilength
   COMMON /INT6  / Iele(36), Noele, Ilength
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   INTEGER i, iii, kkk, lll, jjj, INEW, k
   LOGICAL YN
   EXTERNAL YN
@@ -2532,6 +2554,7 @@ END SUBROUTINE INPTRL
 !
 !
 SUBROUTINE ISOTDATA
+  USE max_size
   use filenames
   implicit none
   !
@@ -2542,12 +2565,12 @@ SUBROUTINE ISOTDATA
   !
 
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   DOUBLE PRECISION Para
   COMMON /DP5   / Para(39,16)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   INTEGER Numdrop, Cllines, Maxpos, Minpos, Now, Imix, Igotone,  &
        Iunit, Nmins, Ierror, Numtest
@@ -2556,7 +2579,7 @@ SUBROUTINE ISOTDATA
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   LOGICAL Dowehave
   COMMON /LOG5  / Dowehave(39,2:16)
   INTEGER iccc(39), LENS, ISTATE, itime, ico2, i, j, jco2, ia1, ia2,  &
@@ -3033,6 +3056,7 @@ end subroutine ISOTDATA
 !
 !
 INTEGER FUNCTION ISTATE(I,J)
+  USE max_size
   !
   ! The redox state of either carbon or sulfur in a given phase is
   ! calculated.  If the list of constraints is changed, this subroutine
@@ -3041,7 +3065,7 @@ INTEGER FUNCTION ISTATE(I,J)
   DOUBLE PRECISION Evap, Pcoeff
   COMMON /DP1   / Evap, Pcoeff(39,36)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   INTEGER k, I, J
   DOUBLE PRECISION rs, state, div
@@ -3118,6 +3142,7 @@ END SUBROUTINE LISTCON
 !
 !
 SUBROUTINE LISTPHA(II)
+  USE max_size
   use filenames
   implicit none
   !
@@ -3126,7 +3151,7 @@ SUBROUTINE LISTPHA(II)
   !
 
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   INTEGER II, i, ij, jj, kk
   CHARACTER*3 bans
   EXTERNAL CLS
@@ -3169,6 +3194,7 @@ END SUBROUTINE LISTPHA
 !
 !
 SUBROUTINE MODELS
+  USE max_size
   use filenames
   implicit none
   !
@@ -3177,26 +3203,26 @@ SUBROUTINE MODELS
   !
 
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
   DOUBLE PRECISION Evap, Pcoeff
   COMMON /DP1   / Evap, Pcoeff(39,36)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   DOUBLE PRECISION Para
   COMMON /DP5   / Para(39,16)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
   INTEGER Iele, Noele, Ilength
   COMMON /INT6  / Iele(36), Noele, Ilength
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   DOUBLE PRECISION i10, i11
   EQUIVALENCE (C14dat(10),i10)
   EQUIVALENCE (C14dat(11),i11)
@@ -3508,6 +3534,7 @@ END SUBROUTINE MODELS
 !
 !
 SUBROUTINE MODELS214
+  USE max_size
   use filenames
   implicit none
   !
@@ -3516,26 +3543,26 @@ SUBROUTINE MODELS214
   !
 
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
   DOUBLE PRECISION Evap, Pcoeff
   COMMON /DP1   / Evap, Pcoeff(39,36)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   DOUBLE PRECISION Para
   COMMON /DP5   / Para(39,16)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
   INTEGER Iele, Noele, Ilength
   COMMON /INT6  / Iele(36), Noele, Ilength
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   DOUBLE PRECISION i10, i11
   EQUIVALENCE (C14dat(10),i10)
   EQUIVALENCE (C14dat(11),i11)
@@ -3592,38 +3619,61 @@ SUBROUTINE MODELS214
   GO TO 20
 40 IF (nfiles.EQ.0) GO TO 240
   ij = 1
-50 icount = (ij-1)*15
+!50 icount = (ij-1)*15
   CALL CLS
   WRITE (*,9005)
-60 icount = icount+1
-  WRITE (*,9010) icount, files(icount), del(idel(icount))
-  IF (icount.LT.nfiles .AND. icount.LT.ij*15) GO TO 60
-  DO i = icount, (ij*15-1)
-     WRITE (*,*)
+!60 icount = icount+1
+!  WRITE (*,9010) icount, files(icount), del(idel(icount))
+!  IF (icount.LT.nfiles .AND. icount.LT.ij*15) GO TO 60
+!  DO i = icount, (ij*15-1)
+!     WRITE (*,*)
+!  enddo
+!  IF (ij*15.LT.nfiles) THEN
+!     ij = ij+1
+!  ELSE
+!     ij = 1
+!  END IF
+!  IF (Iedit.EQ.0) THEN
+!     IF (nfiles.LE.15) WRITE (*,9020)
+!     IF (nfiles.GT.15) WRITE (*,9015)
+!     Noele = 0
+!  ELSE
+!     IF (nfiles.LE.15) WRITE (*,9030)
+!     IF (nfiles.GT.15) WRITE (*,9025)
+!  END IF
+!  READ (*,9000) line
+!  IF (line.EQ.' ' .AND. Iedit.EQ.0) GO TO 50
+!  IF (line.EQ.' ') GO TO 240
+!  READ (line,'(I3)',ERR=50) i
+!  IF (i.EQ.0) THEN
+!     Iedit = 0
+!     CALL INITVALS(1)
+!     GO TO 240
+!  END IF
+!  IF (i.GT.nfiles) GO TO 40
+
+  ! select model
+  do icount = 1, nfiles
+    WRITE (*,9010) icount, files(icount), del(idel(icount))
   enddo
-  IF (ij*15.LT.nfiles) THEN
-     ij = ij+1
-  ELSE
-     ij = 1
-  END IF
   IF (Iedit.EQ.0) THEN
-     IF (nfiles.LE.15) WRITE (*,9020)
-     IF (nfiles.GT.15) WRITE (*,9015)
-     Noele = 0
+    WRITE (*,9020)
+    Noele = 0
   ELSE
-     IF (nfiles.LE.15) WRITE (*,9030)
-     IF (nfiles.GT.15) WRITE (*,9025)
+    WRITE (*,9030)
   END IF
   READ (*,9000) line
-  IF (line.EQ.' ' .AND. Iedit.EQ.0) GO TO 50
+  IF (line.EQ.' ' .AND. Iedit.EQ.0) GO TO 40
   IF (line.EQ.' ') GO TO 240
-  READ (line,'(I3)',ERR=50) i
+  READ (line,'(I3)',ERR=40) i
   IF (i.EQ.0) THEN
      Iedit = 0
      CALL INITVALS(1)
      GO TO 240
   END IF
-  IF (i.GT.nfiles) GO TO 40
+  IF (i.GT.nfiles .or. i .lt. 0) GO TO 40
+  ! done selecting model
+  
   CALL CLS
   noelem = 0
   WRITE (*,9035) files(i), del(idel(i))
@@ -3858,6 +3908,7 @@ END SUBROUTINE MODELS214
 !
 !
 SUBROUTINE PHALIST(II)
+  USE max_size
   implicit none
   !
   ! The available phases (from netpath.dat) are displayed.  Also, if
@@ -3868,7 +3919,7 @@ SUBROUTINE PHALIST(II)
   CHARACTER*360 Fline(100)
   COMMON /CHAR7 / Fline
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   INTEGER II, i, ij, jj, kk
   CHARACTER*3 bans
   !
@@ -3986,11 +4037,12 @@ END SUBROUTINE RAYLEIGH
 !
 !
 SUBROUTINE RDPATH(FILEONE)
+  USE max_size
   implicit none
   CHARACTER*80 line
   CHARACTER*80 FILEONE
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
 
 
   OPEN (UNIT=Runit,FILE=FILEONE,STATUS='OLD',ERR=60)
@@ -4011,28 +4063,29 @@ END SUBROUTINE RDPATH
 !
 !
 SUBROUTINE RDPATH2(FILEONE)
+  USE max_size
   implicit none
   !
   ! The data from the .PATH file are read in, including the data that is
   ! passed through untouched by WATEQFP.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   DOUBLE PRECISION cc, cfe2, cfe3, cmn2, cmn3, cmn6, cmn7, cch4,  &
        cdoc, rsdoc
   INTEGER lline(8), i, j, istar
   CHARACTER*80 FILEONE
   CHARACTER*32 temp
-  CHARACTER*1 dummy(14), star(50)
+  CHARACTER*1 dummy(14), star(MAXWELLS)
   ! THESE DATA NOT AFFECTED BY WATEQFP
   DATA lline/21, 22, 24, 26, 27, 28, 31, 32/
   !
@@ -4042,7 +4095,7 @@ SUBROUTINE RDPATH2(FILEONE)
   Nwlls = 0
 10 Nwlls = Nwlls+1
   i = Nwlls
-  DO j = 1, 50
+  DO j = 1, MAXWELLS
      star(j) = ' '
   enddo
   READ (Runit,'(A32)',ERR=60,END=50) temp
@@ -4115,28 +4168,29 @@ END SUBROUTINE RDPATH2
 !
 !
 SUBROUTINE RDPATH214(FILEONE)
+  USE max_size
   implicit none
   !
   ! The data from the .PATH file are read in, including the data that is
   ! passed through untouched by WATEQFP.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   DOUBLE PRECISION cc, cfe2, cfe3, cmn2, cmn3, cmn6, cmn7, cch4,  &
        cdoc, rsdoc 
   INTEGER lline(8), i, j, istar
   CHARACTER*80 FILEONE
   CHARACTER*32 temp
-  CHARACTER*1 dummy(14), star(50)
+  CHARACTER*1 dummy(14), star(MAXWELLS)
   ! THESE DATA NOT AFFECTED BY WATEQFP
   DATA lline/21, 22, 24, 26, 27, 28, 31, 32/
   !
@@ -4147,7 +4201,7 @@ SUBROUTINE RDPATH214(FILEONE)
 10 continue
   Nwlls = Nwlls+1
   i = Nwlls
-  DO j = 1, 50
+  DO j = 1, MAXWELLS
      star(j) = ' '
   enddo
   READ (Runit,'(A32)',ERR=60,END=50) temp
@@ -4276,6 +4330,7 @@ END SUBROUTINE SAVE
 !
 !
 SUBROUTINE SAVEMOD
+  USE max_size
   use filenames
   implicit none
   !
@@ -4287,19 +4342,19 @@ SUBROUTINE SAVEMOD
   DOUBLE PRECISION Evap, Pcoeff
   COMMON /DP1   / Evap, Pcoeff(39,36)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   DOUBLE PRECISION Para
   COMMON /DP5   / Para(39,16)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
   INTEGER Iele, Noele, Ilength
   COMMON /INT6  / Iele(36), Noele, Ilength
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   LOGICAL isthere
   INTEGER je(36), LENS, i, j, k, ipatfil, ifli, iwell
   DOUBLE PRECISION pc(36)
@@ -4392,6 +4447,7 @@ END SUBROUTINE SAVEMOD
 !
 !
 SUBROUTINE SAVEMOD214
+  USE max_size
   use filenames
   implicit none
   !
@@ -4403,19 +4459,19 @@ SUBROUTINE SAVEMOD214
   DOUBLE PRECISION Evap, Pcoeff
   COMMON /DP1   / Evap, Pcoeff(39,36)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   DOUBLE PRECISION Para
   COMMON /DP5   / Para(39,16)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
   INTEGER Iele, Noele, Ilength
   COMMON /INT6  / Iele(36), Noele, Ilength
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   LOGICAL isthere
   INTEGER je(36), LENS, i, j, k, ipatfil, ifli, iwell
   DOUBLE PRECISION pc(36)
@@ -4518,6 +4574,7 @@ END SUBROUTINE SAVEMOD214
 !
 !
 SUBROUTINE SAVEOTHER(IJ)
+  USE max_size
   use filenames
   implicit none
   !
@@ -4530,10 +4587,10 @@ SUBROUTINE SAVEOTHER(IJ)
   DOUBLE PRECISION Evap, Pcoeff
   COMMON /DP1   / Evap, Pcoeff(39,36)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   INTEGER je(36), i, j, k, IJ
   DOUBLE PRECISION pc(36)
   CHARACTER middle*8, UPCS*1, ans*1
@@ -4594,13 +4651,14 @@ END SUBROUTINE SAVEOTHER
 !
 !
 SUBROUTINE SAVERUN(*)
+  USE max_size
   implicit none
   !
   ! The results of the run, including isotope data and all C-14 models, if
   ! applicable, are stored in a file.
   !
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   LOGICAL isthere
   CHARACTER*80 line2, line
@@ -4634,6 +4692,7 @@ END SUBROUTINE SAVERUN
 !
 !
 SUBROUTINE SCREEN
+  USE max_size
   use filenames
   use version
   implicit none
@@ -4645,19 +4704,19 @@ SUBROUTINE SCREEN
   !
 
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
   INTEGER Iele, Noele, Ilength
   COMMON /INT6  / Iele(36), Noele, Ilength
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   CHARACTER first3rd*26, middle*28, last3rd*23
   LOGICAL inoc
   DOUBLE PRECISION C14
@@ -4802,6 +4861,7 @@ END SUBROUTINE SCREEN
 !
 !
 SUBROUTINE SFRACT(FRACTION,ITIME,IWELL,IERROR)
+  USE max_size
   implicit none
   DOUBLE PRECISION FRACTION
   INTEGER ITIME, IWELL, IERROR
@@ -4819,10 +4879,10 @@ SUBROUTINE SFRACT(FRACTION,ITIME,IWELL,IERROR)
   !                    3:  Can't compute at initial well
   !
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
@@ -4911,6 +4971,7 @@ END SUBROUTINE SFRACT
 !
 !
 SUBROUTINE TRANS(IJ)
+  USE max_size
   use filenames
   implicit none
   !
@@ -4924,10 +4985,10 @@ SUBROUTINE TRANS(IJ)
   DOUBLE PRECISION Para
   COMMON /DP5   / Para(39,16)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   LOGICAL Dowehave
   COMMON /LOG5  / Dowehave(39,2:16)
   INTEGER itr, i, IJ, j, k
@@ -5192,19 +5253,20 @@ END function STRCMP_NOCASE
 !
 !
 SUBROUTINE VIEW
+  USE max_size
   use filenames
 
   implicit none
 
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   CHARACTER ans*1, line*80
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
   INTEGER LENS, iwell, i
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   EXTERNAL LENS, CLS
 
@@ -5246,20 +5308,21 @@ END SUBROUTINE VIEW
 !
 !
 SUBROUTINE VIEW2(iwell)
+  USE max_size
   use filenames
   IMPLICIT NONE
   !
 
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   CHARACTER*10 inpt, labels(45), peval(0:4)
   CHARACTER*11 units(0:4)
   CHARACTER*83 frmt1
@@ -5430,6 +5493,7 @@ END SUBROUTINE VIEW2
 !
 !
 SUBROUTINE VIEW214(iwell)
+  USE max_size
   use filenames
 
   !
@@ -5437,15 +5501,15 @@ SUBROUTINE VIEW214(iwell)
   INTEGER jcounter
 
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   CHARACTER*10 labels(45), peval(0:4)
   CHARACTER*15 inpt
   CHARACTER*11 units(0:4)
@@ -5652,6 +5716,7 @@ END SUBROUTINE VIEW214
 !
 !
 SUBROUTINE WARN
+  USE max_size
   use filenames
   IMPLICIT NONE
   !
@@ -5663,14 +5728,14 @@ SUBROUTINE WARN
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
   INTEGER Iele, Noele, Ilength
   COMMON /INT6  / Iele(36), Noele, Ilength
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   INTEGER LENS, numwarn, nbadcon, ii, icount, icheck, j, k, nbadpha,  &
        itotal, ibadones(10)
   EXTERNAL LENS
@@ -5800,18 +5865,19 @@ END SUBROUTINE WARN
 !
 !
 SUBROUTINE WELLS
+  USE max_size
   IMPLICIT NONE
   !
   ! The specific wells to be used are selected here, as well as whether
   ! mixing will be considered.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   INTEGER i, ino, j
   CHARACTER*1 ans, UPCS
   LOGICAL YN
@@ -5902,6 +5968,7 @@ END SUBROUTINE WELLS
 !
 !
 SUBROUTINE WLLIST(II)
+  USE max_size
   IMPLICIT NONE
   !
   ! The wells in a given well file are listed.  After 40 wells, the number
@@ -5909,10 +5976,10 @@ SUBROUTINE WLLIST(II)
   ! rest of the wells.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
@@ -5926,7 +5993,7 @@ SUBROUTINE WLLIST(II)
   END IF
   i = 1
   ij = 1
-20 IF (i.GE.40*ij) THEN
+20 IF (i.GT.MAXWELLS*ij) THEN
      WRITE (*,9010)
      ij = ij+1
      READ (*,'(A)') bans
@@ -5992,6 +6059,7 @@ END FUNCTION YN
 !
 !
 SUBROUTINE RUN(NUMRUN)
+  USE max_size
   use filenames
   IMPLICIT NONE
   !
@@ -6003,7 +6071,7 @@ SUBROUTINE RUN(NUMRUN)
   CHARACTER Pname*8, Ename*2, Force*1
   COMMON /CHAR3 / Pname(39), Ename(39), Force(39)
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1), &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1), &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -6015,12 +6083,12 @@ SUBROUTINE RUN(NUMRUN)
        Res(100), Sfinal(39), Sinit(5,59), Maxdel(39), &
        Mindel(39), Dfinal
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40), &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40), &
        Disalong, Usera(5)
   DOUBLE PRECISION Pcoef
   COMMON /DP6   / Pcoef(39,39)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50), &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50), &
        Isdocrs(0:5)
   INTEGER Numdrop, Cllines, Maxpos, Minpos, Now, Imix, Igotone, &
        Iunit, Nmins, Ierror, Numtest
@@ -6031,7 +6099,7 @@ SUBROUTINE RUN(NUMRUN)
   INTEGER Iele, Noele, Ilength
   COMMON /INT6  / Iele(36), Noele, Ilength
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   DOUBLE PRECISION pc(36), ca
   INTEGER je(36), i, j, k, loop, NUMRUN
   CHARACTER*1 UPCS, ittemp(39), ans
@@ -6238,12 +6306,13 @@ END SUBROUTINE RUN
 !
 !
 SUBROUTINE BALN
+  USE max_size
   IMPLICIT NONE
   !
   CHARACTER Pname*8, Ename*2, Force*1
   COMMON /CHAR3 / Pname(39), Ename(39), Force(39)
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -6463,6 +6532,7 @@ END SUBROUTINE BALN
 !
 !
 SUBROUTINE INIT
+  USE max_size
   IMPLICIT NONE
   CHARACTER Pname*8, Ename*2, Force*1
   COMMON /CHAR3 / Pname(39), Ename(39), Force(39)
@@ -6474,7 +6544,7 @@ SUBROUTINE INIT
        Res(100), Sfinal(39), Sinit(5,59), Maxdel(39),  &
        Mindel(39), Dfinal
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   DOUBLE PRECISION Pcoef
   COMMON /DP6   / Pcoef(39,39)
@@ -6679,10 +6749,11 @@ END SUBROUTINE NEXT
 !
 !
 SUBROUTINE RUNONE(MAXIGNORE)
+  USE max_size
   IMPLICIT NONE
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION Clmain, Cleach, Pdat, Res, Sfinal, Sinit, Maxdel,  &
        Mindel, Dfinal
@@ -6690,7 +6761,7 @@ SUBROUTINE RUNONE(MAXIGNORE)
        Res(100), Sfinal(39), Sinit(5,59), Maxdel(39),  &
        Mindel(39), Dfinal
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   INTEGER Numdrop, Cllines, Maxpos, Minpos, Now, Imix, Igotone,  &
        Iunit, Nmins, Ierror, Numtest
@@ -6750,6 +6821,7 @@ END SUBROUTINE RUNONE
 !
 !
 SUBROUTINE PRINT
+  USE max_size
   use filenames
   IMPLICIT NONE
   !
@@ -6759,12 +6831,12 @@ SUBROUTINE PRINT
   CHARACTER Pname*8, Ename*2, Force*1
   COMMON /CHAR3 / Pname(39), Ename(39), Force(39)
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION Evap, Pcoeff
   COMMON /DP1   / Evap, Pcoeff(39,36)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   DOUBLE PRECISION Para
   COMMON /DP5   / Para(39,16)
@@ -6775,7 +6847,7 @@ SUBROUTINE PRINT
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   INTEGER i, k, ll, l
   CHARACTER*1 ans
   EXTERNAL CISO
@@ -6839,6 +6911,7 @@ END SUBROUTINE PRINT
 !
 !
 SUBROUTINE CISO(ISCR)
+  USE max_size
   use filenames
   IMPLICIT NONE
   !
@@ -6853,7 +6926,7 @@ SUBROUTINE CISO(ISCR)
   CHARACTER Pname*8, Ename*2, Force*1
   COMMON /CHAR3 / Pname(39), Ename(39), Force(39)
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:50), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -6868,12 +6941,12 @@ SUBROUTINE CISO(ISCR)
        Res(100), Sfinal(39), Sinit(5,59), Maxdel(39),  &
        Mindel(39), Dfinal
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-  COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40),  &
+  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   DOUBLE PRECISION Para
   COMMON /DP5   / Para(39,16)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50),  &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
        Isdocrs(0:5)
   INTEGER Idis, Ipre, Rwunit
   COMMON /INT2  / Idis, Ipre, Rwunit
@@ -6886,7 +6959,7 @@ SUBROUTINE CISO(ISCR)
   INTEGER Iele, Noele, Ilength
   COMMON /INT6  / Iele(36), Noele, Ilength
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   LOGICAL Dowehave
   COMMON /LOG5  / Dowehave(39,2:16)
   DOUBLE PRECISION cic, delpre, fraction, age, cdiff, dmin, dmax,  &

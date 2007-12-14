@@ -32,7 +32,7 @@
   !
 
 	Subroutine NewExcel
-
+      USE max_size
 	  USE IFCOM
 	  USE ADOBJECTS
 	  USE excel_headings
@@ -50,7 +50,7 @@
 	  INTEGER*4 roll
 	  INTEGER*4 maxScale
 	  CHARACTER (LEN = 32) :: loopc
-	  INTEGER*4   i
+	  INTEGER*4   i, j
 	  LOGICAL*2 l
 	  REAL*4    rnd
 	  INTEGER*2, DIMENSION(1:12) :: cellCounts
@@ -123,12 +123,23 @@
 	  enddo
 
 	  ! Initialize well numbers
-	  DO i=1,2
-		write(cell_location,'("a",i1)') i+7
-		call setcell_integer(cell_location, i)
-	  END DO
-	  DO i=3,50
-		write(cell_location,'("a",i2)') i+7
+!	  DO i=1,2
+!		write(cell_location,'("a",i1)') i+7
+!		call setcell_integer(cell_location, i)
+!	  END DO
+!	  DO i=3,50
+!		write(cell_location,'("a",i2)') i+7
+!		call setcell_integer(cell_location, i)
+!	  END DO
+	  DO i=1, MAXWELLS
+	  
+		write(cell_location,'(i5)') i+7
+		do j = 1, 4
+		    if (cell_location(1:1) .eq. ' ') then
+		        cell_location = cell_location(2:5)
+		    endif
+		enddo
+		cell_location = 'a'//cell_location
 		call setcell_integer(cell_location, i)
 	  END DO
 
@@ -421,6 +432,7 @@ END subroutine cleanup_com
 !
 !
 SUBROUTINE DB2XL
+  USE max_size
   use filenames
   USE ADOBJECTS
   IMPLICIT NONE
@@ -433,12 +445,12 @@ SUBROUTINE DB2XL
   INTEGER LENS, n, i, jcounter, k, j, kk, linenum
   !
   REAL Dbdata
-  COMMON /DB    / Dbdata(50,45)
+  COMMON /DB    / Dbdata(MAXWELLS,45)
   INTEGER Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
-  COMMON /INT4DB/ Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
-	   Totwell, Tot(50)
+  COMMON /INT4DB/ Dbsfg(MAXWELLS,45), Idefault(5), Iu(MAXWELLS,4), Nwlls,  &
+	   Totwell, Tot(MAXWELLS)
   CHARACTER Wllnms*80, Address*40, Lat*40, Formation*17
-  COMMON /CHAR1 / Wllnms(50), Address(50,5), Lat(50), Formation(50)
+  COMMON /CHAR1 / Wllnms(MAXWELLS), Address(MAXWELLS,5), Lat(MAXWELLS), Formation(MAXWELLS)
   INTEGER Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
   COMMON /FUNITS/ Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
 
@@ -586,7 +598,221 @@ END SUBROUTINE db2xl
 !
 !
 SUBROUTINE XL2DB
+    USE max_size
+    USE ADOBJECTS
+    use oleaut32
+    use ifcom
 
+    IMPLICIT NONE
+    INTEGER*4 status
+    character*256 string
+    character*256 strings(4)
+    CHARACTER*16 words(45)
+    CHARACTER*1 UPCS, ans
+    CHARACTER*80 line
+    CHARACTER*20 frmt
+    CHARACTER*10 piece
+    CHARACTER*80 funame, char_linenum, cell_location
+    INTEGER LENS, n, i, jcounter, k, j, kk, linenum
+    !
+    REAL Dbdata
+    COMMON /DB    / Dbdata(MAXWELLS,45)
+    INTEGER Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
+    COMMON /INT4DB/ Dbsfg(MAXWELLS,45), Idefault(5), Iu(MAXWELLS,4), Nwlls,  &
+       Totwell, Tot(MAXWELLS)
+    CHARACTER Wllnms*80, Address*40, Lat*40, Formation*17
+    COMMON /CHAR1 / Wllnms(MAXWELLS), Address(MAXWELLS,5), Lat(MAXWELLS), Formation(MAXWELLS)
+    INTEGER Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
+    COMMON /FUNITS/ Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
+  
+    !
+    EXTERNAL LENS, UPCS
+    INTRINSIC CHAR, ICHAR
+    !
+    DATA words/'Temperature     ', 'pH              ',  &
+       'Dissolved Oxygen', 'Alkalinity      ', 'Tritium         ',  &
+       'H2S as S        ', 'Calcium         ', 'Eh              ',  &
+       'Magnesium       ', 'Sodium          ', 'Potassium       ',  &
+       'Chloride        ', 'Sulfate         ', 'Fluoride        ',  &
+       'Silica          ', 'Bromide         ', 'Boron           ',  &
+       'Barium          ', 'Lithium         ', 'Strontium       ',  &
+       'Iron            ', 'Manganese       ', 'Nitrate         ',  &
+       'Ammonium        ', 'Phosphate       ', 'DOC             ',  &
+       'Sp. Cond.       ', 'Density         ', 'Delta C-13 TDIC ',  &
+       'Carbon 14 TDIC  ', 'Delta S-34 (SO4)', 'Delta S-34 (H2S)',  &
+       'Delta Deuterium ', 'Delta O-18      ', 'CH4 (aq)        ',  &
+       'Sr 87/86        ', 'Aluminum        ', 'N2 (aq)         ',  &
+       'N-15 of N2 (aq) ', 'N-15 of Nitrate ', 'N-15 of Ammonium',  &
+       'Depth           ', 'Casing          ', 'Elevation       ',  &
+       'RS of DOC       '/
+    character*2 location(45)
+    integer location_num(45)
+    !!
+    TYPE (VARIANT) wnSafeArray  
+    TYPE (VARIANT) flagsSafeArray  
+    TYPE (VARIANT) val  
+    TYPE(sa_bounds), DIMENSION(2) :: ab
+    INTEGER iu_dup(MAXWELLS,4)
+    CHARACTER*80 wllnms_dup(MAXWELLS)
+    INTEGER*4, DIMENSION(2) :: indices
+    INTEGER*4 lBound
+    INTEGER*4 uBound
+
+    data location/' G', ' H', &
+	    'AD', ' P', 'AO', &
+	    'AE', ' J', ' I', &
+	    ' K', ' L', ' M', &
+	    ' N', ' O', ' T', &
+	    ' U', ' V', ' W', &
+	    ' X', ' Y', ' Z', &
+	    ' Q', ' R', 'AA', &
+	    'AB', 'AC', 'AH', &
+	    'AV', 'AU', 'AJ', &
+	    'AK', 'AL', 'AM', &
+	    'AN', 'AP', 'AG', &
+	    'AQ', ' S', 'AF', &
+	    'AR', 'AS', 'AT', &
+	    'BB', 'BC', 'BD', &
+	    'AI'/
+    data location_num/7, 8, &  !  G,  H
+        30, 16, 41, &          ! AD,  P, AO
+        31, 10, 9,  &          ! AE,  J,  I
+        11, 12, 13, &          !  K,  L,  M
+        14, 15, 20, &          !  N,  O,  T
+        21, 22, 23, &          !  U,  V,  W
+        24, 25, 26, &          !  X,  Y,  Z
+        17, 18, 27, &          !  Q,  R, AA
+        28, 29, 34, &          ! AB, AC, AH
+        48, 47, 36, &          ! AV, AU, AJ
+        37, 38, 39, &          ! AK, AL, AM
+        40, 42, 33, &          ! AN, AP, AG
+        43, 19, 32, &          ! AQ,  S, AF
+        44, 45, 46, &          ! AR, AS, AT
+        54, 55, 56, &          ! BB, BC, BD
+        35/                    ! AI
+
+    WRITE (*,*) 'Reading Excel ...'
+ 
+    !! calculate range
+    write(string, "(i5)") MAXWELLS + 8
+    do i = 1, 4
+    if (string(1:1) .eq. ' ') string = string(2:5)
+    enddo
+    string = "BI"//string
+
+    !! read data 
+    call set_range("A8", string)
+    wnSafeArray = Range_GetValue(range)  
+
+    n = 1
+    do i = 1, MAXWELLS 
+       indices(1) = i;
+       
+       !! save well name B, column 2, cycle if empty
+        indices(2) = 2;
+        status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+        if (val%VT == VT_BSTR) then
+            status = ConvertBSTRToString(val%VU%PTR_VAL, string)
+            wllnms(n)(5:80) = string
+        else
+            cycle
+        endif
+            
+        !! Well num  A, column 1
+        indices(2) = 1;
+        tot(n) = n
+        status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+        if (val%VT == VT_R8) then
+            tot(n) = val%VU%DOUBLE_VAL
+        endif  
+
+        !! save flags  C-F, columns 3-6
+        do k=3,6
+            indices(2) = k;
+            status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+            if (val%VT == VT_R8) then
+                iu(n, k - 2) = val%VU%DOUBLE_VAL
+            endif    
+        enddo
+
+        !! save data values, columns defined in location_num
+        do j = 1, 45
+            indices(2) = location_num(j);
+            status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+            if (val%VT == VT_R8) then
+                dbdata(n,j) = val%VU%DOUBLE_VAL
+                dbsfg(n, j) = 0
+            else
+                dbdata(n,j) = 0
+                dbsfg(n, j) = -1
+            endif
+        enddo   
+        
+        !! save lat/lon values
+        indices(2) = 52;   ! AZ
+        status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+        if (val%VT == VT_R8) then
+            write(lat(n),"(G)") val%VU%DOUBLE_VAL
+        else if (val%VT == VT_BSTR) then
+            status = ConvertBSTRToString(val%VU%PTR_VAL, string)
+            lat(n) = string
+        endif        
+
+		!       Address
+        indices(2) = 57;   ! BE
+        status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+        if (val%VT == VT_R8) then
+            write(address(n, 1),"(G)") val%VU%DOUBLE_VAL
+        else if (val%VT == VT_BSTR) then
+            status = ConvertBSTRToString(val%VU%PTR_VAL, string)
+            address(n, 1) = string
+        endif
+        
+        indices(2) = 58;   ! BF
+        status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+        if (val%VT == VT_R8) then
+            write(address(n, 2),"(G)") val%VU%DOUBLE_VAL
+        else if (val%VT == VT_BSTR) then
+            status = ConvertBSTRToString(val%VU%PTR_VAL, string)
+            address(n, 2) = string
+        endif
+        
+        indices(2) = 59;   ! BG
+        status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+        if (val%VT == VT_R8) then
+            write(address(n, 3),"(G)") val%VU%DOUBLE_VAL
+        else if (val%VT == VT_BSTR) then
+            status = ConvertBSTRToString(val%VU%PTR_VAL, string)
+            address(n, 3) = string
+        endif
+        
+        indices(2) = 60;   ! BH
+        status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+        if (val%VT == VT_R8) then
+            write(address(n, 4),"(G)") val%VU%DOUBLE_VAL
+        else if (val%VT == VT_BSTR) then
+            status = ConvertBSTRToString(val%VU%PTR_VAL, string)
+            address(n, 4) = string
+        endif 
+        
+        indices(2) = 61;   ! BI
+        status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+        if (val%VT == VT_R8) then
+            write(address(n, 5),"(G)") val%VU%DOUBLE_VAL
+        else if (val%VT == VT_BSTR) then
+            status = ConvertBSTRToString(val%VU%PTR_VAL, string)
+            address(n, 5) = string
+        endif  
+        n = n + 1       
+    enddo
+    Nwlls = n - 1
+    return
+END SUBROUTINE xl2db
+!
+!
+!
+SUBROUTINE XL2DBold
+  USE max_size
 	USE ADOBJECTS
 
 	IMPLICIT NONE
@@ -601,12 +827,12 @@ SUBROUTINE XL2DB
   INTEGER LENS, n, i, jcounter, k, j, kk, linenum
   !
   REAL Dbdata
-  COMMON /DB    / Dbdata(50,45)
+  COMMON /DB    / Dbdata(MAXWELLS,45)
   INTEGER Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
-  COMMON /INT4DB/ Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
-	   Totwell, Tot(50)
+  COMMON /INT4DB/ Dbsfg(MAXWELLS,45), Idefault(5), Iu(MAXWELLS,4), Nwlls,  &
+	   Totwell, Tot(MAXWELLS)
   CHARACTER Wllnms*80, Address*40, Lat*40, Formation*17
-  COMMON /CHAR1 / Wllnms(50), Address(50,5), Lat(50), Formation(50)
+  COMMON /CHAR1 / Wllnms(MAXWELLS), Address(MAXWELLS,5), Lat(MAXWELLS), Formation(MAXWELLS)
   INTEGER Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
   COMMON /FUNITS/ Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
 
@@ -663,11 +889,13 @@ SUBROUTINE XL2DB
   linenum = 8
 !  DO n = 1, Nwlls
 	n = 1
-	do linenum = 8, 57
-	write(char_linenum,'(i2)') linenum
-	if (char_linenum(1:1) == ' ') then
-		char_linenum = char_linenum(2:2)
-	endif
+	do linenum = 8, MAXWELLS + 7
+	write(char_linenum,'(i5)') linenum
+	do i = 1, 4
+	    if (char_linenum(1:1) == ' ') then
+		    char_linenum = char_linenum(2:5)
+	    endif
+	enddo
 	 !   write(cell_location,'("a",i1)') i+7
 	 !       Wellnms
 	 ! WRITE (Iw1,9005,ERR=50) Iu(n,1), Iu(n,2), Iu(n,3), Iu(n,4),  &
@@ -797,7 +1025,7 @@ SUBROUTINE XL2DB
 9030 FORMAT ('WARNING: Error writing to file: ',A40/ &
 	   'File may be write protected.'/)
 9040 FORMAT ('Do you want to OVERWRITE the file (y or n)?')
-END SUBROUTINE xl2db
+END SUBROUTINE xl2dbold
 !
 !
 !

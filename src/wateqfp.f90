@@ -2,6 +2,7 @@
 !
 !
 SUBROUTINE RUNWATEQ(file, silent)
+  USE max_size
     use filenames
     IMPLICIT NONE
     LOGICAL error
@@ -10,8 +11,8 @@ SUBROUTINE RUNWATEQ(file, silent)
     CHARACTER mfile(200)*40, UPCS80*80
     !
     INTEGER Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
-    COMMON /INT4DB/ Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
-       Totwell, Tot(50)
+    COMMON /INT4DB/ Dbsfg(MAXWELLS,45), Idefault(5), Iu(MAXWELLS,4), Nwlls,  &
+       Totwell, Tot(MAXWELLS)
     INTEGER Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
     COMMON /FUNITS/ Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
     character*(*) file
@@ -124,7 +125,7 @@ SUBROUTINE RUNWATEQ(file, silent)
 9000 FORMAT (/,' Do you want to adjust the solution compositions to approximate',/, &
        ' charge balance?',/,' <Enter> = no')
 9005 FORMAT (A1)
-9010 FORMAT ('   Processing well: ',I2)
+9010 FORMAT ('   Processing well: ',I4)
 9015 FORMAT ('  Running aqueous model -- please wait')
 9020 FORMAT (' Error in well #',I3)
 9025 FORMAT (/,1X,A,'.pat created.',/,1X,A, &
@@ -137,18 +138,19 @@ end subroutine RUNWATEQ
 !
 !
 SUBROUTINE CONVDATA(I,ERROR)
+  USE max_size
   IMPLICIT NONE
   REAL dat(45)
   INTEGER jj, itrans(4:30), I, lpspec
   LOGICAL ERROR
   !
   REAL Dbdata
-  COMMON /DB    / Dbdata(50,45)
+  COMMON /DB    / Dbdata(MAXWELLS,45)
   INTEGER Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
-  COMMON /INT4DB/ Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
-       Totwell, Tot(50)
+  COMMON /INT4DB/ Dbsfg(MAXWELLS,45), Idefault(5), Iu(MAXWELLS,4), Nwlls,  &
+       Totwell, Tot(MAXWELLS)
   CHARACTER Wllnms*80, Address*40, Lat*40, Formation*17
-  COMMON /CHAR1 / Wllnms(50), Address(50,5), Lat(50), Formation(50)
+  COMMON /CHAR1 / Wllnms(MAXWELLS), Address(MAXWELLS,5), Lat(MAXWELLS), Formation(MAXWELLS)
   DOUBLE PRECISION Ph, Tempc, Tempk, Density, Mol(250), Alpha(250),  &
        Gamma(250), Totmol(30), Consta, Constb, Constc,  &
        Constf, Constr, Speclk(250), Ppm(250),  &
@@ -1214,6 +1216,7 @@ end subroutine CONVDATA
 !
 !
       SUBROUTINE PATWRITE(WELLNUM,ERROR)
+      USE max_size
       INTEGER lpspec, lplist, WELLNUM, lpinner, list, trans(50),  &
              trsfg(50), i, j
       LOGICAL flagh, ERROR
@@ -1223,9 +1226,9 @@ end subroutine CONVDATA
       CHARACTER*2 name
       CHARACTER*9 fmt
       CHARACTER*80 line
-      REAL Dbdata(50,45), valu, aaa(50), a2, a3, a6, a7
-      INTEGER Dbsfg(50,45), Nwlls, Totwell, Tot(50), Idefault(5),  &
-             Iu(50,4)
+      REAL Dbdata(MAXWELLS,45), valu, aaa(MAXWELLS), a2, a3, a6, a7
+      INTEGER Dbsfg(MAXWELLS,45), Nwlls, Totwell, Tot(MAXWELLS), Idefault(5),  &
+             Iu(MAXWELLS,4)
       COMMON /DB    / Dbdata
       COMMON /INT4DB/ Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
       INTEGER Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
@@ -1275,7 +1278,7 @@ end subroutine CONVDATA
           21, 22, 22, 22, 22, 35, 26, 26, 0, 29, 30, 36, 33, 34, 5, 31,  &
           32, 0, 0/
       WRITE (Iw2,9005) Wellname
-      DO 10 lplist = 1, 50
+      DO 10 lplist = 1, MAXWELLS
         sfg(lplist) = '*'
         aaa(lplist) = 0.0
    10 CONTINUE
@@ -1456,6 +1459,7 @@ end subroutine CONVDATA
 !
 !
       SUBROUTINE PATWRITE214(WELLNUM,ERROR)
+      USE max_size
       IMPLICIT NONE
       INTEGER lpspec, lplist, WELLNUM, lpinner, list, trans(50),  &
              trsfg(50), i, j
@@ -1467,9 +1471,9 @@ end subroutine CONVDATA
       CHARACTER*32 fmt
       CHARACTER*80 line
       INTEGER k
-      REAL Dbdata(50,45), valu, aaa(50), a2, a3, a6, a7
-      INTEGER Dbsfg(50,45), Nwlls, Totwell, Tot(50), Idefault(5),  &
-             Iu(50,4)
+      REAL Dbdata(MAXWELLS,45), valu, aaa(MAXWELLS), a2, a3, a6, a7
+      INTEGER Dbsfg(MAXWELLS,45), Nwlls, Totwell, Tot(MAXWELLS), Idefault(5),  &
+             Iu(MAXWELLS,4)
       COMMON /DB    / Dbdata
       COMMON /INT4DB/ Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
       INTEGER Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2

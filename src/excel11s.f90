@@ -4,7 +4,28 @@
 		USE IFAUTO
 		IMPLICIT NONE
 		! Module Procedures
-		CONTAINS		
+		CONTAINS
+  			FUNCTION Range_GetValue($OBJECT, RangeValueDataType, $STATUS)
+				IMPLICIT NONE
+				INTEGER(INT_PTR_KIND()), INTENT(IN)	:: $OBJECT	 ! Object Pointer
+				!DEC$ ATTRIBUTES VALUE	:: $OBJECT
+				TYPE (VARIANT), INTENT(IN), OPTIONAL	:: RangeValueDataType	
+				!DEC$ ATTRIBUTES REFERENCE	:: RangeValueDataType
+				INTEGER(4), INTENT(OUT), OPTIONAL	:: $STATUS	 ! Method status
+				!DEC$ ATTRIBUTES REFERENCE			:: $STATUS
+				TYPE (VARIANT), VOLATILE :: $RETURN
+				TYPE (VARIANT) Range_GetValue
+				INTEGER(4) $$STATUS
+				INTEGER(INT_PTR_KIND()) invokeargs
+				invokeargs = AUTOALLOCATEINVOKEARGS()
+				CALL AUTOADDARG(invokeargs, 'Value', $RETURN, AUTO_ARG_OUT)
+				IF (PRESENT(RangeValueDataType)) CALL AUTOADDARG(invokeargs, '$ARG1', RangeValueDataType, AUTO_ARG_IN)
+!!!				$$STATUS = AUTOGETPROPERTYBYID($OBJECT, 6, invokeargs)
+				$$STATUS = AUTOGETPROPERTYINVOKEARGS($OBJECT, invokeargs)
+				IF (PRESENT($STATUS)) $STATUS = $$STATUS
+				Range_GetValue = $RETURN
+				CALL AUTODEALLOCATEINVOKEARGS (invokeargs)
+			END FUNCTION Range_GetValue		
   			!$Application_GetWorkbooks return type is POINTER(p, INTEGER(INT_PTR_KIND()))
 			INTEGER(INT_PTR_KIND()) FUNCTION $Application_GetWorkbooks($OBJECT, $STATUS)
 				IMPLICIT NONE

@@ -2,6 +2,7 @@
 !
 !
 SUBROUTINE WELLFILE_PAT(initial)
+  USE max_size
   use filenames
   use version
   implicit none
@@ -15,13 +16,13 @@ SUBROUTINE WELLFILE_PAT(initial)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
   INTEGER db_Dbsfg, db_Idefault, db_Iu, db_Nwlls, db_Totwell, db_Tot
-  COMMON /INT4DB/ db_Dbsfg(50,45), db_Idefault(5), db_Iu(50,4), db_Nwlls,  &
-	   db_Totwell, db_Tot(50)
+  COMMON /INT4DB/ db_Dbsfg(MAXWELLS,45), db_Idefault(5), db_Iu(MAXWELLS,4), db_Nwlls,  &
+	   db_Totwell, db_Tot(MAXWELLS)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
-  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(50,50), &
+  COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50), &
        Isdocrs(0:5)
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
-  COMMON /INT7  / Flin, Runit, Tot(50), Nopha, Iedit, Iadd
+  COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
   CHARACTER*140 files(100), fileone
   LOGICAL isthere
   INTEGER LENS, nfiles, i, ij, icount, j
@@ -132,11 +133,12 @@ END SUBROUTINE WELLFILE_PAT
 !
 !
 SUBROUTINE REREAD_EXCEL
+  USE max_size
     USE filenames
     USE IFwin
     implicit none
     DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
-    COMMON /DP4   / C14dat(13), Dbdata(0:50,0:50), P(3), Delta(40), &
+    COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40), &
        Disalong, Usera(5)
     INTEGER LENS 
     EXTERNAL LENS
@@ -146,8 +148,8 @@ SUBROUTINE REREAD_EXCEL
     integer fileopen_db, CheckOldExcel
     external fileopen_db, CheckOldExcel
     INTEGER db_Dbsfg, db_Idefault, db_Iu, db_Nwlls, db_Totwell, db_Tot
-    COMMON /INT4DB/ db_Dbsfg(50,45), db_Idefault(5), db_Iu(50,4), db_Nwlls,  &
-    db_Totwell, db_Tot(50)
+    COMMON /INT4DB/ db_Dbsfg(MAXWELLS,45), db_Idefault(5), db_Iu(MAXWELLS,4), db_Nwlls,  &
+    db_Totwell, db_Tot(MAXWELLS)
     CHARACTER*140 fileone
 	! Declare structure used to pass and receive attributes
     !
@@ -161,7 +163,7 @@ SUBROUTINE REREAD_EXCEL
     !
     character*(*),parameter :: filter_spec_lon = "DB files"C//"*.lon"C  
     character*(*),parameter :: filter_spec_xls = "Excel files"C//"*.xls"C
-    double precision dbsave(0:50,0:50)
+    double precision dbsave(0:MAXWELLS,0:50)
 
     ! Declare string variable to return the file specification.
     ! Initialize with an initial filespec, if any - null string
@@ -183,7 +185,7 @@ SUBROUTINE REREAD_EXCEL
     ! 47: C-14 of DOC
     ! Not user defined48: RS of DOC
     ! 49: User-entered RS of DOC
-    do i = 0, 50
+    do i = 0, MAXWELLS
         do j = 44,49
             if (j == 48) cycle
             dbsave(i, j) = dbdata(i, j)
@@ -211,7 +213,7 @@ SUBROUTINE REREAD_EXCEL
 	fileone = root(1:lens(root))//'.pat'
 	call rdpath(fileone)
 	excel_file = .true. 
-	do i = 0, 50
+	do i = 0, MAXWELLS
         do j = 44,49
             if (j == 48) cycle
             dbdata(i, j) = dbsave(i, j) 

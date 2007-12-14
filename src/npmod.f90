@@ -23,6 +23,10 @@ module version
   DATA datestr/'January 2, 2008'/
 end module version
 
+module max_size
+    PARAMETER MAXWELLS=400
+end module max_size
+
 module screen_parameters
     integer*2 MaxRows /500/, MaxColumns/160/
 end module screen_parameters
@@ -105,7 +109,7 @@ module excel_headings
 		'at7','N-15 NH4', &
 		'au7','Density', &
 		'av7','Sp Cond', &
-		'a58','Maximum number of wells is 50', & ! 47
+		'a408','Maximum number of wells is 400', & ! 47
 		'aw7','Field ID', &
 		'ax7','ID number', &
 		'ay7','Date/time', &

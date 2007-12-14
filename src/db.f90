@@ -1,4 +1,5 @@
 PROGRAM DBXL
+  USE max_size
   use filenames
   implicit none
   !
@@ -12,12 +13,12 @@ PROGRAM DBXL
   !     under the direction of L. Niel Plummer.
   !
   REAL Dbdata
-  COMMON /DB    / Dbdata(50,45)
+  COMMON /DB    / Dbdata(MAXWELLS,45)
   INTEGER Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
-  COMMON /INT4DB/ Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls, &
-       Totwell, Tot(50)
+  COMMON /INT4DB/ Dbsfg(MAXWELLS,45), Idefault(5), Iu(MAXWELLS,4), Nwlls, &
+       Totwell, Tot(MAXWELLS)
   CHARACTER Wllnms*80, Address*40, Lat*40, Formation*17
-  COMMON /CHAR1 / Wllnms(50), Address(50,5), Lat(50), Formation(50)
+  COMMON /CHAR1 / Wllnms(MAXWELLS), Address(MAXWELLS,5), Lat(MAXWELLS), Formation(MAXWELLS)
   INTEGER Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
   COMMON /FUNITS/ Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
   !
@@ -135,6 +136,7 @@ end subroutine GETNO214
 !
 !
 SUBROUTINE PUTDATA(I)
+  USE max_size
   implicit none
   INTEGER I
   CHARACTER*80 line
@@ -147,12 +149,12 @@ SUBROUTINE PUTDATA(I)
   INTEGER iunits(45), ic, j, k, ioff, LENS, num(45)
   !
   REAL Dbdata
-  COMMON /DB    / Dbdata(50,45)
+  COMMON /DB    / Dbdata(MAXWELLS,45)
   INTEGER Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
-  COMMON /INT4DB/ Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
-       Totwell, Tot(50)
+  COMMON /INT4DB/ Dbsfg(MAXWELLS,45), Idefault(5), Iu(MAXWELLS,4), Nwlls,  &
+       Totwell, Tot(MAXWELLS)
   CHARACTER Wllnms*80, Address*40, Lat*40, Formation*17
-  COMMON /CHAR1 / Wllnms(50), Address(50,5), Lat(50), Formation(50)
+  COMMON /CHAR1 / Wllnms(MAXWELLS), Address(MAXWELLS,5), Lat(MAXWELLS), Formation(MAXWELLS)
   INTEGER Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
   COMMON /FUNITS/ Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
   !
@@ -302,18 +304,19 @@ END SUBROUTINE RDDB
 !
 !
 SUBROUTINE RDDB2
+  USE max_size
   implicit none
   CHARACTER*10 inpt
   CHARACTER*80 line, funame
   INTEGER err, LENS, jk, id, iadd, index, k, l
   !
   REAL Dbdata
-  COMMON /DB    / Dbdata(50,45)
+  COMMON /DB    / Dbdata(MAXWELLS,45)
   INTEGER Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
-  COMMON /INT4DB/ Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
-       Totwell, Tot(50)
+  COMMON /INT4DB/ Dbsfg(MAXWELLS,45), Idefault(5), Iu(MAXWELLS,4), Nwlls,  &
+       Totwell, Tot(MAXWELLS)
   CHARACTER Wllnms*80, Address*40, Lat*40, Formation*17
-  COMMON /CHAR1 / Wllnms(50), Address(50,5), Lat(50), Formation(50)
+  COMMON /CHAR1 / Wllnms(MAXWELLS), Address(MAXWELLS,5), Lat(MAXWELLS), Formation(MAXWELLS)
   INTEGER Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
   COMMON /FUNITS/ Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
   CHARACTER*256 Dfile, path
@@ -400,6 +403,7 @@ end subroutine RDDB2
 !
 !
 SUBROUTINE RDDB214
+  USE max_size
   implicit none
   INTEGER jcounter, i
   CHARACTER*15 inpt
@@ -407,12 +411,12 @@ SUBROUTINE RDDB214
   INTEGER err, LENS, jk, id, iadd, index, k, l
   !
   REAL Dbdata
-  COMMON /DB    / Dbdata(50,45)
+  COMMON /DB    / Dbdata(MAXWELLS,45)
   INTEGER Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
-  COMMON /INT4DB/ Dbsfg(50,45), Idefault(5), Iu(50,4), Nwlls,  &
-       Totwell, Tot(50)
+  COMMON /INT4DB/ Dbsfg(MAXWELLS,45), Idefault(5), Iu(MAXWELLS,4), Nwlls,  &
+       Totwell, Tot(MAXWELLS)
   CHARACTER Wllnms*80, Address*40, Lat*40, Formation*17
-  COMMON /CHAR1 / Wllnms(50), Address(50,5), Lat(50), Formation(50)
+  COMMON /CHAR1 / Wllnms(MAXWELLS), Address(MAXWELLS,5), Lat(MAXWELLS), Formation(MAXWELLS)
   INTEGER Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
   COMMON /FUNITS/ Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
   CHARACTER*256 Dfile, path

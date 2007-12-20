@@ -20,7 +20,7 @@ module version
   DATA ProgramName/'NetpathXL'/
   DATA DBXLName/'DBXL'/
   DATA VersionNumber/'1.1'/
-  DATA datestr/'January 2, 2008'/
+  DATA datestr/'January 3, 2008'/
 end module version
 
 module max_size
@@ -28,7 +28,41 @@ module max_size
 end module max_size
 
 module screen_parameters
-    integer*2 MaxRows /500/, MaxColumns/160/
+    integer*2 MaxRows /500/, MaxColumns/90/
+    integer*4 bk_red, bk_green, bk_blue
+    integer*4 bk_red_default /0/, bk_green_default /0/, bk_blue_default /255/
+    double precision bk_dimmer_default / .25 /, bk_dimmer /0.25/
+    integer*4 text_red, text_green, text_blue
+    integer*4 text_red_default /255/, text_green_default /255/, text_blue_default /255/
+    double precision text_dimmer_default /0.85/, text_dimmer /0.85 /
+    contains
+
+ subroutine set_color_np 
+ USE IFQWIN
+ implicit none
+ interface
+    subroutine set_color_np
+    end subroutine set_color_np
+ end interface
+ integer *4 color, status
+ 
+ ! set background color
+ bk_red = bk_red_default * bk_dimmer;
+ bk_green = bk_green_default * bk_dimmer;
+ bk_blue = bk_blue_default * bk_dimmer;
+ color = bk_red + 256*bk_green + 256*256*bk_blue
+ status = SETBKCOLORRGB(color)
+ 
+ ! set text color
+ text_red = text_red_default * text_dimmer;
+ text_green = text_green_default * text_dimmer;
+ text_blue = text_blue_default * text_dimmer;
+ color = text_red + 256*text_green + 256*256*text_blue
+ status = SETTEXTCOLORRGB(color)
+ 
+ end subroutine set_color_np
+ 
+ 
 end module screen_parameters
     
 

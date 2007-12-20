@@ -111,7 +111,7 @@ SUBROUTINE WELLFILE_PAT(initial)
         CALL WELLS
      ELSE
         CALL INITVALS(1)
-        CALL MODELS
+        CALL MODELS214
      END IF
   END IF
 

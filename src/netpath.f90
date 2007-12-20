@@ -404,76 +404,83 @@ SUBROUTINE ADDPHA(IIOLD)
      END IF
      GO TO 20
   END IF
-30 WRITE (*,9000)
-  IF (Iedit.EQ.0) WRITE (*,9005) Flin
-  IF (Iedit.EQ.1) WRITE (*,9010) Flin, Phase(ii)
-  READ (*,'(A3)') line
-  IF (line.NE.' ' .OR. Iedit.NE.1) THEN
-     IF (line.EQ.' ') GO TO 90
-     IF (UPCS(line(1:1)).EQ.'L') THEN
-        CALL PHALIST(ij)
-        GO TO 40
-     END IF
-     READ (line,'(I3)',ERR=10) ij
-     IF (Iedit.EQ.1 .AND. ij.EQ.0) GO TO 90
-40   IF (ij.LE.0 .OR. ij.GT.Flin) GO TO 30
-     IF (Iedit.EQ.0) Nopha = Nopha+1
-     IF (Iedit.EQ.0) ii = Nopha
-     IF (ij.EQ.Flin) THEN
-        CALL EDITPIEC(ii,istop)
-        IF (Iedit.EQ.0) GO TO 10
-        GO TO 90
-     END IF
-     F(ii) = ' '
-     READ (Fline(ij),9015) Phase(ii), It(ii),  &
+    ij = -99
+    !
+    ! modified phalist so that ij is not returned
+    !
+    call phalist(ij)
+30 continue
+    WRITE (*,9000)
+	IF (Iedit.EQ.0) WRITE (*,9005) Flin
+	IF (Iedit.EQ.1) WRITE (*,9010) Flin, Phase(ii)
+	READ (*,'(A3)') line
+    IF (line.NE.' ' .OR. Iedit.NE.1) THEN
+		IF (line.EQ.' ') GO TO 90
+		IF (UPCS(line(1:1)).EQ.'L') THEN
+			CALL PHALIST(ij)
+			GO TO 40
+		END IF
+	    READ (line,'(I3)',ERR=10) ij
+	    IF (Iedit.EQ.1 .AND. ij.EQ.0) GO TO 90
+40      continue
+        IF (ij.LE.0 .OR. ij.GT.Flin) GO TO 30
+	    IF (Iedit.EQ.0) Nopha = Nopha+1
+	    IF (Iedit.EQ.0) ii = Nopha
+	    IF (ij.EQ.Flin) THEN
+		    CALL EDITPIEC(ii,istop)
+		    IF (Iedit.EQ.0) GO TO 10
+            GO TO 90
+        END IF
+        F(ii) = ' '
+        READ (Fline(ij),9015) Phase(ii), It(ii),  &
           (pelem(j),Pcoeff(ii,j),j=1,35)
-     CALL DONTHAVE(ii,1)
-     Iedit = 0
-     DO i = 1, 36
-        Jele(ii,i) = 0
-     enddo
-     j = 0
-     jp = 0
-55   jp = jp+1
-60   j = j+1
-     IF (pelem(j).EQ.'  ') Jele(ii,jp) = 0
-     IF (pelem(j).NE.'  ') THEN
-        k = 0
-70      k = k+1
-        IF (pelem(j).NE.Eleshort(k)) THEN
-           IF (k.LT.33) GO TO 70
-           WRITE (*,'(//,A,1X,I2)') ' Bad constraint in phase #', ii
-           STOP
+        CALL DONTHAVE(ii,1)
+        Iedit = 0
+        DO i = 1, 36
+            Jele(ii,i) = 0
+        enddo
+        j = 0
+        jp = 0
+55      jp = jp+1
+60      j = j+1
+        IF (pelem(j).EQ.'  ') Jele(ii,jp) = 0
+        IF (pelem(j).NE.'  ') THEN
+            k = 0
+70          k = k+1
+            IF (pelem(j).NE.Eleshort(k)) THEN
+                IF (k.LT.33) GO TO 70
+                WRITE (*,'(//,A,1X,I2)') ' Bad constraint in phase #', ii
+                STOP
+            END IF
+            !  Set default fractioation factor for Strontium minerals
+            if (k.eq.15) then
+                Para(ii, 10) = 0.0
+                CALL HAVE(ii,10)
+            endif
+            IF (k.GT.20) THEN
+                IF (k.LE.25 .OR. k.GE.29) THEN
+                    IF (k.LE.25) THEN
+                        !  Sets isotopic composition for C13, C14, S34, Sr87, N15
+                        Para(ii,k-19) = Pcoeff(ii,jp)
+                        CALL HAVE(ii,k-19)
+                    ELSE IF (k.GE.29 .AND. k.LE.33) THEN
+                        !  Sets fractionation factor for C13, C14, S34, Sr87, N15
+                        Para(ii,k-22) = Pcoeff(ii,jp)
+                        CALL HAVE(ii,k-22)
+                    END IF
+                    DO k = jp, 35
+                        Pcoeff(ii,k) = Pcoeff(ii,k+1)
+                    enddo
+                    GO TO 60
+                END IF
+            END IF
+            Jele(ii,jp) = k
+            IF (j.LT.35) GO TO 55
         END IF
-        !  Set default fractioation factor for Strontium minerals
-        if (k.eq.15) then
-           Para(ii, 10) = 0.0
-           CALL HAVE(ii,10)
-        endif
-        IF (k.GT.20) THEN
-           IF (k.LE.25 .OR. k.GE.29) THEN
-              IF (k.LE.25) THEN
-                 !  Sets isotopic composition for C13, C14, S34, Sr87, N15
-                 Para(ii,k-19) = Pcoeff(ii,jp)
-                 CALL HAVE(ii,k-19)
-              ELSE IF (k.GE.29 .AND. k.LE.33) THEN
-                 !  Sets fractionation factor for C13, C14, S34, Sr87, N15
-                 Para(ii,k-22) = Pcoeff(ii,jp)
-                 CALL HAVE(ii,k-22)
-              END IF
-              DO k = jp, 35
-                 Pcoeff(ii,k) = Pcoeff(ii,k+1)
-              enddo
-              GO TO 60
-           END IF
-        END IF
-        Jele(ii,jp) = k
-        IF (j.LT.35) GO TO 55
-     END IF
-  END IF
-  CALL TRANS(ii)
-  IF (Iedit.EQ.0) GO TO 10
-90 RETURN
+    END IF
+    CALL TRANS(ii)
+    IF (Iedit.EQ.0) GO TO 10
+90  RETURN
 9000 FORMAT (//,' Input phase number (type ''L'' to see phases and', &
        ' their corresponding numbers.)')
 9005 FORMAT (I4,' to create new phase, <Enter> to stop entering phases' &
@@ -3920,9 +3927,10 @@ SUBROUTINE PHALIST(II)
   COMMON /CHAR7 / Fline
   INTEGER Flin, Runit, Tot, Nopha, Iedit, Iadd
   COMMON /INT7  / Flin, Runit, Tot(MAXWELLS), Nopha, Iedit, Iadd
-  INTEGER II, i, ij, jj, kk
+  INTEGER II, i, ij, jj, kk, max_list /198/
   CHARACTER*3 bans
   !
+  call cls
   II = 0
   WRITE (*,9000)
   IF (Flin.EQ.0) THEN
@@ -3933,14 +3941,14 @@ SUBROUTINE PHALIST(II)
   ij = 1
 10 jj = i+1
   kk = jj+1
-  IF (i.GE.60*ij) THEN
+  IF (i.GE.max_list*ij) THEN
      WRITE (*,9005)
      ij = ij+1
      READ (*,'(A)') bans
-     IF (bans.NE.' ') THEN
-        READ (bans,'(I3)',ERR=20) II
-        RETURN
-     END IF
+     !IF (bans.NE.' ') THEN
+     !   READ (bans,'(I3)',ERR=20) II
+     !   RETURN
+     !END IF
   END IF
 20 IF (kk.NE.Flin) THEN
      IF (jj.EQ.Flin) THEN
@@ -3955,8 +3963,9 @@ SUBROUTINE PHALIST(II)
 30 IF (i.EQ.Flin .OR. i+1.EQ.Flin .OR. i+2.EQ.Flin) RETURN
   i = i+3
   GO TO 10
-9000 FORMAT (//,' List of phases and their corresponding numbers.')
-9005 FORMAT (' Hit RETURN to see next page or enter number of phase.')
+9000 FORMAT (' List of phases and their corresponding numbers.')
+!9005 FORMAT (' Hit RETURN to see next page or enter number of phase.')
+9005 FORMAT (' Hit RETURN to see next page')
 9010 FORMAT (I4,': ',A10,10X,I3,': ',A10)
 9015 FORMAT (I4,': ',A10)
 9020 FORMAT (I4,': ',A10,10X,I3,': ',A10,10X,I3,': ',A10)

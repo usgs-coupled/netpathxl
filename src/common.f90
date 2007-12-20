@@ -170,14 +170,36 @@ subroutine font
   integer*2 ih, iw
   TYPE (qwinfo)  winfo
   TYPE (windowconfig) wc
-  REAL fheight, fwidth
+  REAL fheight, fwidth, f
+  character*80 string
   
-10  continue
-    WRITE (*,"(' Enter font height (Default 16): ')")
-    READ (*,'(G20.0)') fheight
-    if (fheight .le. 0) fheight = 16.0
+    ! font height
+    fheight = 16
+    WRITE (*,"(' Enter font height (8-24, Default 16): ')")
+    READ (*,'(G20.0)', err=30) f
+    if (f .lt. 8.0 .or. f .gt. 24.0) goto 30
+    fheight = f
+30  continue
     ih = nint(fheight)
-    if (ih .le. 1 .or. ih .gt. 50) goto 10
+
+    ! text intensity
+    text_dimmer = text_dimmer_default
+    WRITE (*,"(' Enter font brightness (0.3 to 1.0, default ', f5.2, '): ')") text_dimmer_default
+    READ (*,'(G20.0)', err=10) f
+    if (f .lt. 0.3 .or. f .gt. 1.0) goto 10
+    text_dimmer = f
+
+    ! background intensity
+10  continue
+    bk_dimmer = bk_dimmer_default
+    WRITE (*,"(' Enter background brightness (0.0 to 1.0, default ', f5.2, '): ')") bk_dimmer_default
+    READ (*,'(A)', err=20) string
+    if (string == " ") goto 20
+    read(string, "(G20.0)", err = 20) f
+    if (f .lt. 0.0 .or. f .gt. 1.0) goto 20
+    bk_dimmer = f
+
+20  continue
     fwidth = real(ih)*0.6
     iw = nint(fwidth)
     wc%numxpixels  = -1
@@ -195,6 +217,7 @@ subroutine font
     if (.NOT.status) status = SETWINDOWCONFIG(wc)
     
  ! need display cursor after setwindowconfig
+ call set_color_np
  result =     DISPLAYCURSOR ($GCURSORON)
  
 return

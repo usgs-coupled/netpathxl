@@ -2,6 +2,7 @@
 subroutine configdb
  USE IFQWIN
  USE version
+ USE screen_parameters
  implicit none	
  !TYPE QWINFO
  !    INTEGER(2) TYPE  ! request type
@@ -43,6 +44,7 @@ subroutine configdb
     if (.NOT.status) status = SETWINDOWCONFIG(wc)
     
  ! need display cursor after setwindowconfig
+ call set_color_np
  result = DISPLAYCURSOR ($GCURSORON)
  !i1 = 1
  !i2 = 1

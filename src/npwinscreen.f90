@@ -47,7 +47,8 @@ subroutine confignetpath
     if (.NOT.status) status = SETWINDOWCONFIG(wc)
     
  ! need display cursor after setwindowconfig
- result =     DISPLAYCURSOR ($GCURSORON)
+ call set_color_np
+ result = DISPLAYCURSOR ($GCURSORON)
  
 return
 end subroutine confignetpath

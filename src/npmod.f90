@@ -74,19 +74,19 @@ module excel_headings
 		'c2','0 mmol/L', &
 		'g2','1 meq/L', &
 		'j2','2 mg/L', &
-		'k2','3 ppm', &
-		'm2','4 mmol/kgw', &
+		'l2','3 ppm', &
+		'n2','4 mmol/kgw', &
 		'b3','Eh flag:', &
 		'c3','0 Redox ignored', &
 		'g3','1 Eh, volts', &
 		'j3','2 DO', &
-		'k3','3 Sato DO', &
-		'm3','4 SO4/H2S', &
+		'l3','3 Sato DO', &
+		'n3','4 SO4/H2S', &
 		'b4','Alkalinity/TDIC flag:', &
 		'c4','0 Field alk as HCO3', &
 		'g4','1 Carbonate alk as HCO3', &
-		'j4','2 TDIC', &
-		'k4','3 Field alk as CaCO3', &
+		'j4','2 TDIC as HCO3', &
+		'l4','3 Field alk as CaCO3', &
 		'b5','Activity coefficient flag:', &
 		'c5','0 Debye-Huckel', &
 		'g5','1 Davies'/

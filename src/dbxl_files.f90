@@ -31,7 +31,8 @@ SUBROUTINE WELLFILE_LON
  write(*,*) "  (1) Create NetpathXL file from a .lon file."
  write(*,*) "  (2) Open existing NetpathXL file." 
  write(*,*) "  (3) Create new NetpathXL file."
- write(*,*) "  (4) Exit program"
+ write(*,*) "  (4) Create PHREEQC input file (.pqi) from NetpathXL file."
+ write(*,*) "  (5) Exit program"
  write(*,'(/A,$)') "Select an option> "
 
  READ (*,'(a)') yn
@@ -69,7 +70,6 @@ SUBROUTINE WELLFILE_LON
 	endif
 	CALL VisibleExcel(.TRUE.)
 	CALL cleanup_com(.FALSE.)
-
  else if (yn .eq. '3') then
     status = fileopen_db(root, path, "new_xls")
 	if (status) then
@@ -85,6 +85,28 @@ SUBROUTINE WELLFILE_LON
 		goto 10
 	endif
  else if (yn .eq. '4') then
+    status = fileopen_db(root, path, "old_xls")
+    if (status == .false.) then
+		write(*,*) "File open failed."
+		write(*,*) "Press enter to continue."
+		READ (*,'(a)') yn
+		goto 10
+	endif    
+	CALL OldExcel
+	result = CheckOldExcel()
+	if (result == .false.) then
+		write(*,*) "File is not a NetpathXL file."
+		write(*,*) "One of the cells A1, A7-AU7 did not match template."
+		write(*,*) "Press enter to continue."
+		READ (*,'(a)') yn
+		goto 10
+	endif
+	call xl2phreeqc
+	CALL cleanup_com(.TRUE.)
+	write(*,*) trim(path)//"\"//trim(root)//".pqi", " has been written."
+	write(*,*) "Press enter to finish."
+	READ (*,'(a)') yn
+ else if (yn .eq. '5') then
     return
  else
     goto 10

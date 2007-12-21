@@ -811,221 +811,456 @@ END SUBROUTINE xl2db
 !
 !
 !
-SUBROUTINE XL2DBold
-  USE max_size
-	USE ADOBJECTS
+SUBROUTINE XL2PHREEQC
+    USE max_size
+    USE ADOBJECTS
+    use oleaut32
+    use ifcom
+    use filenames, only: root, path
+    IMPLICIT NONE
+    INTEGER*4 status
+    character*256 string
+    character*256 strings(4)
+    CHARACTER*16 words(45)
+    CHARACTER*1 UPCS, ans
+    CHARACTER*80 line
+    CHARACTER*20 frmt
+    CHARACTER*10 piece
+    CHARACTER*80 funame, char_linenum, cell_location
+    INTEGER LENS, n, i, jcounter, k, j, kk, linenum
+    !
+    REAL Dbdata
+    COMMON /DB    / Dbdata(MAXWELLS,45)
+    INTEGER Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
+    COMMON /INT4DB/ Dbsfg(MAXWELLS,45), Idefault(5), Iu(MAXWELLS,4), Nwlls,  &
+       Totwell, Tot(MAXWELLS)
+    CHARACTER Wllnms*80, Address*40, Lat*40, Formation*17
+    COMMON /CHAR1 / Wllnms(MAXWELLS), Address(MAXWELLS,5), Lat(MAXWELLS), Formation(MAXWELLS)
+    INTEGER Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
+    COMMON /FUNITS/ Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
+  
+    !
+    EXTERNAL LENS, UPCS
+    INTRINSIC CHAR, ICHAR
+    !
+    DATA words/'Temperature     ', 'pH              ',  &
+       'Dissolved Oxygen', 'Alkalinity      ', 'Tritium         ',  &
+       'H2S as S        ', 'Calcium         ', 'Eh              ',  &
+       'Magnesium       ', 'Sodium          ', 'Potassium       ',  &
+       'Chloride        ', 'Sulfate         ', 'Fluoride        ',  &
+       'Silica          ', 'Bromide         ', 'Boron           ',  &
+       'Barium          ', 'Lithium         ', 'Strontium       ',  &
+       'Iron            ', 'Manganese       ', 'Nitrate         ',  &
+       'Ammonium        ', 'Phosphate       ', 'DOC             ',  &
+       'Sp. Cond.       ', 'Density         ', 'Delta C-13 TDIC ',  &
+       'Carbon 14 TDIC  ', 'Delta S-34 (SO4)', 'Delta S-34 (H2S)',  &
+       'Delta Deuterium ', 'Delta O-18      ', 'CH4 (aq)        ',  &
+       'Sr 87/86        ', 'Aluminum        ', 'N2 (aq)         ',  &
+       'N-15 of N2 (aq) ', 'N-15 of Nitrate ', 'N-15 of Ammonium',  &
+       'Depth           ', 'Casing          ', 'Elevation       ',  &
+       'RS of DOC       '/
+    CHARACTER*16 headings(45)
+    data headings / &
+	'Number', &
+	'Description', &
+	'Units', &
+	'Redox', &
+	'Temp', &
+	'pH', &
+	'pe', &
+	'Ca', &
+	'Mg', &
+	'Na', &
+	'K', &
+	'Cl', &
+	'S(6)', &
+	'Alkalinity', &
+	'C(4)', &
+	'Fe', &
+	'Mn', &
+	'Al', &
+	'F', &
+	'Si', &
+	'Br', &
+	'B', &
+	'Ba', &
+	'Li', &
+	'Sr', &
+	'N(5)', &
+	'N(-3)', &
+	'P', &
+	'O(0)', &
+	'S(-2)', &
+	'N(0)', &
+	'C(-4)', &
+	'13C', &
+	'14C', &
+	'34S(6)', &
+	'34S(-2)', &
+	'2H', &
+	'3H', &
+	'18O', &
+	'87Sr', &
+	'15N(0)', &
+	'15N(5)', &
+	'15N(-3)', &
+	'15N(3)', &
+	'Density'/
+    CHARACTER*16 subheadings(45)
+    data subheadings / &
+	' ', &
+	' ', &
+	' ', &
+	' ', &
+	' ', &
+	' ', &
+	' ', &
+	'as Ca', &
+	'as Mg', &
+	'as Na', &
+	'as K', &
+	'as Cl', &
+	'as SO4', &
+	'gfw 50.04289', &
+	'gfw 50.04289', &
+	'as Fe', &
+	'as Mn', &
+	'as Al', &
+	'as F', &
+	'as SiO2', &
+	'as Br', &
+	'as B', &
+	'as Ba', &
+	'as Li', &
+	'as Sr', &
+	'as N', &
+	'as N', &
+	'as P', &
+	'as O', &
+	'as S', &
+	'as N', &
+	'as CH4', &
+	' ', &
+	' ', &
+	' ', &
+	' ', &
+	' ', &
+	' ', &
+	' ', &
+	' ', &
+	' ', &
+	' ', &
+	' ', &
+	' ', &
+	' '/
+    TYPE (VARIANT) wnSafeArray  
+    TYPE (VARIANT) flagsSafeArray  
+    TYPE (VARIANT) val 
+    integer fileno /10/, error_test, iunits, l
+    INTEGER*4, DIMENSION(2) :: indices 
+    character*1 tab
+    double precision f, conv, farray(5)
+    logical present(5), any_present
+    
+    WRITE (*,*) 'Converting Excel to PHREEQC ...'
+    tab = char(9)
+    !!
+    string = trim(root)//".pqi"
+    open (fileno,FILE=string,IOSTAT=error_test,STATUS='REPLACE')
+    if (error_test .ne. 0) then
+        write(*,*) "Could not open file: ", TRIM(path)//TRIM(string)
+        stop 'File could not be opened'
+    endif
+        
+ 
+    !! calculate range
+    write(string, "(i5)") MAXWELLS + 8
+    do i = 1, 4
+    if (string(1:1) .eq. ' ') string = string(2:5)
+    enddo
+    string = "BI"//string
 
-	IMPLICIT NONE
-	INTEGER*4 status
-	character*256 string
-	CHARACTER*16 words(45)
-  CHARACTER*1 UPCS, ans
-  CHARACTER*80 line
-  CHARACTER*20 frmt
-  CHARACTER*10 piece
-  CHARACTER*80 funame, char_linenum, cell_location
-  INTEGER LENS, n, i, jcounter, k, j, kk, linenum
-  !
-  REAL Dbdata
-  COMMON /DB    / Dbdata(MAXWELLS,45)
-  INTEGER Dbsfg, Idefault, Iu, Nwlls, Totwell, Tot
-  COMMON /INT4DB/ Dbsfg(MAXWELLS,45), Idefault(5), Iu(MAXWELLS,4), Nwlls,  &
-	   Totwell, Tot(MAXWELLS)
-  CHARACTER Wllnms*80, Address*40, Lat*40, Formation*17
-  COMMON /CHAR1 / Wllnms(MAXWELLS), Address(MAXWELLS,5), Lat(MAXWELLS), Formation(MAXWELLS)
-  INTEGER Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
-  COMMON /FUNITS/ Icase, Iw1, Iw2, Ir, Iex1, Io1, Iscr2
+    !! read data 
+    call set_range("A8", string)
+    wnSafeArray = Range_GetValue(range)  
+    
+    !! write headings
+    write(fileno,'("SOLUTION_SPREAD")')
+    do i = 1,45
+        write(fileno, '(a15,a1)', advance='NO') headings(i), tab
+    enddo
+    write(fileno,'(a)')
+    do i = 1,45
+        write(fileno, '(a15,a1)', advance='NO') subheadings(i), tab
+    enddo
+    write(fileno,'(a)')
 
-  !
-  EXTERNAL LENS, UPCS
-  INTRINSIC CHAR, ICHAR
-  !
-  DATA words/'Temperature     ', 'pH              ',  &
-	   'Dissolved Oxygen', 'Alkalinity      ', 'Tritium         ',  &
-	   'H2S as S        ', 'Calcium         ', 'Eh              ',  &
-	   'Magnesium       ', 'Sodium          ', 'Potassium       ',  &
-	   'Chloride        ', 'Sulfate         ', 'Fluoride        ',  &
-	   'Silica          ', 'Bromide         ', 'Boron           ',  &
-	   'Barium          ', 'Lithium         ', 'Strontium       ',  &
-	   'Iron            ', 'Manganese       ', 'Nitrate         ',  &
-	   'Ammonium        ', 'Phosphate       ', 'DOC             ',  &
-	   'Sp. Cond.       ', 'Density         ', 'Delta C-13 TDIC ',  &
-	   'Carbon 14 TDIC  ', 'Delta S-34 (SO4)', 'Delta S-34 (H2S)',  &
-	   'Delta Deuterium ', 'Delta O-18      ', 'CH4 (aq)        ',  &
-	   'Sr 87/86        ', 'Aluminum        ', 'N2 (aq)         ',  &
-	   'N-15 of N2 (aq) ', 'N-15 of Nitrate ', 'N-15 of Ammonium',  &
-	   'Depth           ', 'Casing          ', 'Elevation       ',  &
-	   'RS of DOC       '/
-  character*2 location(45)
-  character*100 stringx
-  data location/' G', ' H', &
-		'AD', ' P', 'AO', &
-		'AE', ' J', ' I', &
-		' K', ' L', ' M', &
-		' N', ' O', ' T', &
-		' U', ' V', ' W', &
-		' X', ' Y', ' Z', &
-		' Q', ' R', 'AA', &
-		'AB', 'AC', 'AH', &
-		'AV', 'AU', 'AJ', &
-		'AK', 'AL', 'AM', &
-		'AN', 'AP', 'AG', &
-		'AQ', ' S', 'AF', &
-		'AR', 'AS', 'AT', &
-		'BB', 'BC', 'BD', &
-		'AI'/
-  !
-  WRITE (*,*) 'Reading Excel ...'
-!  funame = pfile(1:LENS(pfile))//'.lon'
-70 CONTINUE
-  !
-  !   Open file
-  !
-!  OPEN (Iw1,FILE=funame)
-!  WRITE (Iw1,'(A,T60,"# File format")',ERR=50) "2.14"
-  !
-  !   Save each well
-  ! 
-  linenum = 8
-!  DO n = 1, Nwlls
-	n = 1
-	do linenum = 8, MAXWELLS + 7
-	write(char_linenum,'(i5)') linenum
-	do i = 1, 4
-	    if (char_linenum(1:1) == ' ') then
-		    char_linenum = char_linenum(2:5)
-	    endif
-	enddo
-	 !   write(cell_location,'("a",i1)') i+7
-	 !       Wellnms
-	 ! WRITE (Iw1,9005,ERR=50) Iu(n,1), Iu(n,2), Iu(n,3), Iu(n,4),  &
-	 !     Wllnms(n)(5:80)
-!9005 FORMAT (4(I1),A76)
-	cell_location = "B" // char_linenum
-	call set_range(cell_location, cell_location)
-	status = AUTOGETPROPERTY (range, "VALUE", string)
-	if (string == ' ') cycle
-	! read number
-	wllnms(n)(5:80) = string
+    n = 1
 
-	cell_location = "C" // char_linenum
-	call set_range(cell_location, cell_location)
-	status = AUTOGETPROPERTY (range, "VALUE", iu(n,1))
+    do i = 1, MAXWELLS 
+       indices(1) = i;
+       
+       !! save well name B, column 2, cycle if empty
+        indices(2) = 2;
+        status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+        if (val%VT == VT_BSTR) then
+            status = ConvertBSTRToString(val%VU%PTR_VAL, string)
+        else
+            cycle
+        endif
 
-	cell_location = "D" // char_linenum
-	call set_range(cell_location, cell_location)
-	status = AUTOGETPROPERTY (range, "VALUE", iu(n,2))
+        !! Well num  A, column 1
+        write(fileno, '(i15,a1)', advance='NO') n, tab
+        
+        !! Description
+        do j = 1, len(string)
+            if (string(j:j) .eq. "#") string(j:j) = " "
+        enddo
+        write(fileno, '(A,a1)', advance='NO') trim(string), tab 
 
-	cell_location = "E" // char_linenum
-	call set_range(cell_location, cell_location)
-	status = AUTOGETPROPERTY (range, "VALUE", iu(n,3))
+        !! Units
+        indices(2) = 3;
+        status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+        j = 0
+        if (val%VT == VT_R8) then
+            j = val%VU%DOUBLE_VAL
+        endif
+        iunits = j
+        if (j .eq. 0) write(fileno, '(A15,a1)', advance='NO') 'mmol/kgw', tab 
+        if (j .eq. 1) then
+            write(*,*) 'Phreeqc does not accept units of meq/L'
+            stop
+        endif        
+        if (j .eq. 2) write(fileno, '(A15,a1)', advance='NO') 'mg/l', tab         
+        if (j .eq. 3) write(fileno, '(A15,a1)', advance='NO') 'ppm', tab        
+        if (j .eq. 4) write(fileno, '(A15,a1)', advance='NO') 'mmol/kgw', tab 
+        
+        !! redox
+        indices(2) = 4;
+        status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+        j = 0
+        if (val%VT == VT_R8) then
+            j = val%VU%DOUBLE_VAL
+        endif
+        if (j .eq. 0) write(fileno, '("pe",a1)', advance='NO') tab 
+        if (j .eq. 1) write(fileno, '("pe",a1)', advance='NO') tab   
+        if (j .eq. 2) write(fileno, '("O(0)/O(-2)",a1)', advance='NO') tab 
+        if (j .eq. 3) write(fileno, '("O(0)/O(-2)",a1)', advance='NO') tab  
+        if (j .eq. 4) write(fileno, '("S(6)/S(-2)",a1)', advance='NO') tab  
+            
+        !! Temp
+        indices(2) = 7;
+        status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+        if (val%VT == VT_R8) then
+            f = val%VU%DOUBLE_VAL
+            write(fileno, '(f15.3,a1)', advance='NO') f, tab
+        else
+            write(fileno, '(A15,a1)', advance='NO') " ", tab
+        endif
+        
+        !! pH
+        indices(2) = 8;
+        status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+        if (val%VT == VT_R8) then
+            f = val%VU%DOUBLE_VAL
+            write(fileno, '(f15.3,a1)', advance='NO') f, tab
+        else
+            write(fileno, '(A15,a1)', advance='NO') " ", tab
+        endif
+        
+        !! pe
+        indices(2) = 9;
+        status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+        if (val%VT == VT_R8) then
+            f = val%VU%DOUBLE_VAL/.059
+            write(fileno, '(f15.3,a1)', advance='NO') f, tab
+        else
+            write(fileno, '(A15,a1)', advance='NO') " ", tab
+        endif
+        
+        !! Ca-SO4
+        do j = 10, 15
+            indices(2) = j;
+            status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+            if (val%VT == VT_R8) then
+                f = val%VU%DOUBLE_VAL
+                write(fileno, '(f15.3,a1)', advance='NO') f, tab
+            else
+                write(fileno, '(A15,a1)', advance='NO') " ", tab
+            endif
+        enddo 
+        
+        !! Alkalinity and TDIC
+        indices(2) = 5;
+        j = 0
+        status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))         
+        if (val%VT == VT_R8) then
+            j = val%VU%DOUBLE_VAL       
+        endif
+        
+        !! j is alkalinity/tdic flag
+        !! iunits is units flag
+        
+        indices(2) = 16;
+        status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+        if (val%VT == VT_R8) then
+            f = val%VU%DOUBLE_VAL
+            conv = 1.0
+            if (iunits .eq. 2 .or. iunits .eq. 3) then
+                if (j .lt. 3) then
+                    conv = 50.04289 / 61.0173
+                endif
+            endif
+            if (j .ne. 2) then
+                !! Alkalinity defined, TDIC not defined
+                write(fileno, '(f15.3,a1)', advance='NO') f * conv, tab           
+                write(fileno, '(A15,a1)', advance='NO') " ", tab
+            else
+                !! Alkalinity not defined, TDIC defined
+                write(fileno, '(A15,a1)', advance='NO') " ", tab
+                write(fileno, '(f15.3,a1)', advance='NO') f * conv, tab           
+            endif
+        else
+            write(fileno, '(A15,a1)', advance='NO') " ", tab           
+            write(fileno, '(A15,a1)', advance='NO') " ", tab
+        endif
 
-	 cell_location = "F" // char_linenum
-	call set_range(cell_location, cell_location)
-	status = AUTOGETPROPERTY (range, "VALUE", iu(n,4))
+        !! Fe - P
+        do j = 17, 29
+            indices(2) = j;
+            status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+            if (val%VT == VT_R8) then
+                f = val%VU%DOUBLE_VAL
+                write(fileno, '(f15.3,a1)', advance='NO') f, tab
+            else
+                write(fileno, '(A15,a1)', advance='NO') " ", tab
+            endif
+        enddo 
+        
+        !! O2, no conversion necessary
+        indices(2) = 30;
+        status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+        if (val%VT == VT_R8) then
+            f = val%VU%DOUBLE_VAL
+            write(fileno, '(f15.3,a1)', advance='NO') f, tab
+        else
+            write(fileno, '(A15,a1)', advance='NO') " ", tab
+        endif      
+    
+        !! H2S to CH4
+        do j = 31, 33
+            indices(2) = j;
+            status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+            if (val%VT == VT_R8) then
+                f = val%VU%DOUBLE_VAL
+                write(fileno, '(f15.3,a1)', advance='NO') f, tab
+            else
+                write(fileno, '(A15,a1)', advance='NO') " ", tab
+            endif
+        enddo 
+        
+        !!
+        !! 13C & 14C
+        do j = 36, 37
+            indices(2) = j;
+            status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+            if (val%VT == VT_R8) then
+                f = val%VU%DOUBLE_VAL
+                write(fileno, '(f15.3,a1)', advance='NO') f, tab
+            else
+                write(fileno, '(A15,a1)', advance='NO') " ", tab
+            endif
+        enddo 
+            
+        !! 34S(6) and 34S(-2)
+        any_present = .FALSE.
+        do j = 38,  39
+            indices(2) = j;
+            l = j - 37
+            present(l) = .FALSE.
+            status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+            if (val%VT == VT_R8) then
+                farray(l) = val%VU%DOUBLE_VAL
+                f = farray(l)
+                present(l) = .TRUE.
+                any_present = .TRUE.
+            endif
+        enddo 
+        if (any_present .eq. .FALSE.) then
+            write(fileno, '(A15,a1)', advance='NO') " ", tab
+            write(fileno, '(A15,a1)', advance='NO') " ", tab
+        else 
+            do j = 1, 2 
+                if (present(j)) then
+                    write(fileno, '(f15.3,a1)', advance='NO') farray(j), tab
+                else
+                    write(fileno, '(f15.3,a1)', advance='NO') f, tab
+                endif 
+            enddo
+        endif        
+        
+        !! 2H through 87Sr
+        do j = 40, 43
+            indices(2) = j;
+            status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+            if (val%VT == VT_R8) then
+                f = val%VU%DOUBLE_VAL
+                write(fileno, '(f15.3,a1)', advance='NO') f, tab
+            else
+                write(fileno, '(A15,a1)', advance='NO') " ", tab
+            endif
+        enddo 
 
-	 !       Lat/lon
-	 !WRITE (Iw1,'(a40,T60,"# Lat/lon")') Lat(n)
-	 cell_location = "AZ" // char_linenum
-!	 call setcell_character(cell_location, lat(n))
-	call set_range(cell_location, cell_location)
-	status = AUTOGETPROPERTY (range, "VALUE", lat(n))
-
-	 !       Well num
-	 !WRITE (Iw1,'(I15,T60,"# Well number")') Tot(n)
-	cell_location = "A" // char_linenum
-!	 call setcell_integer(cell_location, tot(n))
-	call set_range(cell_location, cell_location)
-	status = AUTOGETPROPERTY (range, "VALUE", tot(n))
-
-	 !       Total number of wells
-	 !WRITE (Iw1,'(I15,T60,"# Total wells")') Totwell
-	 !DO i = 1, 5
-		!       Address
-		!WRITE (Iw1,'(A,T60,"# Address",I1)') Address(n,i), i
-	 !enddo		
-	cell_location = "BE" // char_linenum
-!	 call setcell_character(cell_location, address(n,1))
-	call set_range(cell_location, cell_location)
-	status = AUTOGETPROPERTY (range, "VALUE", address(n,1))
-
-	cell_location = "BF" // char_linenum
-!	 call setcell_character(cell_location, address(n,2))
-	call set_range(cell_location, cell_location)
-	status = AUTOGETPROPERTY (range, "VALUE", address(n,2))
-
-	cell_location = "BG" // char_linenum
-!	 call setcell_character(cell_location, address(n,3))
-	call set_range(cell_location, cell_location)
-	status = AUTOGETPROPERTY (range, "VALUE", address(n,3))
-
-	cell_location = "BH" // char_linenum
-!	 call setcell_character(cell_location, address(n,4))
-	call set_range(cell_location, cell_location)
-	status = AUTOGETPROPERTY (range, "VALUE", address(n,4))
-
-	cell_location = "BI" // char_linenum
-!	 call setcell_character(cell_location, address(n,5))
-	call set_range(cell_location, cell_location)
-	status = AUTOGETPROPERTY (range, "VALUE", address(n,5))
-
-	 jcounter = 41
-	 !do j = 1, jcounter 
-	 !   IF (Dbsfg(n,j).GE.0) THEN
-	 !      frmt = '(F15.'//CHAR(ICHAR('0')+Dbsfg(n,j))// &
-	 !           ',T60,"# ",A)'
-	 !      WRITE(Iw1,frmt) Dbdata(n,j), words(j)
-	 !   ELSE IF (Dbsfg(n,j).EQ.-2) THEN
-	 !      WRITE(Iw1,'("<",F14.3,T60,"# ",A)') Dbdata(n,j), words(j)
-	 !   ELSE
-	 !      WRITE(Iw1,'("               ",T60,"# ",A)') words(j)
-	 !   END IF
-	 !enddo     ! 1 well
-	 do j = 1, 45
-		cell_location = location(j) // char_linenum
-!		call setcell_float(cell_location, dbdata(n,j))
-		call set_range(cell_location, cell_location)
-		status = AUTOGETPROPERTY (range, "VALUE", stringx)
-
-		status = AUTOGETPROPERTY (range, "VALUE", dbdata(n,j))
-		if (stringx .eq. " ") then
-			dbsfg(n,j) = -1
-		else
-			dbsfg(n,j) = 0
-		endif		
-	 enddo
-	 !WRITE (Iw1,'(A,T60,"# Formation")') Formation(n)
-	 !linenum = linenum + 1
-	 n = n+1
-  enddo       ! all wells
-  Nwlls = n - 1
- ! close (Iw1)
-  return
-50 CONTINUE
-  !
-  !     Error writing to file, probably write protected
-  !
-  WRITE (*,9030) funame
-80 WRITE (*,9040)
-  READ (*,9000,ERR=80) ans
-  call moverelative(-2)
-  call clpart 
-  IF (UPCS(ans).EQ.'Y') THEN
-	 CLOSE (Iw1, STATUS='DELETE')
-	 GOTO 70
-  ELSE IF (UPCS(ans).NE.'N') THEN
-	 GOTO 80
-  END IF
-  !
-  RETURN
-9000 FORMAT (A)
-9010 FORMAT (A40,24X,'#',I5,' of ',I5)
-9015 FORMAT ('<',F9.3)
-9020 FORMAT (A17)
-9030 FORMAT ('WARNING: Error writing to file: ',A40/ &
-	   'File may be write protected.'/)
-9040 FORMAT ('Do you want to OVERWRITE the file (y or n)?')
-END SUBROUTINE xl2dbold
+        !! 15N for N(0), N(5), N(-3), N(3)
+        any_present = .FALSE.
+        present(4) = .FALSE.
+        do j = 44, 46
+            indices(2) = j;
+            l = j - 43
+            present(l) = .FALSE.
+            status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+            if (val%VT == VT_R8) then
+                farray(l) = val%VU%DOUBLE_VAL
+                f = farray(l)
+                present(l) = .TRUE.
+                any_present = .TRUE.
+            endif
+        enddo 
+        if (any_present .eq. .FALSE.) then
+            write(fileno, '(A15,a1)', advance='NO') " ", tab
+            write(fileno, '(A15,a1)', advance='NO') " ", tab
+            write(fileno, '(A15,a1)', advance='NO') " ", tab
+            write(fileno, '(A15,a1)', advance='NO') " ", tab
+        else 
+            do j = 1, 4 
+                if (present(j)) then
+                    write(fileno, '(f15.3,a1)', advance='NO') farray(j), tab
+                else
+                    write(fileno, '(f15.3,a1)', advance='NO') f, tab
+                endif 
+            enddo
+        endif  
+        
+        !! Density
+        indices(2) = 47;
+        status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+        if (val%VT == VT_R8) then
+            f = val%VU%DOUBLE_VAL
+            write(fileno, '(f15.3,a1)', advance='NO') f, tab
+        else
+            write(fileno, '(A15,a1)', advance='NO') " ", tab
+        endif
+        
+        !! End of line
+        write(fileno,'(a)')      
+   
+        !! increment n
+        n = n + 1       
+    enddo
+    close(fileno)
+    
+    return
+END SUBROUTINE xl2phreeqc
 !
 !
 !

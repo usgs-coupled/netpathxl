@@ -1137,12 +1137,14 @@ SUBROUTINE XL2PHREEQC
             endif
         enddo 
         
-        !! O2, no conversion necessary
+        !! O2, no conversion necessary for mass, factor of 2 for moles
         indices(2) = 30;
         status = SafeArrayGetElement(wnSafeArray%VU%PTR_VAL, indices(1), LOC(val))
+        conv = 1.0
+        if (iunits .lt. 2 .or. iunits .gt. 3) conv = 2
         if (val%VT == VT_R8) then
             f = val%VU%DOUBLE_VAL
-            write(fileno, '(f15.3,a1)', advance='NO') f, tab
+            write(fileno, '(f15.3,a1)', advance='NO') conv*f, tab
         else
             write(fileno, '(A15,a1)', advance='NO') " ", tab
         endif      

@@ -6983,6 +6983,7 @@ SUBROUTINE CISO(ISCR)
   EXTERNAL CLS, CFRACT, SFRACT, RAYLEIGH, C14, ISTATE, LENS
   INTRINSIC DLOG, DABS
   DATA elmt/1, 1, 2, 15, 18/, isot/21, 22, 23, 24, 25/
+  double precision epsilon /1e-12/
   ! Only print headers and make netpath.out file on first time through.
 
   IF (ISCR.LT.1) THEN
@@ -7334,7 +7335,7 @@ SUBROUTINE CISO(ISCR)
               IF (i.EQ.2) Disdat(Idis,2) = Disdat(Idis,2)*10.0D0-1000.D0
            END IF
         END IF
-        IF (Delta(idelt).LT.0.0D0 .OR. It(ipha).EQ.'*') THEN
+        IF (Delta(idelt).LT. -epsilon .OR. It(ipha).EQ.'*') THEN
            Ipre = Ipre+1
            prepha(Ipre) = Pname(Now(idelt))
            Predat(Ipre,1) = 0.0D0
@@ -7509,7 +7510,7 @@ SUBROUTINE CISO(ISCR)
 9115 FORMAT (1X,A,1X,F10.4,'*',1X,F10.4)
 9120 FORMAT (1X,A,1X,F10.6,2X,F10.6)
 9125 FORMAT (1X,A,1X,F10.6,3X,'Undefined')
-9130 FORMAT (6X,'No data for ',A,' in ',A)
+9130 FORMAT (6X,'No data/fractionation factor for ',A,' in ',A)
 9135 FORMAT (6X,'No data for ',A,' of CH4 gas in CO2-CH4')
 9140 FORMAT (1X,A,6X,'Insufficient data')
 9145 FORMAT (7X,'Insufficient data')

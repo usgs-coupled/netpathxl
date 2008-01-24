@@ -9,9 +9,13 @@
 
 <?define Major=0?>
 <?define Minor=5?>
-<?define Patch=0?>
+<?define Patch=0?>    <!-- shouldn't be used -->
 <?define Build=2297?>
-<?define Version=$(var.Major).$(var.Minor).$(var.Patch).$(var.Build)?>
+
+<!-- format must be major.minor.build -->
+<!-- major and minor have a maximum value of 255 -->
+<!-- build has a maximum value of 65535 -->
+<?define Version=$(var.Major).$(var.Minor).$(var.Build)?>
 
 <?define ExamplesSource         = "..\examples" ?>
 <?define RootSource             = ".." ?>

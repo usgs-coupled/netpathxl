@@ -9,7 +9,6 @@
 
 <?define Major=0?>
 <?define Minor=5?>
-<?define Patch=0?>    <!-- shouldn't be used -->
 <?define Build=2297?>
 
 <!-- format must be major.minor.build -->

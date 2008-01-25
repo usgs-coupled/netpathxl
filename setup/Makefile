@@ -20,7 +20,6 @@ EXAMPLES=\
 	$(EXAMPLE_PATH)/db.fil \
 	$(EXAMPLE_PATH)/model.fil \
 	$(EXAMPLE_PATH)/netpath.fil \
-	$(EXAMPLE_PATH)/netpath.out \
 	$(EXAMPLE_PATH)/np-1a.out \
 	$(EXAMPLE_PATH)/np-1b.out \
 	$(EXAMPLE_PATH)/np-1c.out \

@@ -74,7 +74,6 @@
         <File Id="db.fil" Name="db.fil" DiskId='1' Source="$(var.ExamplesSource)\db.fil" />
         <File Id="model.fil" Name="model.fil" DiskId='1' Source="$(var.ExamplesSource)\model.fil" />
         <File Id="netpath.fil" Name="netpath.fil" DiskId='1' Source="$(var.ExamplesSource)\netpath.fil" />
-        <File Id="netpath.out" Name="netpath.out" DiskId='1' Source="$(var.ExamplesSource)\netpath.out" />
         <File Id="np.1a.out" Name="np-1a.out" DiskId='1' Source="$(var.ExamplesSource)\np-1a.out" />
         <File Id="np.1b.out" Name="np-1b.out" DiskId='1' Source="$(var.ExamplesSource)\np-1b.out" />
         <File Id="np.1c.out" Name="np-1c.out" DiskId='1' Source="$(var.ExamplesSource)\np-1c.out" />

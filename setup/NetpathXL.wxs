@@ -57,10 +57,10 @@
     <DirectoryRef Id="DocDir">
       <Component Id="Doc" Guid="$(var.DocGuid)">
         <File Id="netpathxl.pdf" Name="netpathx.pdf" LongName="netpathxl.pdf" Vital="yes" DiskId='1' Source="$(var.DocSource)\netpathxl.pdf">
-          <Shortcut Id='NetpathXLPDFShortcut' Directory='ShortCutFolder' Name='netpathx.pdf' LongName='NetpathXL Manual' />
+          <Shortcut Id='NetpathXLPDFShortcut' Directory='ShortCutFolder' Name='netpathx.pdf' LongName='NetpathXL Manual' Advertise='yes'/>
         </File>
         <File Id="Plummer.pdf" Name="Plummer.pdf" LongName="Plummer et al., 1994 NETPATH Manual.PDF" Vital="yes" DiskId='1' Source="$(var.DocSource)\Plummer et al., 1994 NETPATH Manual.PDF">
-          <Shortcut Id='PlummerPDFShortcut' Directory='ShortCutFolder' Name='Plummer.pdf' LongName='Plummer et al., 1994 NETPATH Manual' />
+          <Shortcut Id='PlummerPDFShortcut' Directory='ShortCutFolder' Name='Plummer.pdf' LongName='Plummer et al., 1994 NETPATH Manual' Advertise='yes'/>
         </File>
       </Component>
     </DirectoryRef>

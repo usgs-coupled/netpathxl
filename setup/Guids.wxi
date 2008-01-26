@@ -28,6 +28,7 @@
 <?define DatabaseGuid           = "62FBE205-6E0C-4446-A1A7-5153C88E79CE" ?>
 <?define ExamplesGuid           = "E0AE0576-758D-48e4-B4C5-C537DDE1985E" ?>
 <?define DocGuid                = "ECBB187B-3975-4b99-8440-3FB027FBDD46" ?>
+<?define NonAdvShortcutsGuid    = "6B1C81BA-CA2A-40b2-A7D0-D1C8645914F2" ?>
 
 
 <Include>

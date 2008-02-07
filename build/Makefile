@@ -17,11 +17,14 @@
 
 NAME := NetpathXL
 
-FORCE_UPDATE := $(shell svn up ..)
+SVN_URL := http://internalbrr.cr.usgs.gov/svn_GW
 
-RELEASE ?= $(shell svn st -v dist.sh | cut -b 10- | ( read one two ; echo $$one ) )
+RELEASE ?= $(shell svn info $(SVN_URL) | egrep "Revision:" | cut -b 10- | ( read one two ; echo $$one ) )
 
-DATE_STAMP := $(shell date -d $(DATE) "+%m-%d-%Y")
+ifneq ($(strip $(DATE)),)
+DATE_STAMP  := $(shell date -d $(DATE) "+%m-%d-%Y")
+TOUCH_STAMP :=  $(shell date -d $(DATE) "+%Y%m%d0000")
+endif
 
 TARBALL := $(NAME)-$(VERSION)-$(RELEASE).tar.gz
 
@@ -40,6 +43,10 @@ SRC_PACKAGE := $(NAME)-$(VERSION)-$(RELEASE)-src.tar.bz2
 BIN_PACKAGE := $(NAME)-$(VERSION)-$(RELEASE).tar.bz2
 
 all : check_args $(BIN_PACKAGE)
+	echo "VERSION="$(VERSION)                  >> HISTORY
+	echo "DATE="$(DATE)                        >> HISTORY
+	echo "RELEASE="$(RELEASE)                  >> HISTORY
+	echo "===================================" >> HISTORY
 
 build_all : check_args $(BIN_PACKAGE)
 

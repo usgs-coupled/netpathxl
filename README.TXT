@@ -1,4 +1,7 @@
-NetpathXL 1.1 
+NetpathXL @VER@                                @RELEASE_DATE@
+
+To install NetpathXL, double-click NetpathXL-@VER@-@REL@.msi as
+a user with administrator privileges.
 
 Two programs are distributed, DBXL and NetpathXL. They are normally 
 installed in the directory c:\program files\usgs\NetpathXL\bin. They 

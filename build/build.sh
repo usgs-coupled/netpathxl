@@ -177,6 +177,8 @@ install() {
 # logs
   /usr/bin/install -m 644 "${objdir}/netpathxl.log" ${instdir}/. && \
   /usr/bin/install -m 644 "${objdir}/dbxl.log" ${instdir}/. && \
+# README.TXT
+  /usr/bin/install -m 644 "${objdir}/README.TXT" ${instdir}/. && \
 # MSI file
   /usr/bin/install -m 755 "${objdir}/setup/bin/Release/netpathxl.msi" ${instdir}/${FULLPKG}.msi && \
   if [ -x /usr/bin/md5sum ]; then \

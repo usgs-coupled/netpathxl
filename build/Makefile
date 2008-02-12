@@ -36,11 +36,14 @@ SLN := htJni/htJni.sln
 
 REPOS_PATH ?= trunk
 
-# (ie hti-0.5-2297-src.tar.bz2)
+# (ie NetpathXL-1.1-2702-src.tar.bz2)
 SRC_PACKAGE := $(NAME)-$(VERSION)-$(RELEASE)-src.tar.bz2
 
-# (ie hti-0.5-2297.tar.bz2)
+# (ie NetpathXL-1.1-2702.tar.bz2)
 BIN_PACKAGE := $(NAME)-$(VERSION)-$(RELEASE).tar.bz2
+
+# (ie NetpathXL-1.1-2702.msi)
+SETUP_PACKAGE := $(NAME)-$(VERSION)-$(RELEASE).msi
 
 all : check_args $(BIN_PACKAGE)
 	echo "VERSION="$(VERSION)                  >> HISTORY
@@ -114,3 +117,24 @@ usage:
 	@echo "    ie make VERSION=0.5 DATE=10/04/2007"
 	@echo "       make VERSION=0.5 DATE=10/04/2007 RELEASE=2297 SIG=1"
 	@echo ""
+
+FTP_DIR := ~/ftp
+
+TOUCH_COMMAND := ssh srv2rcolkr "find $(FTP_DIR)/netpathxl -name \"*$(RELEASE)*\" | xargs touch -t $(TOUCH_STAMP)"
+CHMOD_COMMAND := ssh srv2rcolkr "find $(FTP_DIR)/netpathxl -name \"*$(RELEASE)*\" | xargs chmod 644"
+
+ftp : check_args ftp_netpathxl
+	$(TOUCH_COMMAND)
+	$(CHMOD_COMMAND)
+
+chmod : check_args
+	$(CHMOD_COMMAND)
+
+touch : check_args
+	$(TOUCH_COMMAND)
+
+ftp_netpathxl :
+	tar xvjf $(BIN_PACKAGE) $(SETUP_PACKAGE) README.TXT
+	mv README.TXT README.$(RELEASE).TXT
+	scp $(SETUP_PACKAGE) README.$(RELEASE).TXT srv2rcolkr:$(FTP_DIR)/netpathxl/.
+	rm -rf $(SETUP_PACKAGE) README.$(RELEASE).TXT

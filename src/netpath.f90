@@ -1021,6 +1021,7 @@ END SUBROUTINE DONTHAVE
 !
 !
 SUBROUTINE EDIT
+  USE IFQWIN
   USE max_size
   use filenames
   implicit none
@@ -1047,6 +1048,8 @@ SUBROUTINE EDIT
        ISOTDATA, EDITC14, EDITFACT, SCREEN, WELLS, LENS
   integer choice(15), max
   character*20 yn
+  TYPE (rccoord) textpos
+  integer row1, row2
   !
 10 iex = 0
   ico2 = 0
@@ -1059,9 +1062,14 @@ SUBROUTINE EDIT
   i = 1
   ! Excel file = 15
   if (excel_file == .true.) then
+    call gettextposition(textpos)
+    row1 = textpos%row
     WRITE (*,9010) i, filename(1:LENS(filename))
     choice(i) = 15
-    i = i + 1
+    call gettextposition(textpos)
+    row2 = textpos%row
+    !i = i + 1
+    i = i + row2 - row1
   endif
   
   ! Well file = 1
@@ -1152,6 +1160,7 @@ SUBROUTINE EDIT
   max = i
   !  This line needed to have all the poscur calls work correctly
   IF (Iflag(1).LE.2) i = i+Iflag(1)+1
+!  
 40 CALL POSCUR(i)
   CALL CLPART
   WRITE (*,9100)

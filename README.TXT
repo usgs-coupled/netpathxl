@@ -38,3 +38,10 @@ installation directory or at
 http://wwwbrr.cr.usgs.gov/projects/GWC_coupled/netpath.
 
 Report bugs to dlpark@usgs.gov.
+
+--------
+svn 4337
+--------
+  Fixed error with long Excel path names that wrapped on the edit
+  screen. Caused the final option to be overwritten and not 
+  visible.

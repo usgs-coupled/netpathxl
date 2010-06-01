@@ -153,15 +153,15 @@ reconf() {
 build() {
   (cd ${topdir} && \
 # build netpathxl.exe
-  cd ${objdir} && \
-  export SLN=`cygpath -w ${objdir}/netpathxl/netpathxl.sln` && \
-  "${DEVENV}" "${SLN}" /out netpathxl.log /build Release && \
+  cd "${topdir}" && \
+  cd "${objdir}/all" && \
+  MsBuild.exe all.sln /t:netpathxl /p:Configuration=Release /p:Platform=Win32 && \
 # build dbxl.exe
-  cd ${objdir} && \
-  export SLN=`cygpath -w ${objdir}/dbxl/dbxl.sln` && \
-  "${DEVENV}" "${SLN}" /out dbxl.log /build Release && \
-  cd ${objdir}/setup && \
-  make )
+  cd "${topdir}" && \
+  cd "${objdir}/all" && \
+  MsBuild.exe all.sln /t:dbxl /p:Configuration=Release /p:Platform=Win32 && \
+# build NetpathXL.msi
+  MsBuild.exe all.sln /t:msi /p:Configuration=Release /p:Platform=Win32 /p:TargetName=${FULLPKG} /p:Major=${MAJOR} /p:Minor=${MINOR} /p:Build=${REL} )
 }
 check() {
   (cd ${objdir} && \
@@ -174,13 +174,10 @@ clean() {
 
 install() {
   (rm -fr ${instdir}/* && \
-# logs
-  /usr/bin/install -m 644 "${objdir}/netpathxl.log" ${instdir}/. && \
-  /usr/bin/install -m 644 "${objdir}/dbxl.log" ${instdir}/. && \
 # README.TXT
   /usr/bin/install -m 644 "${objdir}/README.TXT" ${instdir}/. && \
 # MSI file
-  /usr/bin/install -m 755 "${objdir}/setup/bin/Release/netpathxl.msi" ${instdir}/${FULLPKG}.msi && \
+  /usr/bin/install -m 755 "${objdir}/msi/bin/Release/${FULLPKG}.msi" "${instdir}/${FULLPKG}.msi" && \
   if [ -x /usr/bin/md5sum ]; then \
     cd ${instdir} && \
     find . -type f ! -name md5sum | sed 's/^/\"/' | sed 's/$/\"/' | xargs md5sum > md5sum ; \

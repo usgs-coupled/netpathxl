@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include>
+  <?define Name="NetpathXL"?>
+  <!--<?define ShortDirectoryName     = "NetXL" ?>-->
+  <?define LongDirectoryName      = "NetpathXL" ?>
+
+  <?define Major=0?>
+  <?define Minor=5?>
+  <?define Build=2297?>
+
+  <!-- format must be major.minor.build -->
+  <!-- major and minor have a maximum value of 255 -->
+  <!-- build has a maximum value of 65535 -->
+  <?define Version=$(var.Major).$(var.Minor).$(var.Build)?>
+
+  <?define ExamplesSource         = "..\examples" ?>
+  <?define RootSource             = ".." ?>
+  <?define DatabaseSource         = "..\Database" ?>
+  <?define DocSource              = "..\Doc" ?>
+
+
+  <?define ExecutablesGuid        = "{9D9C6316-0E4A-4e85-AFBA-365493BD5B87}" ?>
+  <?define DBXLGuid               = "{E18FE23F-DAEC-41b6-8C52-8C15CDD9B015}" ?>
+  <?define RootFilesGuid          = "{193807C4-39BD-425b-954C-A5A959F2B670}" ?>
+  <?define DatabaseGuid           = "{6849BDE7-6C12-4677-805E-5BA399ED8BCC}" ?>
+  <?define ExamplesGuid           = "{9FC65202-7BD5-445c-B0EF-BAF196F5422B}" ?>
+  <?define NetpathxlPDFGuid       = "{A7A5F0D4-4DE9-41cd-A2E6-26370D4B64E4}" ?>
+  <?define PlummerPDFGuid         = "{77E996DF-3F02-432c-BFDF-8B7A691607E8}" ?>
+
+  <?define DebugLetter = "" ?>
+  <?define SpaceParenDebug = "" ?>
+  <?define ExeSource              = "..\bin" ?>
+  <?define UpgradeCode            = "{609DE082-B769-43ac-B7B5-6AEB7C8D9D80}" ?>
+</Include>

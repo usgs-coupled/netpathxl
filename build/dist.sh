@@ -161,7 +161,7 @@ fi
 
 VERSION_LONG="$ver_major.$ver_minor.$ver_patch.$REVISION_SVN"
 
-SED_FILES="$DISTPATH/setup/Guids.wxi \
+SED_FILES="$DISTPATH/msi/Guids.wxi \
            $DISTPATH/README.TXT"
 
 for vsn_file in $SED_FILES

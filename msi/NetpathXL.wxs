@@ -9,7 +9,7 @@
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
         <Directory Id='USGS' Name='USGS'>
-          <Directory Id="INSTALLLOCATION" Name="$(var.LongDirectoryName)">
+          <Directory Id="INSTALLLOCATION" Name="$(var.Directory)">
             <Directory Id="BinDir" Name="bin" />
             <Directory Id="ExamplesDir" Name="examples" />
             <Directory Id="DatabaseDir" Name="database" />
@@ -18,7 +18,7 @@
         </Directory>
       </Directory>
       <Directory Id='ProgramMenuFolder' Name='ProgMenu'>
-        <Directory Id='ShortCutFolder' Name="$(var.LongDirectoryName)" />
+        <Directory Id='ShortCutFolder' Name="$(var.Directory)" />
       </Directory>
     </Directory>
 

@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Include>
   <?define Name="NetpathXL"?>
-  <!--<?define ShortDirectoryName     = "NetXL" ?>-->
-  <?define LongDirectoryName      = "NetpathXL" ?>
 
+  <!-- These are still required since vfproj cannot be built using MSBuild.exe -->
+  <!-- format must be major.minor.build -->
+  <!-- major and minor have a maximum value of 255 -->
+  <!-- build has a maximum value of 65535 -->
   <?define Major=0?>
   <?define Minor=5?>
   <?define Build=2297?>
 
-  <!-- format must be major.minor.build -->
-  <!-- major and minor have a maximum value of 255 -->
-  <!-- build has a maximum value of 65535 -->
-  <?define Version=$(var.Major).$(var.Minor).$(var.Build)?>
+  <?define Directory              = "$(var.Name) $(var.Major).$(var.Minor)"?>
+  <?define Version                = "$(var.Major).$(var.Minor).$(var.Build)"?>
 
   <?define ExamplesSource         = "..\examples" ?>
   <?define RootSource             = ".." ?>
   <?define DatabaseSource         = "..\Database" ?>
   <?define DocSource              = "..\Doc" ?>
-
 
   <?define ExecutablesGuid        = "{9D9C6316-0E4A-4e85-AFBA-365493BD5B87}" ?>
   <?define DBXLGuid               = "{E18FE23F-DAEC-41b6-8C52-8C15CDD9B015}" ?>
@@ -28,7 +27,6 @@
   <?define PlummerPDFGuid         = "{77E996DF-3F02-432c-BFDF-8B7A691607E8}" ?>
 
   <?define DebugLetter = "" ?>
-  <?define SpaceParenDebug = "" ?>
   <?define ExeSource              = "..\bin" ?>
   <?define UpgradeCode            = "{609DE082-B769-43ac-B7B5-6AEB7C8D9D80}" ?>
 </Include>

@@ -6,6 +6,10 @@ EndProject
 Project("{6989167D-11E4-40FE-8C1A-2192A86A7E90}") = "dbxl", "..\dbxl\dbxl.vfproj", "{0F8529D6-3876-4D30-8E6A-81AC11336D1F}"
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "msi", "..\msi\msi.wixproj", "{B62E829E-4097-43DB-A454-59BDDACF464D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1042253C-778A-44B5-9B98-4F48064BC087} = {1042253C-778A-44B5-9B98-4F48064BC087}
+		{0F8529D6-3876-4D30-8E6A-81AC11336D1F} = {0F8529D6-3876-4D30-8E6A-81AC11336D1F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

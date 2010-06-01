@@ -70,7 +70,7 @@ export srcinstdir=${srcdir}/.sinst
 export checkfile=${topdir}/${FULLPKG}.check
 
 # use Visual Studio 2005 to compile
-DEVENV="/cygdrive/c/Program Files/Microsoft Visual Studio 8/Common7/IDE/devenv.exe"
+DEVENV="/cygdrive/c/Program Files (x86)/Microsoft Visual Studio 8/Common7/IDE/devenv.exe"
 
 prefix=/usr
 sysconfdir=/etc
@@ -152,16 +152,10 @@ reconf() {
 }
 build() {
   (cd ${topdir} && \
-# build netpathxl.exe
-  cd "${topdir}" && \
-  cd "${objdir}/all" && \
-  MsBuild.exe all.sln /t:netpathxl /p:Configuration=Release /p:Platform=Win32 && \
-# build dbxl.exe
-  cd "${topdir}" && \
-  cd "${objdir}/all" && \
-  MsBuild.exe all.sln /t:dbxl /p:Configuration=Release /p:Platform=Win32 && \
-# build NetpathXL.msi
-  MsBuild.exe all.sln /t:msi /p:Configuration=Release /p:Platform=Win32 /p:TargetName=${FULLPKG} /p:Major=${MAJOR} /p:Minor=${MINOR} /p:Build=${REL} )
+# build netpathxl.exe, dbxl.exe, and NetpathXL.msi
+  cd "${objdir}" && \
+  export SLN=`cygpath -w ${objdir}/all/all.sln` && \
+  "${DEVENV}" "${SLN}" /out all.log /build Release )
 }
 check() {
   (cd ${objdir} && \
@@ -174,10 +168,12 @@ clean() {
 
 install() {
   (rm -fr ${instdir}/* && \
+# log
+  /usr/bin/install -m 644 "${objdir}/all.log" ${instdir}/. && \
 # README.TXT
   /usr/bin/install -m 644 "${objdir}/README.TXT" ${instdir}/. && \
 # MSI file
-  /usr/bin/install -m 755 "${objdir}/msi/bin/Release/${FULLPKG}.msi" "${instdir}/${FULLPKG}.msi" && \
+  /usr/bin/install -m 755 "${objdir}/msi/bin/Release/NetpathXL.msi" "${instdir}/${FULLPKG}.msi" && \
   if [ -x /usr/bin/md5sum ]; then \
     cd ${instdir} && \
     find . -type f ! -name md5sum | sed 's/^/\"/' | sed 's/$/\"/' | xargs md5sum > md5sum ; \

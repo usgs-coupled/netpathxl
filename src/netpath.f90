@@ -3594,6 +3594,7 @@ SUBROUTINE MODELS214
   EXTERNAL UPCS80, CLS, INITVALS, DONTHAVE, HAVE, WELLS, UPCS,  &
        FINDTOT, LENS
   INTEGER tmpwell(0:5)
+  LOGICAL one_solution
   DATA del/'       ', 'deleted'/
   !
   IF (Iedit.EQ.0) Noele = 0
@@ -3637,6 +3638,7 @@ SUBROUTINE MODELS214
   ij = 1
 !50 icount = (ij-1)*15
   CALL CLS
+  ! choose model file 
   WRITE (*,9005)
 !60 icount = icount+1
 !  WRITE (*,9010) icount, files(icount), del(idel(icount))
@@ -3697,6 +3699,8 @@ SUBROUTINE MODELS214
   READ (Wunit,'(1X)',END=140)
   ! GET AND PRINT WELLS
   READ (Wunit,9040,ERR=140,END=140) (tmpwell(ij),ij=1,5), tmpwell(0)
+  one_solution = .false.
+  if ((tmpwell(1) .eq. 0) .or. (tmpwell(2) .eq. 0)) one_solution = .true.
   Iflag(1) = 4
   DO ij = 5, 2, -1
      IF (tmpwell(0).EQ.0) THEN
@@ -3746,6 +3750,17 @@ SUBROUTINE MODELS214
   END IF
   ! DONE READING DATA
 140 CLOSE (Wunit)
+  ! check for single solution model
+  if (one_solution) then
+      WRITE (*, "(//,1x,A)") "Error: Cannot use model. Model has too few solutions."
+      WRITE (*, *) "If this model file was written by PHREEQC,"
+      WRITE (*, *) "it means that all the water in the final solution"
+      WRITE (*, *) "came from minerals."
+      WRITE (*, *)
+      WRITE (*, *) "Enter to continue"
+      READ (*,9000) line
+      GOTO 40
+  endif
   IF (idel(i).NE.1) WRITE (*,9085)
   IF (idel(i).EQ.1) WRITE (*,9090)
   READ (*,9055) ans
@@ -3788,7 +3803,7 @@ SUBROUTINE MODELS214
           Dbdata(Well(0),49),  &
           ((Dbdata(Well(j),i),i=44,47), &
           Dbdata(Well(j),49),Usera(j),j=1, &
-          Iflag(1)+1)
+          Iflag(1)+1)!     
      !   Support old model file format
      IF (Usera(1).LT.0.01) Usera(1) = C14dat(6)
      IF (Usera(2).LT.0.01) Usera(2) = C14dat(7)

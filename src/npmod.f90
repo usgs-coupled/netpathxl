@@ -20,7 +20,7 @@ module version
   DATA ProgramName/'NetpathXL'/
   DATA DBXLName/'DBXL'/
   DATA VersionNumber/'1.2'/
-  DATA datestr/'May 4, 2010'/
+  DATA datestr/'June 2, 2010'/
 end module version
 
 module max_size

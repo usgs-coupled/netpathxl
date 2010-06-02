@@ -439,8 +439,9 @@ SUBROUTINE RDDB214
 10 continue
   READ (Ir,9005,ERR=60,END=60) line
   Nwlls = Nwlls+1
-  IF (Nwlls.EQ.51) then
+  IF (Nwlls.EQ.MAXWELLS + 1) then
      WRITE (*,9035)
+     read (*,*)
      STOP
   endif
   !     Integers, wllnm

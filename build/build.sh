@@ -70,7 +70,7 @@ export srcinstdir=${srcdir}/.sinst
 export checkfile=${topdir}/${FULLPKG}.check
 
 # use Visual Studio 2005 to compile
-DEVENV="/cygdrive/c/Program Files (x86)/Microsoft Visual Studio 8/Common7/IDE/devenv.exe"
+DEVENV="/cygdrive/c/Program Files/Microsoft Visual Studio 8/Common7/IDE/devenv.exe"
 
 prefix=/usr
 sysconfdir=/etc

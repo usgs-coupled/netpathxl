@@ -20,8 +20,9 @@
 				<Tool Name="VFCustomBuildTool"/>
 				<Tool Name="VFPreLinkEventTool"/>
 				<Tool Name="VFPreBuildEventTool"/>
-				<Tool Name="VFPostBuildEventTool" CommandLine="ren $(TargetDir)\netpathxl.exe netpathxlxx.exe
-ren $(TargetDir)\netpathxlxx.exe NetpathXL.exe"/></Configuration></Configurations>
+				<Tool Name="VFPostBuildEventTool" CommandLine="ren &quot;$(TargetDir)\netpathxl.exe&quot; netpathxlxx.exe
+ren &quot;$(TargetDir)\netpathxlxx.exe&quot; NetpathXL.exe"/>
+				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration></Configurations>
 	<Files>
 		<Filter Name="Header Files" Filter="fi;fd"/>
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>

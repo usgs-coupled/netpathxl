@@ -166,7 +166,7 @@ subroutine font
   !    INTEGER(2) W     ! window width
   ! END TYPE QWINFO
 
-  LOGICAL(4)     result, status
+  LOGICAL(4)     xresult, status
   integer*2 ih, iw
   TYPE (qwinfo)  winfo
   TYPE (windowconfig) wc
@@ -218,7 +218,7 @@ subroutine font
     
  ! need display cursor after setwindowconfig
  call set_color_np
- result =     DISPLAYCURSOR ($GCURSORON)
+ xresult =     DISPLAYCURSOR ($GCURSORON)
  
 return
 end subroutine font

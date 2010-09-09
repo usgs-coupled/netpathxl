@@ -6,7 +6,8 @@ SUBROUTINE WELLFILE_PAT(initial)
   use filenames
   use version
   implicit none
-  integer status, result, CHANGEDIRQQ
+  integer status
+  logical xresult, CheckOldExcel, CHANGEDIRQQ
   integer fileopen_np
   character*20 yn
   !
@@ -28,7 +29,7 @@ SUBROUTINE WELLFILE_PAT(initial)
   INTEGER LENS, nfiles, i, ij, icount, j
   CHARACTER UPCS80*80, line*80, ans*1, UPCS*1
   EXTERNAL CLS, RDPATH, WELLS, INITVALS, MODELS, UPCS80, LENS, UPCS
-  integer fileopen_db, CheckOldExcel
+  integer fileopen_db
   external fileopen_db, CheckOldExcel
   logical initial
   !
@@ -50,8 +51,8 @@ SUBROUTINE WELLFILE_PAT(initial)
 			goto 10
 		endif
 		CALL OldExcel
-		result = CheckOldExcel()
-		if (result == .false.) then
+		xresult = CheckOldExcel()
+		if (xresult == .false.) then
 			write(*,*) "File is not a NetpathXL file."
 			write(*,*) "One of the cells A1, A7-AU7 did not match template."
 			write(*,*) "Press enter to continue."
@@ -95,7 +96,7 @@ SUBROUTINE WELLFILE_PAT(initial)
 	endif
 
 
-    result = CHANGEDIRQQ (path)
+    xresult = CHANGEDIRQQ (path)
     
     ! Save for reread
     excel_filename = filename
@@ -142,10 +143,10 @@ SUBROUTINE REREAD_EXCEL
        Disalong, Usera(5)
     INTEGER LENS 
     EXTERNAL LENS
-    integer result, CHANGEDIRQQ
+    logical xresult, CHANGEDIRQQ, CheckOldExcel
     integer fileopen_np
     character*20 yn  
-    integer fileopen_db, CheckOldExcel
+    integer fileopen_db
     external fileopen_db, CheckOldExcel
     INTEGER db_Dbsfg, db_Idefault, db_Iu, db_Nwlls, db_Totwell, db_Tot
     COMMON /INT4DB/ db_Dbsfg(MAXWELLS,45), db_Idefault(5), db_Iu(MAXWELLS,4), db_Nwlls,  &
@@ -193,8 +194,8 @@ SUBROUTINE REREAD_EXCEL
     enddo    
 
 	CALL OldExcel
-	result = CheckOldExcel()
-    if (result == .false.) then
+	xresult = CheckOldExcel()
+    if (xresult == .false.) then
 	    write(*,*) "File is not a NetpathXL file."
 	    write(*,*) "One of the cells A1, A7-AU7 did not match template."
 	    write(*,*) "Press enter to continue."

@@ -14,7 +14,7 @@ subroutine confignetpath
   !    INTEGER(2) W     ! window width
   ! END TYPE QWINFO
 
-  LOGICAL(4)     result, status
+  LOGICAL(4)     xresult, status
   integer*2 i1, i2, i3, i4 
   TYPE (qwinfo)  winfo
   TYPE (windowconfig) wc
@@ -26,10 +26,10 @@ subroutine confignetpath
   winfo%y    = 0
   winfo%h    = 600
   winfo%w    = 850
-  result =     SETWSIZEQQ(QWIN$FRAMEWINDOW, winfo)
+  xresult =     SETWSIZEQQ(QWIN$FRAMEWINDOW, winfo)
   winfo%TYPE = QWIN$RESTORE
-  result =     SETWSIZEQQ(QWIN$FRAMEWINDOW, winfo) ! needed to prevent full screen
-  result =     SETEXITQQ(QWIN$EXITNOPERSIST) 
+  xresult =     SETWSIZEQQ(QWIN$FRAMEWINDOW, winfo) ! needed to prevent full screen
+  xresult =     SETEXITQQ(QWIN$EXITNOPERSIST) 
 
  wc%numxpixels  = -1
  wc%numypixels  = -1
@@ -48,7 +48,7 @@ subroutine confignetpath
     
  ! need display cursor after setwindowconfig
  call set_color_np
- result = DISPLAYCURSOR ($GCURSORON)
+ xresult = DISPLAYCURSOR ($GCURSORON)
  
 return
 end subroutine confignetpath

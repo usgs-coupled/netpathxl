@@ -108,9 +108,9 @@ PROGRAM NETPATHXL
   COMMON /CHAR7 / Fline
   DOUBLE PRECISION Evap, Pcoeff
   COMMON /DP1   / Evap, Pcoeff(39,36)
-  DOUBLE PRECISION Predat, Disdat, Cfinal, Cinit, Dinit, Result
+  DOUBLE PRECISION Predat, Disdat, Cfinal, Cinit, Dinit, dResult
   COMMON /DP2   / Predat(39,2), Disdat(39,2), Cfinal, Cinit, Dinit, &
-       Result
+       dResult
   DOUBLE PRECISION Clmain, Cleach, Pdat, Res, Sfinal, Sinit, Maxdel, &
        Mindel, Dfinal
   COMMON /DP3   / Clmain(202,40), Cleach(202,40), Pdat(40,40), &
@@ -1982,16 +1982,16 @@ END FUNCTION FINDTOT
 !
 !
 !
-SUBROUTINE GETNO(INPT,RESULT,SIGFIG,ERROR)
+SUBROUTINE GETNO(INPT,dRESULT,SIGFIG,ERROR)
   implicit none
   CHARACTER*10 INPT
-  DOUBLE PRECISION RESULT, a
+  DOUBLE PRECISION dRESULT, a
   INTEGER ERROR, SIGFIG, i, j
   !
   ERROR = 0
   IF (INPT.EQ.' ' .OR. INPT(1:3).EQ.'***') GO TO 50
   IF (INPT(1:1).EQ.'<') THEN
-     READ (INPT(2:10),'(F9.0)',ERR=40) RESULT
+     READ (INPT(2:10),'(F9.0)',ERR=40) dRESULT
      SIGFIG = -2
   ELSE
      READ (INPT,'(F10.0)',ERR=40) a
@@ -2005,28 +2005,28 @@ SUBROUTINE GETNO(INPT,RESULT,SIGFIG,ERROR)
         END IF
      enddo
      j = i
-30   RESULT = a
+30   dRESULT = a
      SIGFIG = j-i
   END IF
   GO TO 60
 40 ERROR = ERROR+1
 50 SIGFIG = -1
-  RESULT = 0.0D0
+  dRESULT = 0.0D0
 60 RETURN
 END SUBROUTINE GETNO
 !
 !
 !
-SUBROUTINE GETNO214(INPT,RESULT,SIGFIG,ERROR)
+SUBROUTINE GETNO214(INPT,dRESULT,SIGFIG,ERROR)
   implicit none
   CHARACTER*15 INPT
-  DOUBLE PRECISION RESULT, a
+  DOUBLE PRECISION dRESULT, a
   INTEGER ERROR, SIGFIG, i, j
   !
   ERROR = 0
   IF (INPT.EQ.' ' .OR. INPT(1:3).EQ.'***') GO TO 50
   IF (INPT(1:1).EQ.'<') THEN
-     READ (INPT(2:15),'(F9.0)',ERR=40) RESULT
+     READ (INPT(2:15),'(F9.0)',ERR=40) dRESULT
      SIGFIG = -2
   ELSE
      READ (INPT,'(F15.0)',ERR=40) a
@@ -2040,13 +2040,13 @@ SUBROUTINE GETNO214(INPT,RESULT,SIGFIG,ERROR)
         END IF
      enddo
      j = i
-30   RESULT = a
+30   dRESULT = a
      SIGFIG = j-i
   END IF
   GO TO 60
 40 ERROR = ERROR+1
 50 SIGFIG = -1
-  RESULT = 0.0D0
+  dRESULT = 0.0D0
 60 RETURN
 END SUBROUTINE GETNO214
 !
@@ -4007,9 +4007,9 @@ SUBROUTINE RAYLEIGH(IFILE)
   ! isotopic value is calculated, using the basic m inputs, n outputs
   ! Rayleigh equation.
   !
-  DOUBLE PRECISION Predat, Disdat, Cfinal, Cinit, Dinit, Result
+  DOUBLE PRECISION Predat, Disdat, Cfinal, Cinit, Dinit, dResult
   COMMON /DP2   / Predat(39,2), Disdat(39,2), Cfinal, Cinit, Dinit, &
-       Result
+       dResult
   INTEGER Idis, Ipre, Rwunit
   COMMON /INT2  / Idis, Ipre, Rwunit
   INTEGER IFILE, m, n
@@ -4017,7 +4017,7 @@ SUBROUTINE RAYLEIGH(IFILE)
        expon
   INTRINSIC DABS, EXP
   !
-  Result = Dinit
+  dResult = Dinit
   IF (Ipre+Idis.EQ.0) THEN
      IF (IFILE.EQ.1) WRITE (Rwunit,*) 'No phases in or out'
      RETURN
@@ -4056,7 +4056,7 @@ SUBROUTINE RAYLEIGH(IFILE)
   ELSE
      expon = EXP(-beta*gamma*Predat(1,1)/Cinit)
   END IF
-  Result = ((beta*Result-phacomp+epsgam)*expon+phacomp-epsgam)/beta
+  dResult = ((beta*dResult-phacomp+epsgam)*expon+phacomp-epsgam)/beta
   IF (IFILE.NE.0) THEN
      WRITE (Rwunit,9000) 'BETA', beta, 'PHACOMP', phacomp, 'EPSGAM',  &
           epsgam
@@ -6965,9 +6965,9 @@ SUBROUTINE CISO(ISCR)
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
   DOUBLE PRECISION Evap, Pcoeff
   COMMON /DP1   / Evap, Pcoeff(39,36)
-  DOUBLE PRECISION Predat, Disdat, Cfinal, Cinit, Dinit, Result
+  DOUBLE PRECISION Predat, Disdat, Cfinal, Cinit, Dinit, dResult
   COMMON /DP2   / Predat(39,2), Disdat(39,2), Cfinal, Cinit, Dinit, &
-       Result
+       dResult
   DOUBLE PRECISION Clmain, Cleach, Pdat, Res, Sfinal, Sinit, Maxdel,  &
        Mindel, Dfinal
   COMMON /DP3   / Clmain(202,40), Cleach(202,40), Pdat(40,40),  &
@@ -7174,10 +7174,10 @@ SUBROUTINE CISO(ISCR)
                     a0 = Dinit
                     Dinit = Dinit*10.0D0-1000.0D0
                     CALL RAYLEIGH(0)
-                    Result = (1000.0D0+Result)/10.0D0
-                    IF (Dfinal*Result.GT.0.00001D0) THEN
-                       age = 5730.0D0/DLOG(2.0D0)*DLOG(Result/Dfinal)
-                       WRITE (Iunit,9055) Model(imod), a0, Result, Dfinal,  &
+                    dResult = (1000.0D0+dResult)/10.0D0
+                    IF (Dfinal*dResult.GT.0.00001D0) THEN
+                       age = 5730.0D0/DLOG(2.0D0)*DLOG(dResult/Dfinal)
+                       WRITE (Iunit,9055) Model(imod), a0, dResult, Dfinal,  &
                             age
                        if (imod == 7) then
                           WRITE (Iunit,'(T7, "F-G K", F10.2)') fgk
@@ -7191,9 +7191,9 @@ SUBROUTINE CISO(ISCR)
               CALL RAYLEIGH(0)
               IF (i.EQ.2) THEN
                  WRITE (Iunit,9045) Dinit/10.0D0+100.0D0,  &
-                      Result/10.0D0+100.0D0
+                      dResult/10.0D0+100.0D0
               ELSE
-                 WRITE (Iunit,9045) Dinit, Result
+                 WRITE (Iunit,9045) Dinit, dResult
               END IF
               IF (Ipre+Idis.EQ.0) THEN
                  WRITE (Iunit,'(A,/)') ' No incoming or outgoing phases'
@@ -7237,11 +7237,11 @@ SUBROUTINE CISO(ISCR)
                  DO k = 1, idiff
                     CALL RAYLEIGH(0)
                     DO j = 1, Ipre
-                       dout(j,k) = (1000.0D0+((Dinit+Result)/2.0D0)) &
+                       dout(j,k) = (1000.0D0+((Dinit+dResult)/2.0D0)) &
                             *(Predat(j,2)/1000.0D0+1.0D0)-1000.0D0
                        sumiso(j) = sumiso(j)+dout(j,k)/idiff
                     enddo
-                    Dinit = Result
+                    Dinit = dResult
                     Cinit = Cfinal
                     Cfinal = Cinit+cdiff
                  enddo
@@ -7271,27 +7271,27 @@ SUBROUTINE CISO(ISCR)
            enddo
            CALL RAYLEIGH(1)
            IF (i.EQ.2) THEN
-              Result = (1000.0D0+Result)/10.0D0
-              IF (Dfinal.GT.1.0D-5 .AND. Result.GT.1.0D-5) THEN
-                 age = 5730.0D0/DLOG(2.D0)*DLOG(Result/Dfinal)
+              dResult = (1000.0D0+dResult)/10.0D0
+              IF (Dfinal.GT.1.0D-5 .AND. dResult.GT.1.0D-5) THEN
+                 age = 5730.0D0/DLOG(2.D0)*DLOG(dResult/Dfinal)
                  iage = 1
-                 WRITE (Iunit,9115) Elelong(isot(i)), Result, Dfinal
+                 WRITE (Iunit,9115) Elelong(isot(i)), dResult, Dfinal
               ELSE IF (Nodata(Well(0),isot(i)).EQ.0) THEN
-                 WRITE (Iunit,9105) Elelong(isot(i)), Result, Dfinal
+                 WRITE (Iunit,9105) Elelong(isot(i)), dResult, Dfinal
               ELSE
-                 WRITE (Iunit,9110) Elelong(isot(i)), Result
+                 WRITE (Iunit,9110) Elelong(isot(i)), dResult
               END IF
            ELSE IF (i.EQ.4) THEN
               IF (Nodata(Well(0),isot(i)).EQ.0) THEN
-                 WRITE (Iunit,9120) Elelong(isot(i)), Result, Dfinal
+                 WRITE (Iunit,9120) Elelong(isot(i)), dResult, Dfinal
               ELSE
-                 WRITE (Iunit,9125) Elelong(isot(i)), Result
+                 WRITE (Iunit,9125) Elelong(isot(i)), dResult
               END IF
            ELSE
               IF (Nodata(Well(0),isot(i)).EQ.0) THEN
-                 WRITE (Iunit,9105) Elelong(isot(i)), Result, Dfinal
+                 WRITE (Iunit,9105) Elelong(isot(i)), dResult, Dfinal
               ELSE
-                 WRITE (Iunit,9110) Elelong(isot(i)), Result
+                 WRITE (Iunit,9110) Elelong(isot(i)), dResult
               END IF
               jhave = 0
               DO iw = 0, Imix+1
@@ -7300,7 +7300,7 @@ SUBROUTINE CISO(ISCR)
               enddo
               IF (i.EQ.1 .AND. DABS(Dbdata(Well(0),41)).GT.1.D-20 .AND.  &
                    jhave.EQ.1) WRITE (Iunit,9105) 'DIC C-13    ',  &
-                   (Result*Cfinal-Dbdata(Well(0),42) &
+                   (dResult*Cfinal-Dbdata(Well(0),42) &
                    *Dbdata(Well(0),44) &
                    -Dbdata(Well(0),43) &
                    *Dbdata(Well(0),45)) &

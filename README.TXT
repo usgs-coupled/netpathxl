@@ -40,6 +40,15 @@ http://wwwbrr.cr.usgs.gov/projects/GWC_coupled/netpath.
 Report bugs to dlpark@usgs.gov.
 
 --------
+svn 4805
+--------
+  Fixed bug in NetpathXL that caused Excel to not be closed after
+  a bad Excel file was opened.
+  
+  Updated Intel Fortran Compiler to 11.1.054 in order to run
+  correctly on Windows 7.
+
+--------
 svn 4486
 --------
   Fixed bug in DBXL that limited number of wells to 50. Caused

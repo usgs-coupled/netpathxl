@@ -12,6 +12,7 @@
 
   <?define Directory              = "$(var.Name) $(var.Major).$(var.Minor)"?>
   <?define Version                = "$(var.Major).$(var.Minor).$(var.Build)"?>
+  <?define FullName               = "$(var.Name) $(var.Major).$(var.Minor).$(var.Build)"?>
 
   <?define ExamplesSource         = "..\examples" ?>
   <?define RootSource             = ".." ?>

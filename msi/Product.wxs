@@ -2,7 +2,7 @@
 <?include Guids.wxi?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 	<Product Id="*"
-           Name="$(var.Name)"
+           Name="$(var.FullName)"
            Language="1033"
            Version="$(var.Version)"
            Manufacturer="USGS"

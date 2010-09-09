@@ -57,6 +57,7 @@ SUBROUTINE WELLFILE_PAT(initial)
 			write(*,*) "One of the cells A1, A7-AU7 did not match template."
 			write(*,*) "Press enter to continue."
 			READ (*,'(a)') yn
+			call cleanup_com(.TRUE.)
 			goto 10
 		endif 
 		call xl2db

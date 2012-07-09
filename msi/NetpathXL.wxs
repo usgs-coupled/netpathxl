@@ -24,14 +24,14 @@
 
     <!-- Components -->
     <DirectoryRef Id="INSTALLLOCATION">
-      <Component Id="RootFiles" Guid="$(var.RootFilesGuid)">
+      <Component Id="RootFiles" Guid="*">
         <File Id="README" Name="README.TXT" Vital="yes" DiskId='1' Source="$(var.RootSource)\README.TXT" />
         <File Id="NOTICE" Name="NOTICE.TXT" Vital="yes" DiskId='1' Source="$(var.RootSource)\NOTICE.TXT" />
       </Component>
     </DirectoryRef>
 
     <DirectoryRef Id="BinDir">
-      <Component Id="Executables" Guid="$(var.ExecutablesGuid)">
+      <Component Id="Executables" Guid="*">
         <File Id="f__netpathxl.exe" Name='netpathxl.exe' Vital="yes" DiskId='1' Source="$(var.ExeSource)\netpathxl$(var.DebugLetter).exe" KeyPath="yes">
           <Shortcut Id='NetpathXLShortcut' Directory='ShortCutFolder' Name='NetpathXL' Icon="netpathxl.exe" IconIndex="0" Advertise='yes' WorkingDirectory="INSTALLLOCATION"/>
         </File>
@@ -40,7 +40,7 @@
     </DirectoryRef>
 
     <DirectoryRef Id="BinDir">
-      <Component Id="DBXL" Guid="$(var.DBXLGuid)">
+      <Component Id="DBXL" Guid="*">
         <File Id="dbxl.exe" Name="dbxl.exe" Vital="yes" DiskId='1' Source="$(var.ExeSource)\dbxl$(var.DebugLetter).exe" KeyPath="yes">
           <Shortcut Id='DBXLShortcut' Directory='ShortCutFolder' Name='DBXL' Icon="dbxl.exe" IconIndex="0" Advertise='yes' WorkingDirectory="INSTALLLOCATION"/>
         </File>
@@ -48,14 +48,14 @@
     </DirectoryRef>
 
     <DirectoryRef Id="DatabaseDir">
-      <Component Id="Database" Guid="$(var.DatabaseGuid)">
+      <Component Id="Database" Guid="*">
         <File Id="db.dat" Name="db.dat" Vital="yes" DiskId='1' Source="$(var.DatabaseSource)\db.dat" />
         <File Id="netpath.dat" Name="netpath.dat" Vital="yes" DiskId='1' Source="$(var.DatabaseSource)\netpath.dat" />
       </Component>
     </DirectoryRef>
 
     <DirectoryRef Id="DocDir">
-      <Component Id="NetpathxlPDF" Guid="$(var.NetpathxlPDFGuid)">
+      <Component Id="NetpathxlPDF" Guid="*">
         <File Id="netpathxl.pdf" Name="netpathxl.pdf" Vital="yes" DiskId='1' Source="$(var.DocSource)\netpathxl.pdf" KeyPath="yes">
           <Shortcut Id='NetpathXLPDFShortcut' Directory='ShortCutFolder' Name='NetpathXL Manual' Advertise='yes'/>
         </File>
@@ -63,7 +63,7 @@
     </DirectoryRef>
 
     <DirectoryRef Id="DocDir">
-      <Component Id="PlummerPDF" Guid="$(var.PlummerPDFGuid)">
+      <Component Id="PlummerPDF" Guid="*">
         <File Id="Plummer.pdf" Name="Plummer et al., 1994 NETPATH Manual.PDF" Vital="yes" DiskId='1' Source="$(var.DocSource)\Plummer et al., 1994 NETPATH Manual.PDF" KeyPath="yes">
           <Shortcut Id='PlummerPDFShortcut' Directory='ShortCutFolder' Name='Plummer et al., 1994 NETPATH Manual' Advertise='yes' />
         </File>
@@ -71,7 +71,7 @@
     </DirectoryRef>
 
     <DirectoryRef Id="ExamplesDir">
-      <Component Id="Examples" Guid="$(var.ExamplesGuid)">
+      <Component Id="Examples" Guid="*">
         <File Id="class.lon" Name="class.lon" DiskId='1' Source="$(var.ExamplesSource)\class.lon" />
         <File Id="class.out" Name="class.out" DiskId='1' Source="$(var.ExamplesSource)\class.out" />
         <File Id="class.pat" Name="class.pat" DiskId='1' Source="$(var.ExamplesSource)\class.pat" />

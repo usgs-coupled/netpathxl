@@ -20,6 +20,9 @@
   <?define DatabaseSource         = "..\Database" ?>
   <?define DocSource              = "..\Doc" ?>
 
+  <?define RootFilesGuid          = "{193807C4-39BD-425b-954C-A5A959F2B670}" ?>
+  <?define DatabaseGuid           = "{6849BDE7-6C12-4677-805E-5BA399ED8BCC}" ?>
+  <?define ExamplesGuid           = "{9FC65202-7BD5-445c-B0EF-BAF196F5422B}" ?>
   <?define DebugLetter = "" ?>
   <?define ExeSource              = "..\bin" ?>
   <?define UpgradeCode            = "{609DE082-B769-43ac-B7B5-6AEB7C8D9D80}" ?>

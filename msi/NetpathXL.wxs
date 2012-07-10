@@ -24,7 +24,7 @@
 
     <!-- Components -->
     <DirectoryRef Id="INSTALLLOCATION">
-      <Component Id="RootFiles" Guid="*">
+      <Component Id="RootFiles" Guid="$(var.RootFilesGuid)">
         <File Id="README" Name="README.TXT" Vital="yes" DiskId='1' Source="$(var.RootSource)\README.TXT" />
         <File Id="NOTICE" Name="NOTICE.TXT" Vital="yes" DiskId='1' Source="$(var.RootSource)\NOTICE.TXT" />
       </Component>
@@ -48,7 +48,7 @@
     </DirectoryRef>
 
     <DirectoryRef Id="DatabaseDir">
-      <Component Id="Database" Guid="*">
+      <Component Id="Database" Guid="$(var.DatabaseGuid)">
         <File Id="db.dat" Name="db.dat" Vital="yes" DiskId='1' Source="$(var.DatabaseSource)\db.dat" />
         <File Id="netpath.dat" Name="netpath.dat" Vital="yes" DiskId='1' Source="$(var.DatabaseSource)\netpath.dat" />
       </Component>
@@ -71,7 +71,7 @@
     </DirectoryRef>
 
     <DirectoryRef Id="ExamplesDir">
-      <Component Id="Examples" Guid="*">
+      <Component Id="Examples" Guid="$(var.ExamplesGuid)">
         <File Id="class.lon" Name="class.lon" DiskId='1' Source="$(var.ExamplesSource)\class.lon" />
         <File Id="class.out" Name="class.out" DiskId='1' Source="$(var.ExamplesSource)\class.out" />
         <File Id="class.pat" Name="class.pat" DiskId='1' Source="$(var.ExamplesSource)\class.pat" />

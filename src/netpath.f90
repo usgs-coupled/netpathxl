@@ -3,6 +3,14 @@ PROGRAM NETPATHXL
   USE max_size
   use filenames
   implicit none
+   ! --------------------------------------
+  !       NETPATHXL 2.15 June 12, 2013
+  !                  by
+  !           David Parkhurst
+  !
+  !    with technical assistance from
+  !           L. Niel Plummert
+  ! -------------------------------------- 
   ! --------------------------------------
   !       NETPATHXL 2.14 June 12, 2005
   !                  by
@@ -100,7 +108,7 @@ PROGRAM NETPATHXL
   CHARACTER Pname*8, Ename*2, Force*1
   COMMON /CHAR3 / Pname(39), Ename(39), Force(39)
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1), &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1), &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -260,7 +268,7 @@ BLOCK DATA
 !
 
 CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1), &
      Ion(4), Ffact(0:1)
 CHARACTER Elelong*12, Pelt*2
 COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -272,7 +280,8 @@ DATA Model/'Original Data       ', 'Mass Balance        ',  &
      'Vogel               ', 'Tamers              ',  &
      'Ingerson and Pearson', 'Mook                ',  &
      'Fontes and Garnier  ', 'Eichinger           ',  &
-     'User-defined        '/
+     'User-defined        ', &
+     'Revised F&G         '/
 DATA Yes/'No ', 'Yes'/
 DATA Ion/'Computed  ', '50/50     ', 'Ca/Na     ', 'Var. Ca/Mg'/
 DATA Elelong/'            ', 'Carbon      ', 'Sulfur      ',  &
@@ -493,6 +502,7 @@ END SUBROUTINE ADDPHA
 !
 DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
   USE max_size
+  IMPLICIT none
   INTEGER IWHICH, IWELL
   !
   ! The result of a specific A0 model for the selected initial well
@@ -511,8 +521,8 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
   !       7 'Fontes and Garnier  '
   !       8 'Eichinger           '
   !       9 'User-defined        '
+  !      10 'Revised F and G     '
   !
-
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
   COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
@@ -527,8 +537,13 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
        c4, cans, cm, ct, fract3, fract4, fract6,  &
        fract7, fraction, t
   DOUBLE PRECISION i10, i11
-  double precision fgk
-  COMMON /FontGarnier/ fgk
+  double precision fgk, fgk_rev  
+  COMMON /FontGarnier/ fgk, fgk_rev
+  double precision Cs_rev, Ca_rev, Cb_rev, Ct_rev, C14g_rev, eps_g_s_rev
+  double precision C14s_rev, delC13_rev, delC13s_rev, delC13g_rev 
+  double precision C14a0_rev, delC13a0_rev, C14b0_rev, delC13b0_rev 
+  double precision eps_g_b_rev, eps_s_a_rev, eps_s_b_rev
+  double precision C14x_rev, delC13x_rev, eps_x_b_rev
   EQUIVALENCE (C14dat(10),i10)
   EQUIVALENCE (C14dat(11),i11)
   EXTERNAL CFRACT
@@ -626,7 +641,8 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
              *Dbdata(i,47))/Dbdata(i,1)
      ELSE IF (IWHICH.EQ.7) THEN
         ! Fontes and Garnier
-        cm = Dbdata(i,36)/2.0D0
+
+            cm = Dbdata(i,36)/2.0D0
         !   Use this instead of TDIC
         ct = Dbdata(i,38)+Dbdata(i,36)
         CALL CFRACT(fraction,4,IWELL,Ierror)
@@ -643,7 +659,6 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
         C14 = (1-cm/ct)*C14dat(2)+cm/ct*C14dat(1)+fgk
         C14 = (C14*Dbdata(i,41)+Dbdata(i,42)*Dbdata(i,46)+Dbdata(i,43) &
              *Dbdata(i,47))/Dbdata(i,1)
-
      ELSE IF (IWHICH.EQ.8) THEN
         ! Eichinger
         CALL CFRACT(fract7,7,IWELL,Ierror)
@@ -665,6 +680,67 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
      ELSE IF (IWHICH.EQ.9) THEN
         ! User-entered value
         C14 = Usera(IWELL)
+     ELSE IF (IWHICH.EQ.N_C14_MODELS) THEN
+        ! Revised Fontes and Garnier
+        
+        c1 = Dbdata(i,21)/Dbdata(i,41)
+        IF (i11.GT.0.0D0) c1 = C14dat(3) 
+        CALL CFRACT(eps_g_s_rev,4,IWELL,Ierror)        
+        Cs_rev = Dbdata(i,36)/2.0D0
+        Ca_rev = Dbdata(i,38)
+        Cb_rev = Dbdata(i,36)
+        Ct_rev = Ca_rev + Cb_rev
+        C14g_rev = C14dat(2)
+        C14s_rev = C14dat(1)
+        delC13_rev = c1
+        delC13s_rev = C14dat(4)
+        delC13g_rev = C14dat(5) ! c2
+        C14a0_rev = C14dat(2)
+        delC13a0_rev = C14dat(5)
+        C14b0_rev = 1
+        delC13b0_rev = 1
+        
+        ! gas-bicarbonate
+        CALL CFRACT(eps_g_b_rev,4,IWELL,Ierror)    
+        ! calcite-CO2(aq)
+        CALL CFRACT(eps_s_a_rev,7,IWELL,Ierror)
+        eps_s_a_rev = -eps_s_a_rev
+        ! solid-bicarbonate
+        CALL CFRACT(eps_s_b_rev,6,IWELL,Ierror) 
+    
+        !fgk_rev = (C14g_rev - 0.2*eps_g_s_rev - C14s_rev)
+        !fgk_rev = fgk_rev * (delC13_rev - Cs_rev/Ct_rev*delC13s - (1 - Cs_rev/Ct_rev)*delC13g_rev)
+        !fgk_rev = fgk_rev / (delC13g_rev - eps_g_s_rev - delC13s_rev)
+        !IF (fgk_rev.LT.-1D-5) THEN
+        !   CALL CFRACT(eps_g_s_rev,5,IWELL,Ierror)
+        !   !      This should be the same as the above equation.
+        !   fgk_rev = (C14g_rev - 0.2*eps_g_s_rev - C14s_rev)
+        !   fgk_rev = fgk_rev * (delC13_rev - Cs_rev/Ct_rev*delC13s - (1 - Cs_rev/Ct_rev)*delC13g_rev)
+        !   fgk_rev = fgk_rev / (delC13g_rev - eps_g_s_rev - delC13s_rev)   
+        !ENDIF
+        !C14 = ((1 - Cs_rev/Ct_rev)*C14g_rev + Cs_rev/Ct_rev*C14s_rev)+fgk_rev
+        !C14 = (C14*Dbdata(i,41)+Dbdata(i,42)*Dbdata(i,46)+Dbdata(i,43) &
+        !     *Dbdata(i,47))/Dbdata(i,1) 
+        
+        C14x_rev = C14g_rev
+        delC13x_rev = delC13b0_rev 
+        eps_x_b_rev = eps_g_b_rev
+        
+        
+        fgk_rev = (C14x_rev - C14b0_rev - 0.2*eps_x_b_rev)
+        fgk_rev = fgk_rev * (delC13_rev - Ca_rev/Ct_rev*delC13a0_rev - Cb_rev/Ct_rev*delC13b0_rev)
+        fgk_rev = fgk_rev / (delC13x_rev - delC13b0_rev - eps_x_b_rev)
+        !IF (fgk_rev.LT.-1D-5) THEN
+        !   CALL CFRACT(eps_g_s_rev,5,IWELL,Ierror)
+        !   !      This should be the same as the above equation.
+        !   fgk_rev = (C14g_rev - 0.2*eps_g_s_rev - C14s_rev)
+        !   fgk_rev = fgk_rev * (delC13_rev - Cs_rev/Ct_rev*delC13s - (1 - Cs_rev/Ct_rev)*delC13g_rev)
+        !   fgk_rev = fgk_rev / (delC13g_rev - eps_g_s_rev - delC13s_rev)   
+        !ENDIF
+        C14 = (Ca_rev/Ct_rev*C14a0_rev + Cb_rev/Ct_rev*C14b0_rev)+fgk_rev
+        C14 = (C14*Dbdata(i,41)+Dbdata(i,42)*Dbdata(i,46)+Dbdata(i,43) &
+             *Dbdata(i,47))/Dbdata(i,1)   
+        
      END IF
   END IF
 10 RETURN
@@ -1031,7 +1107,7 @@ SUBROUTINE EDIT
   !
 
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
   COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
@@ -1267,7 +1343,7 @@ SUBROUTINE EDITC14
   ! may be entered because all the models may be run.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
   COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
@@ -1276,7 +1352,7 @@ SUBROUTINE EDITC14
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
   INTEGER idone, i, ierr, j, jj, ii11, ii10, LENS
   CHARACTER*38 c1words(0:3), c2words(0:3)
-  CHARACTER ans*1
+  CHARACTER ans*2
   DOUBLE PRECISION i10, i11
   EQUIVALENCE (C14dat(10),i10)
   EQUIVALENCE (C14dat(11),i11)
@@ -1314,10 +1390,11 @@ SUBROUTINE EDITC14
      READ (*,9070) ans
      RETURN
   END IF
-  DO i = 1, 9
+
+  DO i = 1, N_C14_MODELS
      WRITE (*,9025) i, Model(i), (C14(i,j),j=1,Iflag(1)+1)
   enddo
-  IF (Iflag(4).LT.1 .OR. Iflag(4).GT.9) Iflag(4) = 1
+  IF (Iflag(4).LT.1 .OR. Iflag(4).GT.N_C14_MODELS) Iflag(4) = 1
 40 IF (idone.EQ.0) WRITE (*,9035) Model(Iflag(4)) &
        (1:LENS(Model(Iflag(4))))
   IF (idone.EQ.1) WRITE (*,9030)
@@ -1330,7 +1407,7 @@ SUBROUTINE EDITC14
         CALL CLS
         GO TO 60
      END IF
-     IF (i.LE.0 .OR. i.GT.9) GO TO 40
+     IF (i.LE.0 .OR. i.GT.N_C14_MODELS) GO TO 40
      Iflag(4) = i
   END IF
   IF (Iflag(4).EQ.1 .OR. Iflag(4).EQ.3) THEN
@@ -1358,7 +1435,7 @@ SUBROUTINE EDITC14
           'C-14 activity in soil gas CO2 (% modern)' &
           )
   END IF
-  IF ((j.GE.5.AND.j.LE.8) .OR. j.EQ.0) THEN
+  IF ((j.GE.5.AND.j.LE.N_C14_MODELS) .OR. j.EQ.0) THEN
      ii11 = NINT(C14dat(11))
      CALL INPTIN(ii11,'C-13 (TDIC) in initial solution', &
           '   (Used only in A0 models)',c1words)
@@ -1426,7 +1503,7 @@ SUBROUTINE EDITCISO(IPOS)
   ! Rayleigh calculations can be selected.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
@@ -1452,7 +1529,7 @@ SUBROUTINE EDITEVAP(IPOS)
   ! Evaporation can be considered.  This also includes dilution.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
@@ -1477,7 +1554,7 @@ SUBROUTINE EDITFACT(IPOS)
   implicit none
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
@@ -1510,7 +1587,7 @@ SUBROUTINE EDITIONEX(IPOS)
   ! exchange is entered.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
@@ -1539,7 +1616,7 @@ SUBROUTINE EDITMIX(IPOS)
   implicit none
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
@@ -1809,7 +1886,7 @@ SUBROUTINE EDITRS(IPOS)
   implicit none
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
   COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
@@ -2077,7 +2154,7 @@ SUBROUTINE ICCARBON
   ! entered.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
   COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
@@ -2383,7 +2460,7 @@ SUBROUTINE INITVALS(INEW)
   !
 
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -3219,7 +3296,7 @@ SUBROUTINE MODELS
   !
 
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -3559,7 +3636,7 @@ SUBROUTINE MODELS214
   !
 
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -4103,7 +4180,7 @@ SUBROUTINE RDPATH2(FILEONE)
   ! passed through untouched by WATEQFP.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
   COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
@@ -4208,7 +4285,7 @@ SUBROUTINE RDPATH214(FILEONE)
   ! passed through untouched by WATEQFP.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
   COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
@@ -4737,7 +4814,7 @@ SUBROUTINE SCREEN
   !
 
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -5299,7 +5376,7 @@ SUBROUTINE VIEW
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
   INTEGER LENS, iwell, i
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   EXTERNAL LENS, CLS
 
@@ -5347,7 +5424,7 @@ SUBROUTINE VIEW2(iwell)
   !
 
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
   COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
@@ -5534,7 +5611,7 @@ SUBROUTINE VIEW214(iwell)
   INTEGER jcounter
 
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
   COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
@@ -5905,7 +5982,7 @@ SUBROUTINE WELLS
   ! mixing will be considered.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
@@ -6009,7 +6086,7 @@ SUBROUTINE WLLIST(II)
   ! rest of the wells.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
   COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
@@ -6104,7 +6181,7 @@ SUBROUTINE RUN(NUMRUN)
   CHARACTER Pname*8, Ename*2, Force*1
   COMMON /CHAR3 / Pname(39), Ename(39), Force(39)
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1), &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1), &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -6345,7 +6422,7 @@ SUBROUTINE BALN
   CHARACTER Pname*8, Ename*2, Force*1
   COMMON /CHAR3 / Pname(39), Ename(39), Force(39)
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -6786,7 +6863,7 @@ SUBROUTINE RUNONE(MAXIGNORE)
   IMPLICIT NONE
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION Clmain, Cleach, Pdat, Res, Sfinal, Sinit, Maxdel,  &
        Mindel, Dfinal
@@ -6864,7 +6941,7 @@ SUBROUTINE PRINT
   CHARACTER Pname*8, Ename*2, Force*1
   COMMON /CHAR3 / Pname(39), Ename(39), Force(39)
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION Evap, Pcoeff
   COMMON /DP1   / Evap, Pcoeff(39,36)
@@ -6959,7 +7036,7 @@ SUBROUTINE CISO(ISCR)
   CHARACTER Pname*8, Ename*2, Force*1
   COMMON /CHAR3 / Pname(39), Ename(39), Force(39)
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -7002,8 +7079,8 @@ SUBROUTINE CISO(ISCR)
        ierrn, iw, elmt(5), isot(5), itoterr, LENS
   CHARACTER*8 dispha(39), prepha(39)
   CHARACTER*80 saveout(20), glines(0:10), line
-  double precision fgk
-  COMMON /FontGarnier/ fgk
+  double precision fgk, fgk_rev
+  COMMON /FontGarnier/ fgk, fgk_rev
   EXTERNAL CLS, CFRACT, SFRACT, RAYLEIGH, C14, ISTATE, LENS
   INTRINSIC DLOG, DABS
   DATA elmt/1, 1, 2, 15, 18/, isot/21, 22, 23, 24, 25/
@@ -7158,7 +7235,7 @@ SUBROUTINE CISO(ISCR)
               !
               !   Write A0 models
               !
-              DO imod = 1, 9
+              DO imod = 1, N_C14_MODELS
                  IF (Imix .EQ. 0) THEN
                     Dinit = C14(imod,1)
                  ELSE

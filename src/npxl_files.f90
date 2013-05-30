@@ -164,7 +164,7 @@ SUBROUTINE REREAD_EXCEL
     ! null-terminated empty string.
     !
     character*(*),parameter :: filter_spec_lon = "DB files"C//"*.lon"C  
-    character*(*),parameter :: filter_spec_xls = "Excel files"C//"*.xls"C
+    character*(*),parameter :: filter_spec_xls = "Excel files"C//"*.xls"C//"All files"C//"*.*"C
     double precision dbsave(0:MAXWELLS,0:50)
 
     ! Declare string variable to return the file specification.

@@ -542,8 +542,10 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
   double precision Cs_rev, Ca_rev, Cb_rev, Ct_rev, C14g_rev, eps_g_s_rev
   double precision C14s_rev, delC13_rev, delC13s_rev, delC13g_rev 
   double precision C14a0_rev, delC13a0_rev, C14b0_rev, delC13b0_rev 
-  double precision eps_g_b_rev, eps_s_a_rev, eps_s_b_rev
+  double precision eps_g_b_rev, eps_s_a_rev, eps_s_b_rev, eps_a_s_rev
+  double precision eps_g_a_rev, eps_a_g_rev
   double precision C14x_rev, delC13x_rev, eps_x_b_rev
+  double precision x
   EQUIVALENCE (C14dat(10),i10)
   EQUIVALENCE (C14dat(11),i11)
   EXTERNAL CFRACT
@@ -682,65 +684,97 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
         C14 = Usera(IWELL)
      ELSE IF (IWHICH.EQ.N_C14_MODELS) THEN
         ! Revised Fontes and Garnier
-        
-        c1 = Dbdata(i,21)/Dbdata(i,41)
-        IF (i11.GT.0.0D0) c1 = C14dat(3) 
-        CALL CFRACT(eps_g_s_rev,4,IWELL,Ierror)        
-        Cs_rev = Dbdata(i,36)/2.0D0
-        Ca_rev = Dbdata(i,38)
-        Cb_rev = Dbdata(i,36)
-        Ct_rev = Ca_rev + Cb_rev
-        C14g_rev = C14dat(2)
-        C14s_rev = C14dat(1)
-        delC13_rev = c1
-        delC13s_rev = C14dat(4)
-        delC13g_rev = C14dat(5) ! c2
-        C14a0_rev = C14dat(2)
-        delC13a0_rev = C14dat(5)
-        C14b0_rev = 1
-        delC13b0_rev = 1
-        
+        open(UNIT=199,FILE='DebugFandG',ACTION='WRITE')
         ! gas-bicarbonate
-        CALL CFRACT(eps_g_b_rev,4,IWELL,Ierror)    
-        ! calcite-CO2(aq)
-        CALL CFRACT(eps_s_a_rev,7,IWELL,Ierror)
-        eps_s_a_rev = -eps_s_a_rev
+        CALL CFRACT(eps_g_b_rev,4,IWELL,Ierror) 
+        write (199, *) 'eps_g_b =      ', eps_g_b_rev   
         ! solid-bicarbonate
         CALL CFRACT(eps_s_b_rev,6,IWELL,Ierror) 
-    
-        !fgk_rev = (C14g_rev - 0.2*eps_g_s_rev - C14s_rev)
-        !fgk_rev = fgk_rev * (delC13_rev - Cs_rev/Ct_rev*delC13s - (1 - Cs_rev/Ct_rev)*delC13g_rev)
-        !fgk_rev = fgk_rev / (delC13g_rev - eps_g_s_rev - delC13s_rev)
-        !IF (fgk_rev.LT.-1D-5) THEN
-        !   CALL CFRACT(eps_g_s_rev,5,IWELL,Ierror)
-        !   !      This should be the same as the above equation.
-        !   fgk_rev = (C14g_rev - 0.2*eps_g_s_rev - C14s_rev)
-        !   fgk_rev = fgk_rev * (delC13_rev - Cs_rev/Ct_rev*delC13s - (1 - Cs_rev/Ct_rev)*delC13g_rev)
-        !   fgk_rev = fgk_rev / (delC13g_rev - eps_g_s_rev - delC13s_rev)   
-        !ENDIF
-        !C14 = ((1 - Cs_rev/Ct_rev)*C14g_rev + Cs_rev/Ct_rev*C14s_rev)+fgk_rev
-        !C14 = (C14*Dbdata(i,41)+Dbdata(i,42)*Dbdata(i,46)+Dbdata(i,43) &
-        !     *Dbdata(i,47))/Dbdata(i,1) 
+        write (199, *) 'eps_s_b =      ', eps_s_b_rev            
+        ! CO2(g)-solution
+        CALL CFRACT(eps_a_g_rev,3,IWELL,Ierror) 
+        eps_g_a_rev = -eps_a_g_rev
+        write (199, *) 'eps_g_a =      ', eps_g_a_rev 
+        ! calcite-CO2(aq)
+        CALL CFRACT(eps_a_s_rev,7,IWELL,Ierror)
+        eps_s_a_rev = -eps_a_s_rev      
+        write (199, *) 'eps_s_a =      ', eps_s_a_rev         
+        ! gas-solid
+        eps_g_s_rev = eps_g_a_rev + eps_a_s_rev
+        write (199, *) 'eps_g_s =      ', eps_g_s_rev 
         
-        C14x_rev = C14g_rev
-        delC13x_rev = delC13b0_rev 
-        eps_x_b_rev = eps_g_b_rev
-        
-        
+        ! c1 
+        c1 = Dbdata(i,21)/Dbdata(i,41)    ! C13DIC = DIC*C13DIC / DIC
+        IF (i11.GT.0.0D0) c1 = C14dat(3)  ! C13 activity in solution
+        ! Cs
+        Cs_rev = Dbdata(i,36)/2.0D0       ! HCO3 / 2.0
+        write (199, *) 'Cs =            ', Cs_rev
+        ! Ca
+        Ca_rev = Dbdata(i,38)             ! H2CO3
+        write (199, *) 'Ca =            ', Ca_rev
+        ! Cb
+        Cb_rev = Dbdata(i,36)             ! HCO3
+        write (199, *) 'Cb =            ', Cb_rev
+        ! Ct
+        Ct_rev = Ca_rev + Cb_rev          ! H2CO3 + HCO3 ? CO3?
+        write (199, *) 'Ct =            ', Ct_rev
+        ! C14g
+        C14g_rev = C14dat(2)              ! C14 activity in soil gas
+        write (199, *) 'C14g =          ', C14g_rev
+        ! C14s
+        C14s_rev = C14dat(1)              ! C14 activity in carbonate minerals
+        write (199, *) 'C14s =          ', C14s_rev
+        ! delC13
+        delC13_rev = c1                   ! del13C in solution
+        write (199, *) 'delC13 =        ', delC13_rev
+        ! delC13s
+        delC13s_rev = C14dat(4)           ! C13 activity in carbonate minerals
+        write (199, *) 'delC13s =       ', delC13s_rev
+        ! delC13g
+        delC13g_rev = C14dat(5) ! c2      ! C13 activity in soil gas
+        write (199, *) 'delC13g =       ', delC13g_rev
+        ! C14a0
+        C14a0_rev = C14dat(2) - 0.2*eps_g_a_rev        ! C14 activity in solution in eq with soil gas
+        write (199, *) 'C14a0 =         ', C14a0_rev
+        ! delC13a0
+        delC13a0_rev = C14dat(5) - eps_g_a_rev         ! C13 activity in solution in eq with soil gas
+        write (199, *) 'delC13a0 =      ', delC13a0_rev
+        ! C14b0
+        C14b0_rev = 0.5*(C14a0_rev + C14s_rev)
+        write (199, *) 'C14b0 =         ', C14b0_rev
+        ! delC13b0
+        delC13b0_rev = 0.5*(delC13a0_rev + delC13s_rev)
+        write (199, *) 'delC13b0 =      ', delC13b0_rev
+       
+        x = delC13b0_rev
+        write (199, *) 
+        IF (delC13_rev < x) THEN
+            write (199, *) 'delC13 = ', delC13_rev, ' < x = ', delC13b0_rev, ', Using g.'
+            C14x_rev = C14g_rev
+            delC13x_rev = delC13g_rev 
+            eps_x_b_rev = eps_g_b_rev            
+        ELSE
+            write (199, *) 'delC13 = ', delC13_rev, ' >= x = ', delC13b0_rev, ', Using s.'
+            C14x_rev = C14s_rev
+            delC13x_rev = delC13s_rev 
+            eps_x_b_rev = eps_s_b_rev              
+        ENDIF
+        write (199, *) 'C14x =         ', C14x_rev
+        write (199, *) 'delC13x =      ', delC13x_rev
+        write (199, *) 'eps_x_b =      ', eps_x_b_rev
+        write (199, *) 
         fgk_rev = (C14x_rev - C14b0_rev - 0.2*eps_x_b_rev)
         fgk_rev = fgk_rev * (delC13_rev - Ca_rev/Ct_rev*delC13a0_rev - Cb_rev/Ct_rev*delC13b0_rev)
         fgk_rev = fgk_rev / (delC13x_rev - delC13b0_rev - eps_x_b_rev)
-        !IF (fgk_rev.LT.-1D-5) THEN
-        !   CALL CFRACT(eps_g_s_rev,5,IWELL,Ierror)
-        !   !      This should be the same as the above equation.
-        !   fgk_rev = (C14g_rev - 0.2*eps_g_s_rev - C14s_rev)
-        !   fgk_rev = fgk_rev * (delC13_rev - Cs_rev/Ct_rev*delC13s - (1 - Cs_rev/Ct_rev)*delC13g_rev)
-        !   fgk_rev = fgk_rev / (delC13g_rev - eps_g_s_rev - delC13s_rev)   
-        !ENDIF
+        write (199, *) 'fgk_rev =      ', fgk_rev
+
         C14 = (Ca_rev/Ct_rev*C14a0_rev + Cb_rev/Ct_rev*C14b0_rev)+fgk_rev
+        write (199, *) 'C14(TDIC) =    ', C14
         C14 = (C14*Dbdata(i,41)+Dbdata(i,42)*Dbdata(i,46)+Dbdata(i,43) &
              *Dbdata(i,47))/Dbdata(i,1)   
-        
+        write (199, *) 'C14(C) =       ', C14
+
+        close(199)
      END IF
   END IF
 10 RETURN
@@ -2260,7 +2294,7 @@ SUBROUTINE ICCARBON
      END IF
   END IF
   GO TO 30
-9000 FORMAT (/,' There are no phases for which isotipic data can', &
+9000 FORMAT (/,' There are no phases for which isotopic data can', &
        ' be entered.',//,' Hit <Enter> to continue.')
 9005 FORMAT (19X,'Isotopic compositions of Carbon in solution',/)
 9010 FORMAT (36X,' Carbon-13  C14 %mod   Carbon-13  C14 %mod',/,' #  ', &

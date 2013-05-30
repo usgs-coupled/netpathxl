@@ -243,7 +243,7 @@ integer function fileopen_db(Dfile, path, typefile)
   ! null-terminated empty string.
   !
   character*(*),parameter :: filter_spec_lon = "DB files"C//"*.lon"C  
-  character*(*),parameter :: filter_spec_xls = "Excel files"C//"*.xls"C
+  character*(*),parameter :: filter_spec_xls = "Excel files"C//"*.xls"C//"All files"C//"*.*"C
   
   ! Declare string variable to return the file specification.
   ! Initialize with an initial filespec, if any - null string

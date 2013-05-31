@@ -280,7 +280,7 @@ Subroutine OldExcel
 	  CALL Check_Status(status, " Unable to get WORKBOOKS object")
 
 	! Open the specified spreadsheet file (note: specify the full file path)
-	filename = path(1:lens(path)) // '\' // root(1:lens(root)) // '.xls'
+	filename = path(1:lens(path)) // '\' // root(1:lens(root)) // '.' // trim(file_suffix)
 	workbook = Workbooks_Open(workbooks, &
 		filename, &
 		$STATUS = status)

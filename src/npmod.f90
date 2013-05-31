@@ -11,7 +11,7 @@ module filenames
      'I5', 'I6', 'I7', 'I8', 'I0', 'EX', 'X1', 'X2', 'X3', 'X4',  &
      'X5'/
   character *256 excel_root, excel_filename, excel_path, excel_wfile
-  character *256 excel_wateq_filename
+  character *256 excel_wateq_filename, file_suffix
   logical excel_file, excel_cb
 end module filenames
 

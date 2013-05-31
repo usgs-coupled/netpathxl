@@ -538,7 +538,8 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
        fract7, fraction, t
   DOUBLE PRECISION i10, i11
   double precision fgk, fgk_rev  
-  COMMON /FontGarnier/ fgk, fgk_rev
+  integer fg_rev_tamers
+  COMMON /FontGarnier/ fgk, fgk_rev, fg_rev_tamers
   double precision Cs_rev, Ca_rev, Cb_rev, Ct_rev, C14g_rev, eps_g_s_rev
   double precision C14s_rev, delC13_rev, delC13s_rev, delC13g_rev 
   double precision C14a0_rev, delC13a0_rev, C14b0_rev, delC13b0_rev 
@@ -748,7 +749,12 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
        
         x = delC13b0_rev
         write (199, *) 
-        IF (delC13_rev < x) THEN
+        fg_rev_tamers = 0
+        IF (delC13_rev > (x - 1) .AND. delC13_rev < (x + 1)) THEN
+            fg_rev_tamers = 1
+            write (199, *) 'Test indicates delC13 is in the grey area'
+        ENDIF
+        IF (delC13_rev < x - 1) THEN
             write (199, *) 'delC13 = ', delC13_rev, ' < x = ', delC13b0_rev, ', Using g.'
             C14x_rev = C14g_rev
             delC13x_rev = delC13g_rev 
@@ -771,9 +777,9 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
         C14 = (Ca_rev/Ct_rev*C14a0_rev + Cb_rev/Ct_rev*C14b0_rev)+fgk_rev
         write (199, *) 'C14(TDIC) =    ', C14
         C14 = (C14*Dbdata(i,41)+Dbdata(i,42)*Dbdata(i,46)+Dbdata(i,43) &
-             *Dbdata(i,47))/Dbdata(i,1)   
+                *Dbdata(i,47))/Dbdata(i,1)   
         write (199, *) 'C14(C) =       ', C14
-
+        
         close(199)
      END IF
   END IF
@@ -1383,7 +1389,10 @@ SUBROUTINE EDITC14
   COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
-  COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
+  COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun  
+  double precision fgk, fgk_rev  
+  integer fg_rev_tamers
+  COMMON /FontGarnier/ fgk, fgk_rev, fg_rev_tamers
   INTEGER idone, i, ierr, j, jj, ii11, ii10, LENS
   CHARACTER*38 c1words(0:3), c2words(0:3)
   CHARACTER ans*2
@@ -1426,7 +1435,11 @@ SUBROUTINE EDITC14
   END IF
 
   DO i = 1, N_C14_MODELS
-     WRITE (*,9025) i, Model(i), (C14(i,j),j=1,Iflag(1)+1)
+      if (i .eq. 10 .and. fg_rev_tamers .eq. 1) then
+          WRITE (*,9026) i, Model(i), (C14(i,j),j=1,Iflag(1)+1), ' (Uncertain--near g/s transition)'
+      else
+          WRITE (*,9025) i, Model(i), (C14(i,j),j=1,Iflag(1)+1)
+      endif
   enddo
   IF (Iflag(4).LT.1 .OR. Iflag(4).GT.N_C14_MODELS) Iflag(4) = 1
 40 IF (idone.EQ.0) WRITE (*,9035) Model(Iflag(4)) &
@@ -1511,7 +1524,8 @@ SUBROUTINE EDITC14
 9015 FORMAT (' Carbon not positive for ''',A32,'''.')
 9020 FORMAT (/, &
        ' Carbon isotopes cannot be run. Hit <Enter> to continue.')
-9025 FORMAT (I4,' : ',A,':',6(F10.2))
+9025   FORMAT (I4,' : ',A,':',6(F10.2))
+9026 FORMAT (I4,' : ',A,':',F10.2,A)
 9030 FORMAT (/,' Enter number of model to use (<Enter> to quit, 0 to', &
        ' edit data for all models)')
 9035 FORMAT (/,' Enter number of model to use (<Enter> for ''',A,''')')
@@ -7113,8 +7127,9 @@ SUBROUTINE CISO(ISCR)
        ierrn, iw, elmt(5), isot(5), itoterr, LENS
   CHARACTER*8 dispha(39), prepha(39)
   CHARACTER*80 saveout(20), glines(0:10), line
-  double precision fgk, fgk_rev
-  COMMON /FontGarnier/ fgk, fgk_rev
+  double precision fgk, fgk_rev  
+  integer fg_rev_tamers
+  COMMON /FontGarnier/ fgk, fgk_rev, fg_rev_tamers
   EXTERNAL CLS, CFRACT, SFRACT, RAYLEIGH, C14, ISTATE, LENS
   INTRINSIC DLOG, DABS
   DATA elmt/1, 1, 2, 15, 18/, isot/21, 22, 23, 24, 25/
@@ -7293,6 +7308,9 @@ SUBROUTINE CISO(ISCR)
                        if (imod == 7) then
                           WRITE (Iunit,'(T7, "F-G K", F10.2)') fgk
                        endif
+                       if (imod == 10 .AND. fg_rev_tamers .EQ. 1) then
+                          WRITE (Iunit,'(T7, "(Uncertain A0--near g/s transition)")') 
+                       endif                       
                     END IF
                  END IF
               enddo
@@ -7606,8 +7624,12 @@ SUBROUTINE CISO(ISCR)
         END IF
      enddo
   enddo
-  IF (ISCR.EQ.0 .AND. iage.EQ.1) WRITE (Iunit,9175) age,  &
-       Model(Iflag(4))
+  IF (ISCR.EQ.0 .AND. iage.EQ.1) then
+      WRITE (Iunit,9175) age, Model(Iflag(4))
+      if(Iflag(4) .eq. 10 .and. fg_rev_tamers .eq. 1) then
+          WRITE (Iunit,'(t47,A)') 'Uncertain A0--near g/s transition'
+      endif
+  endif
   WRITE (Iunit,*)
   CLOSE (Rwunit)
   RETURN
@@ -7655,7 +7677,7 @@ SUBROUTINE CISO(ISCR)
 9165 FORMAT (1X,A)
 9170 FORMAT (1X,A8,1X,F10.5,9X,F10.4)
 9175 FORMAT (1X,73('-'),/,' Adjusted C-14 age in years: ',F7.0,'*',5X, &
-       '* = based on ',A)
+       '* = based on ',A)  
 END SUBROUTINE CISO
 !
 !

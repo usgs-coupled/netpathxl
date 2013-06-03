@@ -21,8 +21,7 @@
 				<Tool Name="VFCustomBuildTool"/>
 				<Tool Name="VFPreLinkEventTool"/>
 				<Tool Name="VFPreBuildEventTool"/>
-				<Tool Name="VFPostBuildEventTool" CommandLine="ren &quot;$(TargetDir)\dbxl.exe&quot; dbxlxx.exe
-ren &quot;$(TargetDir)\dbxlxx.exe&quot; DBXL.exe"/>
+				<Tool Name="VFPostBuildEventTool" CommandLine="ren &quot;$(TargetDir)\dbxl.exe&quot; dbxlxx.exe&#xA;ren &quot;$(TargetDir)\dbxlxx.exe&quot; DBXL.exe"/>
 				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration></Configurations>
 	<Files>
 		<Filter Name="Header Files" Filter="fi;fd"/>
@@ -33,7 +32,9 @@ ren &quot;$(TargetDir)\dbxlxx.exe&quot; DBXL.exe"/>
 		<File RelativePath="..\src\db.f90"/>
 		<File RelativePath="..\src\dbwinscreen.f90"/>
 		<File RelativePath="..\src\dbxl_files.f90"/>
-		<File RelativePath="..\src\excel11s.f90"/>
+		<File RelativePath="..\src\EXCEL.f90"/>
+		<File RelativePath="..\src\excel11s.f90">
+			<FileConfiguration Name="Debug|Win32" ExcludedFromBuild="true"/></File>
 		<File RelativePath="..\src\npexcel.f90"/>
 		<File RelativePath="..\src\npmod.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

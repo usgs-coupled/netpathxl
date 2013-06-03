@@ -37,7 +37,7 @@ SUBROUTINE WELLFILE_LON
 
  READ (*,'(a)') yn
  IF (yn.EQ.'1') then
-    status = fileopen_db(root, path, "old_lon")
+    status = fileopen_db(root, path, "old_lon", file_suffix)
     if (status == .false.) then
 		write(*,*) "File open failed."
 		write(*,*) "Press enter to continue."
@@ -52,7 +52,7 @@ SUBROUTINE WELLFILE_LON
 	CALL VisibleExcel(.TRUE.)
 	CALL cleanup_com(.FALSE.)
  else if (yn .eq. '2') then
-    status = fileopen_db(root, path, "old_xls")
+    status = fileopen_db(root, path, "old_xls", file_suffix)
     if (status == .false.) then
 		write(*,*) "File open failed."
 		write(*,*) "Press enter to continue."
@@ -71,7 +71,7 @@ SUBROUTINE WELLFILE_LON
 	CALL VisibleExcel(.TRUE.)
 	CALL cleanup_com(.FALSE.)
  else if (yn .eq. '3') then
-    status = fileopen_db(root, path, "new_xls")
+    status = fileopen_db(root, path, "new_xls", file_suffix)
 	if (status) then
 		CALL NewExcel
 		result = CheckOldExcel()
@@ -85,7 +85,7 @@ SUBROUTINE WELLFILE_LON
 		goto 10
 	endif
  else if (yn .eq. '4') then
-    status = fileopen_db(root, path, "old_xls")
+    status = fileopen_db(root, path, "old_xls", file_suffix)
     if (status == .false.) then
 		write(*,*) "File open failed."
 		write(*,*) "Press enter to continue."

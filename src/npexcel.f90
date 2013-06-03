@@ -55,7 +55,8 @@
 	  REAL*4    rnd
 	  INTEGER*2, DIMENSION(1:12) :: cellCounts
 	  integer*4 excelapp1
-
+      CHARACTER*2048 version_string
+      double precision ver
 	  character*10 cell_location
 
 	! Variant arguments
@@ -78,6 +79,8 @@
 		  WRITE (*, '(" Unable to create Excel object; Aborting")')
 		  CALL EXIT()
 	  END IF
+      version_string = $Application_GetVersion(excelapp, status)
+      READ(version_string,'(F)') ver
 	  l = .FALSE.
 	  CALL $Application_SetVisible(excelapp, l)
 
@@ -233,7 +236,8 @@
 	  integer*4 status
 	  external lens   
 	  
-	  string = path(1:lens(path)) // '\' // root(1:lens(root)) // '.xls'
+	  !string = path(1:lens(path)) // '\' // root(1:lens(root)) // '.xls'
+      string = path(1:lens(path)) // '\' // root(1:lens(root)) // '.' // trim(file_suffix)
 	  call set_variant_char(vARG1, string)
 	  call set_variant_char(vARG2, '')
 	  call $workbook_saveas(workbook, vARG1)

@@ -15,7 +15,8 @@
   ! making appropriate changes to make it suitable for the intended application.
 
 	MODULE ADOBJECTS
-	USE EXCEL11
+	!USE EXCEL11
+    USE EXCEL
 	IMPLICIT NONE
 
   ! Object Pointers

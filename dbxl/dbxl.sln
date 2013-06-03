@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{6989167D-11E4-40FE-8C1A-2192A86A7E90}") = "dbxl", "dbxl.vfproj", "{0F8529D6-3876-4D30-8E6A-81AC11336D1F}"
 EndProject
 Global

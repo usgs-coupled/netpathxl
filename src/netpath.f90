@@ -537,9 +537,10 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
        c4, cans, cm, ct, fract3, fract4, fract6,  &
        fract7, fraction, t
   DOUBLE PRECISION i10, i11
-  double precision fgk, fgk_rev  
-  integer fg_rev_tamers
-  COMMON /FontGarnier/ fgk, fgk_rev, fg_rev_tamers
+  double precision fgk, fgk_rev, fg_rev_gas_c14, fg_rev_solid_c14  
+  integer fg_rev_uncertain, fg_rev_gas
+  COMMON /FontGarnier/ fgk, fgk_rev, fg_rev_gas_c14, fg_rev_solid_c14, &
+    fg_rev_uncertain, fg_rev_gas
   double precision Cs_rev, Ca_rev, Cb_rev, Ct_rev, C14g_rev, eps_g_s_rev
   double precision C14s_rev, delC13_rev, delC13s_rev, delC13g_rev 
   double precision C14a0_rev, delC13a0_rev, C14b0_rev, delC13b0_rev 
@@ -749,21 +750,23 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
        
         x = delC13b0_rev
         write (199, *) 
-        fg_rev_tamers = 0
+        fg_rev_uncertain = 0
         IF (delC13_rev > (x - 1) .AND. delC13_rev < (x + 1)) THEN
-            fg_rev_tamers = 1
+            fg_rev_uncertain = 1
             write (199, *) 'Test indicates delC13 is in the grey area'
         ENDIF
         IF (delC13_rev < x - 1) THEN
             write (199, *) 'delC13 = ', delC13_rev, ' < x = ', delC13b0_rev, ', Using g.'
             C14x_rev = C14g_rev
             delC13x_rev = delC13g_rev 
-            eps_x_b_rev = eps_g_b_rev            
+            eps_x_b_rev = eps_g_b_rev 
+            fg_rev_gas = 1
         ELSE
             write (199, *) 'delC13 = ', delC13_rev, ' >= x = ', delC13b0_rev, ', Using s.'
             C14x_rev = C14s_rev
             delC13x_rev = delC13s_rev 
-            eps_x_b_rev = eps_s_b_rev              
+            eps_x_b_rev = eps_s_b_rev   
+            fg_rev_gas = 0           
         ENDIF
         write (199, *) 'C14x =         ', C14x_rev
         write (199, *) 'delC13x =      ', delC13x_rev
@@ -1390,9 +1393,10 @@ SUBROUTINE EDITC14
        Disalong, Usera(5)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun  
-  double precision fgk, fgk_rev  
-  integer fg_rev_tamers
-  COMMON /FontGarnier/ fgk, fgk_rev, fg_rev_tamers
+  double precision fgk, fgk_rev, fg_rev_gas_c14, fg_rev_solid_c14  
+  integer fg_rev_uncertain, fg_rev_gas
+  COMMON /FontGarnier/ fgk, fgk_rev, fg_rev_gas_c14, fg_rev_solid_c14, &
+    fg_rev_uncertain, fg_rev_gas
   INTEGER idone, i, ierr, j, jj, ii11, ii10, LENS
   CHARACTER*38 c1words(0:3), c2words(0:3)
   CHARACTER ans*2
@@ -1402,6 +1406,9 @@ SUBROUTINE EDITC14
   DOUBLE PRECISION C14
   EXTERNAL CLS, INPTRL, INPTIN, C14, LENS
   INTRINSIC NINT, DBLE, DABS
+  CHARACTER str*100
+  DOUBLE PRECISION dummy
+  INTEGER uncertain
   !
   DATA c1words/'Original Value                        ',  &
        'User-defined Value                    ',  &
@@ -1435,8 +1442,30 @@ SUBROUTINE EDITC14
   END IF
 
   DO i = 1, N_C14_MODELS
-      if (i .eq. 10 .and. fg_rev_tamers .eq. 1) then
-          WRITE (*,9026) i, Model(i), (C14(i,j),j=1,Iflag(1)+1), ' (Uncertain--near g/s transition)'
+      if (i .eq. 10) then
+          do j = 1,Iflag(1)+1
+              dummy = C14(i,j)
+              str = ' using gas exchange'
+              if (fg_rev_gas .eq. 0) then
+                  str = ' using solid exchange'
+              endif
+              if (Iflag(1) .gt. 0) then
+                  if (j .gt. 1) then
+                      WRITE (*,9027) j, C14(i,j), trim(str)
+                  else
+                      WRITE (*,9028) i, Model(i), j, C14(i,j), trim(str)
+                  endif
+                  if (fg_rev_uncertain .EQ. 1) then
+                      WRITE (*,'(T40, A)') 'uncertain, see Mook for gas exchange A0'
+                  endif 
+              else
+                  WRITE (*,9026) i, Model(i), C14(i,j), trim(str)
+                  if (fg_rev_uncertain .EQ. 1) then
+                      WRITE (*,'(T40, A)') 'uncertain, see Mook for gas exchange A0'
+                  endif                  
+              endif
+          enddo
+          
       else
           WRITE (*,9025) i, Model(i), (C14(i,j),j=1,Iflag(1)+1)
       endif
@@ -1525,7 +1554,9 @@ SUBROUTINE EDITC14
 9020 FORMAT (/, &
        ' Carbon isotopes cannot be run. Hit <Enter> to continue.')
 9025   FORMAT (I4,' : ',A,':',6(F10.2))
-9026 FORMAT (I4,' : ',A,':',F10.2,A)
+9026   FORMAT (I4,' : ',A,':',F10.2, A) 
+9027   FORMAT (T28,i1,F10.2, A)   
+9028   FORMAT (I4,' : ',A,i1,F10.2, A)    
 9030 FORMAT (/,' Enter number of model to use (<Enter> to quit, 0 to', &
        ' edit data for all models)')
 9035 FORMAT (/,' Enter number of model to use (<Enter> for ''',A,''')')
@@ -7127,13 +7158,15 @@ SUBROUTINE CISO(ISCR)
        ierrn, iw, elmt(5), isot(5), itoterr, LENS
   CHARACTER*8 dispha(39), prepha(39)
   CHARACTER*80 saveout(20), glines(0:10), line
-  double precision fgk, fgk_rev  
-  integer fg_rev_tamers
-  COMMON /FontGarnier/ fgk, fgk_rev, fg_rev_tamers
+  double precision fgk, fgk_rev, fg_rev_gas_c14, fg_rev_solid_c14  
+  integer fg_rev_uncertain, fg_rev_gas
+  COMMON /FontGarnier/ fgk, fgk_rev, fg_rev_gas_c14, fg_rev_solid_c14, &
+    fg_rev_uncertain, fg_rev_gas
   EXTERNAL CLS, CFRACT, SFRACT, RAYLEIGH, C14, ISTATE, LENS
   INTRINSIC DLOG, DABS
   DATA elmt/1, 1, 2, 15, 18/, isot/21, 22, 23, 24, 25/
   double precision epsilon /1e-12/
+  CHARACTER str*100
   ! Only print headers and make netpath.out file on first time through.
 
   IF (ISCR.LT.1) THEN
@@ -7308,8 +7341,15 @@ SUBROUTINE CISO(ISCR)
                        if (imod == 7) then
                           WRITE (Iunit,'(T7, "F-G K", F10.2)') fgk
                        endif
-                       if (imod == 10 .AND. fg_rev_tamers .EQ. 1) then
-                          WRITE (Iunit,'(T7, "(Uncertain A0--near g/s transition)")') 
+                       if (imod == 10 .and. Iflag(1).eq.0) then
+                           str = 'using gas exchange'
+                           if (fg_rev_gas .eq. 0) then
+                               str =  'using solid exchange'
+                           endif
+                           WRITE (Iunit,'(T7, A)') str                           
+                           if (fg_rev_uncertain .EQ. 1) then
+                               WRITE (Iunit,'(T7, A)') 'compare to Mook for gas exchange'
+                           endif
                        endif                       
                     END IF
                  END IF
@@ -7626,8 +7666,15 @@ SUBROUTINE CISO(ISCR)
   enddo
   IF (ISCR.EQ.0 .AND. iage.EQ.1) then
       WRITE (Iunit,9175) age, Model(Iflag(4))
-      if(Iflag(4) .eq. 10 .and. fg_rev_tamers .eq. 1) then
-          WRITE (Iunit,'(t47,A)') 'Uncertain A0--near g/s transition'
+      if(Iflag(4) .eq. 10 .and. Iflag(1).eq.0) then
+          str = 'using gas exchange'
+          if (fg_rev_gas .eq. 0) then 
+              str = 'using solid exchange'
+          endif
+          WRITE (Iunit,'(t47,A)') str
+          if (fg_rev_uncertain .eq. 1) then
+              WRITE (Iunit,'(t47,A)') 'uncertain, compare to Mook for gas exchange'
+          endif
       endif
   endif
   WRITE (Iunit,*)

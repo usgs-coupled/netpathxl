@@ -281,7 +281,7 @@ DATA Model/'Original Data       ', 'Mass Balance        ',  &
      'Ingerson and Pearson', 'Mook                ',  &
      'Fontes and Garnier  ', 'Eichinger           ',  &
      'User-defined        ', &
-     'Revised F&G         '/
+     'Revised F&G gas ex  ', 'Revised F&G solid ex'/
 DATA Yes/'No ', 'Yes'/
 DATA Ion/'Computed  ', '50/50     ', 'Ca/Na     ', 'Var. Ca/Mg'/
 DATA Elelong/'            ', 'Carbon      ', 'Sulfur      ',  &
@@ -521,7 +521,8 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
   !       7 'Fontes and Garnier  '
   !       8 'Eichinger           '
   !       9 'User-defined        '
-  !      10 'Revised F and G     '
+  !      10 'Revised F&G gas ex  '
+  !      11 'Revised F&G solid ex'
   !
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
   COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
@@ -684,8 +685,8 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
      ELSE IF (IWHICH.EQ.9) THEN
         ! User-entered value
         C14 = Usera(IWELL)
-     ELSE IF (IWHICH.EQ.N_C14_MODELS) THEN
-        ! Revised Fontes and Garnier
+     ELSE IF (IWHICH.EQ.10) THEN
+        ! Revised Fontes and Garnier, gas exchange
         open(UNIT=199,FILE='DebugFandG',ACTION='WRITE')
         ! gas-bicarbonate
         CALL CFRACT(eps_g_b_rev,4,IWELL,Ierror) 
@@ -751,23 +752,24 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
         x = delC13b0_rev
         write (199, *) 
         fg_rev_uncertain = 0
-        IF (delC13_rev > (x - 1) .AND. delC13_rev < (x + 1)) THEN
-            fg_rev_uncertain = 1
-            write (199, *) 'Test indicates delC13 is in the grey area'
-        ENDIF
-        IF (delC13_rev < x - 1) THEN
-            write (199, *) 'delC13 = ', delC13_rev, ' < x = ', delC13b0_rev, ', Using g.'
-            C14x_rev = C14g_rev
-            delC13x_rev = delC13g_rev 
-            eps_x_b_rev = eps_g_b_rev 
-            fg_rev_gas = 1
-        ELSE
-            write (199, *) 'delC13 = ', delC13_rev, ' >= x = ', delC13b0_rev, ', Using s.'
-            C14x_rev = C14s_rev
-            delC13x_rev = delC13s_rev 
-            eps_x_b_rev = eps_s_b_rev   
-            fg_rev_gas = 0           
-        ENDIF
+        !IF (delC13_rev > (x - 1) .AND. delC13_rev < (x + 1)) THEN
+        !    fg_rev_uncertain = 1
+        !    write (199, *) 'Test indicates delC13 is in the grey area'
+        !ENDIF
+        
+        !!F (delC13_rev < x - 1) THEN
+        write (199, *) 'delC13 = ', delC13_rev, ' < x = ', delC13b0_rev, ', Using g.'
+        C14x_rev = C14g_rev
+        delC13x_rev = delC13g_rev 
+        eps_x_b_rev = eps_g_b_rev 
+        !    fg_rev_gas = 1
+        !ELSE
+        !    write (199, *) 'delC13 = ', delC13_rev, ' >= x = ', delC13b0_rev, ', Using s.'
+        !    C14x_rev = C14s_rev
+        !    delC13x_rev = delC13s_rev 
+        !    eps_x_b_rev = eps_s_b_rev   
+        !    fg_rev_gas = 0           
+        !ENDIF
         write (199, *) 'C14x =         ', C14x_rev
         write (199, *) 'delC13x =      ', delC13x_rev
         write (199, *) 'eps_x_b =      ', eps_x_b_rev
@@ -782,8 +784,107 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
         C14 = (C14*Dbdata(i,41)+Dbdata(i,42)*Dbdata(i,46)+Dbdata(i,43) &
                 *Dbdata(i,47))/Dbdata(i,1)   
         write (199, *) 'C14(C) =       ', C14
+        !close(199)
+     ELSE IF (IWHICH.EQ.11) THEN
+        ! Revised Fontes and Garnier, solid exchange
+        ! open(UNIT=199,FILE='DebugFandG',ACTION='WRITE')
+        ! gas-bicarbonate
+        CALL CFRACT(eps_g_b_rev,4,IWELL,Ierror) 
+        write (199, *) 'eps_g_b =      ', eps_g_b_rev   
+        ! solid-bicarbonate
+        CALL CFRACT(eps_s_b_rev,6,IWELL,Ierror) 
+        write (199, *) 'eps_s_b =      ', eps_s_b_rev            
+        ! CO2(g)-solution
+        CALL CFRACT(eps_a_g_rev,3,IWELL,Ierror) 
+        eps_g_a_rev = -eps_a_g_rev
+        write (199, *) 'eps_g_a =      ', eps_g_a_rev 
+        ! calcite-CO2(aq)
+        CALL CFRACT(eps_a_s_rev,7,IWELL,Ierror)
+        eps_s_a_rev = -eps_a_s_rev      
+        write (199, *) 'eps_s_a =      ', eps_s_a_rev         
+        ! gas-solid
+        eps_g_s_rev = eps_g_a_rev + eps_a_s_rev
+        write (199, *) 'eps_g_s =      ', eps_g_s_rev 
         
-        close(199)
+        ! c1 
+        c1 = Dbdata(i,21)/Dbdata(i,41)    ! C13DIC = DIC*C13DIC / DIC
+        IF (i11.GT.0.0D0) c1 = C14dat(3)  ! C13 activity in solution
+        ! Cs
+        Cs_rev = Dbdata(i,36)/2.0D0       ! HCO3 / 2.0
+        write (199, *) 'Cs =            ', Cs_rev
+        ! Ca
+        Ca_rev = Dbdata(i,38)             ! H2CO3
+        write (199, *) 'Ca =            ', Ca_rev
+        ! Cb
+        Cb_rev = Dbdata(i,36)             ! HCO3
+        write (199, *) 'Cb =            ', Cb_rev
+        ! Ct
+        Ct_rev = Ca_rev + Cb_rev          ! H2CO3 + HCO3 ? CO3?
+        write (199, *) 'Ct =            ', Ct_rev
+        ! C14g
+        C14g_rev = C14dat(2)              ! C14 activity in soil gas
+        write (199, *) 'C14g =          ', C14g_rev
+        ! C14s
+        C14s_rev = C14dat(1)              ! C14 activity in carbonate minerals
+        write (199, *) 'C14s =          ', C14s_rev
+        ! delC13
+        delC13_rev = c1                   ! del13C in solution
+        write (199, *) 'delC13 =        ', delC13_rev
+        ! delC13s
+        delC13s_rev = C14dat(4)           ! C13 activity in carbonate minerals
+        write (199, *) 'delC13s =       ', delC13s_rev
+        ! delC13g
+        delC13g_rev = C14dat(5) ! c2      ! C13 activity in soil gas
+        write (199, *) 'delC13g =       ', delC13g_rev
+        ! C14a0
+        C14a0_rev = C14dat(2) - 0.2*eps_g_a_rev        ! C14 activity in solution in eq with soil gas
+        write (199, *) 'C14a0 =         ', C14a0_rev
+        ! delC13a0
+        delC13a0_rev = C14dat(5) - eps_g_a_rev         ! C13 activity in solution in eq with soil gas
+        write (199, *) 'delC13a0 =      ', delC13a0_rev
+        ! C14b0
+        C14b0_rev = 0.5*(C14a0_rev + C14s_rev)
+        write (199, *) 'C14b0 =         ', C14b0_rev
+        ! delC13b0
+        delC13b0_rev = 0.5*(delC13a0_rev + delC13s_rev)
+        write (199, *) 'delC13b0 =      ', delC13b0_rev
+       
+        x = delC13b0_rev
+        write (199, *) 
+        fg_rev_uncertain = 0
+        !IF (delC13_rev > (x - 1) .AND. delC13_rev < (x + 1)) THEN
+        !    fg_rev_uncertain = 1
+        !    write (199, *) 'Test indicates delC13 is in the grey area'
+        !ENDIF
+        
+        !!F (delC13_rev < x - 1) THEN
+        !write (199, *) 'delC13 = ', delC13_rev, ' < x = ', delC13b0_rev, ', Using g.'
+        !C14x_rev = C14g_rev
+        !delC13x_rev = delC13g_rev 
+        !eps_x_b_rev = eps_g_b_rev 
+        !    fg_rev_gas = 1
+        !ELSE
+        write (199, *) 'delC13 = ', delC13_rev, ' >= x = ', delC13b0_rev, ', Using s.'
+        C14x_rev = C14s_rev
+        delC13x_rev = delC13s_rev 
+        eps_x_b_rev = eps_s_b_rev   
+        !    fg_rev_gas = 0           
+        !ENDIF
+        write (199, *) 'C14x =         ', C14x_rev
+        write (199, *) 'delC13x =      ', delC13x_rev
+        write (199, *) 'eps_x_b =      ', eps_x_b_rev
+        write (199, *) 
+        fgk_rev = (C14x_rev - C14b0_rev - 0.2*eps_x_b_rev)
+        fgk_rev = fgk_rev * (delC13_rev - Ca_rev/Ct_rev*delC13a0_rev - Cb_rev/Ct_rev*delC13b0_rev)
+        fgk_rev = fgk_rev / (delC13x_rev - delC13b0_rev - eps_x_b_rev)
+        write (199, *) 'fgk_rev =      ', fgk_rev
+
+        C14 = (Ca_rev/Ct_rev*C14a0_rev + Cb_rev/Ct_rev*C14b0_rev)+fgk_rev
+        write (199, *) 'C14(TDIC) =    ', C14
+        C14 = (C14*Dbdata(i,41)+Dbdata(i,42)*Dbdata(i,46)+Dbdata(i,43) &
+                *Dbdata(i,47))/Dbdata(i,1)   
+        write (199, *) 'C14(C) =       ', C14
+        close(199)        
      END IF
   END IF
 10 RETURN
@@ -1408,6 +1509,7 @@ SUBROUTINE EDITC14
   INTRINSIC NINT, DBLE, DABS
   CHARACTER str*100
   DOUBLE PRECISION dummy
+  double precision a0_models(N_C14_MODELS)
   INTEGER uncertain
   !
   DATA c1words/'Original Value                        ',  &
@@ -1442,34 +1544,48 @@ SUBROUTINE EDITC14
   END IF
 
   DO i = 1, N_C14_MODELS
-      if (i .eq. 10) then
-          do j = 1,Iflag(1)+1
-              dummy = C14(i,j)
-              str = ' using gas exchange'
-              if (fg_rev_gas .eq. 0) then
-                  str = ' using solid exchange'
-              endif
-              if (Iflag(1) .gt. 0) then
-                  if (j .gt. 1) then
-                      WRITE (*,9027) j, C14(i,j), trim(str)
-                  else
-                      WRITE (*,9028) i, Model(i), j, C14(i,j), trim(str)
-                  endif
-                  if (fg_rev_uncertain .EQ. 1) then
-                      WRITE (*,'(T40, A)') 'uncertain, see Mook for gas exchange A0'
-                  endif 
-              else
-                  WRITE (*,9026) i, Model(i), C14(i,j), trim(str)
-                  if (fg_rev_uncertain .EQ. 1) then
-                      WRITE (*,'(T40, A)') 'uncertain, see Mook for gas exchange A0'
-                  endif                  
-              endif
-          enddo
-          
-      else
+      !if (i .eq. 10) then
+      !    do j = 1,Iflag(1)+1
+      !        dummy = C14(i,j)
+      !        str = ' using gas exchange'
+      !        if (fg_rev_gas .eq. 0) then
+      !            str = ' using solid exchange'
+      !        endif
+      !        if (Iflag(1) .gt. 0) then
+      !            if (j .gt. 1) then
+      !                WRITE (*,9027) j, C14(i,j), trim(str)
+      !            else
+      !                WRITE (*,9028) i, Model(i), j, C14(i,j), trim(str)
+      !            endif
+      !            if (fg_rev_uncertain .EQ. 1) then
+      !                WRITE (*,'(T40, A)') 'uncertain, see Mook for gas exchange A0'
+      !            endif 
+      !        else
+      !            WRITE (*,9026) i, Model(i), C14(i,j), trim(str)
+      !            if (fg_rev_uncertain .EQ. 1) then
+      !                WRITE (*,'(T40, A)') 'uncertain, see Mook for gas exchange A0'
+      !            endif                  
+      !        endif
+      !    enddo
+      !    
+      !else
           WRITE (*,9025) i, Model(i), (C14(i,j),j=1,Iflag(1)+1)
-      endif
+          if (Iflag(1).eq.0) then
+            a0_models(i) = C14(i,1)
+          endif
+      !endif
   enddo
+  if (Iflag(1).eq.0) then
+    CALL NewExcelA0(&
+        DBDATA(Well(1),21)/DBDATA(Well(1),41), & ! 13C measured solution
+        DBDATA(Well(1),22)/DBDATA(Well(1),41), &
+        C14DAT(4), &           ! 13C solid
+        C14DAT(1), &           ! 14C solid
+        C14DAT(5), &           ! 13C UZ
+        C14DAT(2), &           ! 14C UZ
+        a0_models, &
+        wllnms(Well(1)))
+  endif
   IF (Iflag(4).LT.1 .OR. Iflag(4).GT.N_C14_MODELS) Iflag(4) = 1
 40 IF (idone.EQ.0) WRITE (*,9035) Model(Iflag(4)) &
        (1:LENS(Model(Iflag(4))))
@@ -7341,16 +7457,16 @@ SUBROUTINE CISO(ISCR)
                        if (imod == 7) then
                           WRITE (Iunit,'(T7, "F-G K", F10.2)') fgk
                        endif
-                       if (imod == 10 .and. Iflag(1).eq.0) then
-                           str = 'using gas exchange'
-                           if (fg_rev_gas .eq. 0) then
-                               str =  'using solid exchange'
-                           endif
-                           WRITE (Iunit,'(T7, A)') str                           
-                           if (fg_rev_uncertain .EQ. 1) then
-                               WRITE (Iunit,'(T7, A)') 'compare to Mook for gas exchange'
-                           endif
-                       endif                       
+                       !if (imod == 10 .and. Iflag(1).eq.0) then
+                       !    str = 'using gas exchange'
+                       !    if (fg_rev_gas .eq. 0) then
+                       !        str =  'using solid exchange'
+                       !    endif
+                       !    WRITE (Iunit,'(T7, A)') str                           
+                       !    if (fg_rev_uncertain .EQ. 1) then
+                       !        WRITE (Iunit,'(T7, A)') 'compare to Mook for gas exchange'
+                       !    endif
+                       !endif                       
                     END IF
                  END IF
               enddo
@@ -7666,16 +7782,16 @@ SUBROUTINE CISO(ISCR)
   enddo
   IF (ISCR.EQ.0 .AND. iage.EQ.1) then
       WRITE (Iunit,9175) age, Model(Iflag(4))
-      if(Iflag(4) .eq. 10 .and. Iflag(1).eq.0) then
-          str = 'using gas exchange'
-          if (fg_rev_gas .eq. 0) then 
-              str = 'using solid exchange'
-          endif
-          WRITE (Iunit,'(t47,A)') str
-          if (fg_rev_uncertain .eq. 1) then
-              WRITE (Iunit,'(t47,A)') 'uncertain, compare to Mook for gas exchange'
-          endif
-      endif
+      !if(Iflag(4) .eq. 10 .and. Iflag(1).eq.0) then
+      !    str = 'using gas exchange'
+      !    if (fg_rev_gas .eq. 0) then 
+      !        str = 'using solid exchange'
+      !    endif
+      !    WRITE (Iunit,'(t47,A)') str
+      !    if (fg_rev_uncertain .eq. 1) then
+      !        WRITE (Iunit,'(t47,A)') 'uncertain, compare to Mook for gas exchange'
+      !    endif
+      !endif
   endif
   WRITE (Iunit,*)
   CLOSE (Rwunit)

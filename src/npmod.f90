@@ -25,7 +25,7 @@ end module version
 
 module max_size
     PARAMETER MAXWELLS=400
-    PARAMETER N_C14_MODELS=10
+    PARAMETER N_C14_MODELS=11
 end module max_size
 
 module screen_parameters

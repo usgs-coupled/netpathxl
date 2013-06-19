@@ -1403,6 +1403,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     integer*4 series_collection, series, series_format, ptr_return
     integer*4 chart_format, line_format, color_format
     integer*4 axis, chart_area, shapes, shape_range
+    integer*4 fill
     character*10 cell_location
     logical*2 l2
 
@@ -1414,7 +1415,29 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     TYPE (VARIANT) :: vBSTR5
 
     TYPE (VARIANT) :: vInt
+    real max_x, max_y, data_x, data_y
 
+    ! set max for graph
+    max_x = 10
+    max_y = 100
+    data_x = -100
+    data_y = -100
+    do i = 1, Nwlls
+        if (DBDATA(i,41) .ne. 0) then
+            if (DBDATA(i,21)/DBDATA(i,41) > data_x) then
+                data_x = DBDATA(i,21)/DBDATA(i,41)
+            endif                  
+            if (DBDATA(i,22)/DBDATA(i,41) > data_y) then
+                data_y = DBDATA(i,21)/DBDATA(i,41)
+            endif
+        endif 
+    enddo    
+    do while (data_x > max_x) 
+        max_x = max_x + 10.
+    enddo 
+    do while (data_y > max_y) 
+        max_y = max_y + 10.
+    enddo     
     ! Initialize object pointers
     !!  CALL INITOBJECTS()
 
@@ -1473,6 +1496,16 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL Check_Status(status, " Unable to set column width")
     status = VariantClear(vBSTR1)
     bstr1 = 0      
+    
+    ! set width for R
+    call set_rangeA0('r1','r1')
+    CALL VariantInit(vBSTR1)
+    vBSTR1%VT = VT_R4
+    vBSTR1%VU%FLOAT_VAL = 30
+    call range_setcolumnwidth(rangeA0, vBSTR1, status)
+    CALL Check_Status(status, " Unable to set column width")
+    status = VariantClear(vBSTR1)
+    bstr1 = 0  
 
     ! set decimal places for c and o
     call set_rangeA0('c3','c100')
@@ -1589,12 +1622,12 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     
     ! Origin X, y values
     CALL setcell_floatA0('p3',0.0,2)
-    CALL setcell_floatA0('p4',100.0,2)     
+    CALL setcell_floatA0('p4',max_y,2)     
     
     ! Origin Y, x values
     CALL setcell_characterA0('n6','Origin Y')
     CALL setcell_floatA0('o6',-30.,2)
-    CALL setcell_floatA0('o7',10.0,2)
+    CALL setcell_floatA0('o7',max_x,2)
     
     ! Origin Y, y values
     CALL set_rangeA0('p6','p6')
@@ -1640,7 +1673,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL Check_Status(status, " Unable to set formula")
     status = VariantClear(vBSTR1)
     bstr1 = 0 
-    CALL setcell_floatA0('p10',100.,2)
+    CALL setcell_floatA0('p10',max_y,2)
     
         ! left
     CALL set_rangeA0('o11','o11')
@@ -1652,7 +1685,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL Check_Status(status, " Unable to set formula")
     status = VariantClear(vBSTR1)
     bstr1 = 0  
-    CALL setcell_floatA0('p11',100.,2)
+    CALL setcell_floatA0('p11',max_y,2)
     
     CALL set_rangeA0('o12','o12')
     CALL VariantInit(vBSTR1)
@@ -1678,11 +1711,9 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
             rng = 'S' // str
             CALL setcell_floatA0(rng(1:lens(rng)), real(DBDATA(i,21)/DBDATA(i,41)), 2)
             rng = 'T' // str
-            CALL setcell_floatA0(rng(1:lens(rng)), real(DBDATA(i,22)/DBDATA(i,41)), 2)
+            CALL setcell_floatA0(rng(1:lens(rng)), real(DBDATA(i,22)/DBDATA(i,41)), 2)            
          endif 
      enddo
-     
-    
     
     ! Generate plot
     !CALL set_rangeA0('o9','p10')
@@ -1733,7 +1764,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL Check_Status(status, " Unable to get axes")
     call Axis_SetMinimumScale(axis, dble(-30), status)
     CALL Check_Status(status, " Unable to set MinimumScale")
-    call Axis_SetMaximumScale(axis, dble(10), status)
+    call Axis_SetMaximumScale(axis, dble(max_x), status)
     CALL Check_Status(status, " Unable to set MaximumScale")
     call Axis_SetMajorUnit(axis, dble(10), status)
     CALL Check_Status(status, " Unable to set MajorUnit")
@@ -1757,9 +1788,9 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL Check_Status(status, " Unable to get axes")
     call Axis_SetMinimumScale(axis, dble(0), status)
     CALL Check_Status(status, " Unable to set MinimumScale")
-    call Axis_SetMaximumScale(axis, dble(100), status)
+    call Axis_SetMaximumScale(axis, dble(max_y), status)
     CALL Check_Status(status, " Unable to set MaximumScale")
-    call Axis_SetMajorUnit(axis, dble(25), status)
+    call Axis_SetMajorUnit(axis, dble(10), status)
     CALL Check_Status(status, " Unable to set MajorUnit")
     call Axis_SetMinorUnit(axis, dble(5), status) 
     CALL Check_Status(status, " Unable to set MinorUnit")  
@@ -1790,6 +1821,48 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     ! Add series  Tamers right
     call add_line("=Sheet1!$O$9:$O$10","=Sheet1!$P$9:$P$10", "Tamers right", "blue", 2.0)
     
+    ! All data in file
+    series_collection = $Chart_SeriesCollection(chartA0)	
+    series = SeriesCollection_NewSeries(series_collection, status)
+        ! x range
+    CALL VariantInit(vBSTR1)
+    vBSTR1%VT = VT_BSTR
+    bstr1 = ConvertStringToBSTR("=Sheet1!$S2:S$1000")
+    vBSTR1%VU%PTR_VAL = bstr1    
+    call Series_SetXValues(series, vBSTR1, status)
+    status = VariantClear(vBSTR1)
+    bstr1 = 0
+         ! y range
+    CALL VariantInit(vBSTR1)
+    vBSTR1%VT = VT_BSTR
+    bstr1 = ConvertStringToBSTR("=Sheet1!$T2:$T1000")
+    vBSTR1%VU%PTR_VAL = bstr1    
+    call Series_SetValues(series, vBSTR1, status)
+    status = VariantClear(vBSTR1)
+    bstr1 = 0   
+    
+         ! Name
+    call Series_SetName(series, "All data", status)
+         ! Marker style
+    call Series_SetMarkerStyle(series, xlMarkerStyleSquare, status)
+    call Series_SetMarkerSize(series, 5, status)
+    
+         ! Series adjustments
+    chart_format = Series_GetFormat(series, status)
+    CALL Check_Status(status, " Unable to ChartFormat object")
+        ! set fill color (prefer Excel default)
+    !fill = ChartFormat_GetFill(chart_format, status)
+    !CALL Check_Status(status, " Unable to get fill object")
+    !color_format = FillFormat_GetForeColor(fill, status)
+    !CALL Check_Status(status, " Unable to get color format object")
+    !CALL ColorFormat_SetRGB(color_format, RGBTOINTEGER(0,255,0), status)
+    !CALL Check_Status(status, " Unable to set fill color")
+        ! Turn off line
+    line_format = ChartFormat_GetLine(chart_format, status)
+    CALL Check_Status(status, " Unable to LineFormat object")
+    call LineFormat_SetVisible(line_format, msoFalse, status)
+    CALL Check_Status(status, " Unable to set not visible")
+
     ! measured point
     series_collection = $Chart_SeriesCollection(chartA0)	
     series = SeriesCollection_NewSeries(series_collection, status)
@@ -1814,52 +1887,23 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call Series_SetName(series, "Measured", status)
          ! Marker style
     call Series_SetMarkerStyle(series, xlMarkerStyleTriangle, status)
-    call Series_SetMarkerSize(series, 15, status)
-    call Series_SetMarkerForeGroundColor(series, RGBTOINTEGER(255,0,0), status)
+    call Series_SetMarkerSize(series, 10, status)
     
-         ! Line format
+         ! Series adjustments
     chart_format = Series_GetFormat(series, status)
     CALL Check_Status(status, " Unable to ChartFormat object")
-    !
+        ! set fill color (prefer Excel default)
+    !fill = ChartFormat_GetFill(chart_format, status)
+    !CALL Check_Status(status, " Unable to get fill object")
+    !color_format = FillFormat_GetForeColor(fill, status)
+    !CALL Check_Status(status, " Unable to get color format object")
+    !CALL ColorFormat_SetRGB(color_format, RGBTOINTEGER(255,0,0), status)
+    !CALL Check_Status(status, " Unable to set fill color")    
+        ! Turn of line
     line_format = ChartFormat_GetLine(chart_format, status)
     CALL Check_Status(status, " Unable to LineFormat object")
     call LineFormat_SetVisible(line_format, msoFalse, status)
-    CALL Check_Status(status, " Unable to set not visible")
-
-    ! All data in file
-    series_collection = $Chart_SeriesCollection(chartA0)	
-    series = SeriesCollection_NewSeries(series_collection, status)
-        ! x range
-    CALL VariantInit(vBSTR1)
-    vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$S:$S")
-    vBSTR1%VU%PTR_VAL = bstr1    
-    call Series_SetXValues(series, vBSTR1, status)
-    status = VariantClear(vBSTR1)
-    bstr1 = 0
-         ! y range
-    CALL VariantInit(vBSTR1)
-    vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$T:$T")
-    vBSTR1%VU%PTR_VAL = bstr1    
-    call Series_SetValues(series, vBSTR1, status)
-    status = VariantClear(vBSTR1)
-    bstr1 = 0   
-    
-         ! Name
-    call Series_SetName(series, "All data", status)
-         ! Marker style
-    call Series_SetMarkerStyle(series, xlMarkerStyleSquare, status)
-    call Series_SetMarkerSize(series, 5, status)
-    call Series_SetMarkerForeGroundColor(series, RGBTOINTEGER(0,255,0), status)
-    
-         ! Turn off line for series
-    chart_format = Series_GetFormat(series, status)
-    CALL Check_Status(status, " Unable to ChartFormat object")
-    line_format = ChartFormat_GetLine(chart_format, status)
-    CALL Check_Status(status, " Unable to LineFormat object")
-    call LineFormat_SetVisible(line_format, msoFalse, status)
-    CALL Check_Status(status, " Unable to set not visible")
+    CALL Check_Status(status, " Unable to set not visible")    
     
     ! Put chart on worksheet   
     ! where

@@ -34,7 +34,8 @@
 		<File RelativePath="..\src\dbxl_files.f90"/>
 		<File RelativePath="..\src\EXCEL.f90"/>
 		<File RelativePath="..\src\excel11s.f90">
-			<FileConfiguration Name="Debug|Win32" ExcludedFromBuild="true"/></File>
+			<FileConfiguration Name="Debug|Win32" ExcludedFromBuild="true"/>
+			<FileConfiguration Name="Release|Win32" ExcludedFromBuild="true"/></File>
 		<File RelativePath="..\src\npexcel.f90"/>
 		<File RelativePath="..\src\npmod.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

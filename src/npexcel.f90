@@ -413,7 +413,24 @@ SUBROUTINE cleanup_com(terminate)
 	CALL RELEASEOBJECTS()
 	CALL COMUNINITIALIZE()
 	RETURN
-END subroutine cleanup_com
+    END subroutine cleanup_com
+    
+SUBROUTINE cleanup_comA0(terminate)
+
+	USE ADOBJECTS
+
+	INTEGER*4 status
+	logical terminate
+
+	if (terminate) then
+		CALL $Application_Quit(excelappA0, status)
+		CALL Check_Status(status, "Quit Excel failed.")
+	endif
+	! Release all objects
+	CALL RELEASEOBJECTSA0()
+	CALL COMUNINITIALIZE()
+	RETURN
+END subroutine cleanup_comA0    
 
 	SUBROUTINE Check_Status(olestatus, errorMsg)
 	  USE ADOBJECTS
@@ -1345,6 +1362,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     a0_models, well_name)
     USE filenames
     USE max_size
+    USE IFQWIN
     USE IFCOM
     USE ADOBJECTS
     USE excel_headings
@@ -1355,7 +1373,19 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     double precision c13_meas, c14_meas, c13_solid, c14_solid, c13_uz, c14_uz
     double precision a0_models(*)
     character*(*) well_name
-
+    character*20 str, rng
+    
+    ! common blocks
+    INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
+    COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50), &
+    Isdocrs(0:5)
+    CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
+    COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1), &
+    Ion(4), Ffact(0:1) 
+    DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
+    COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40), &
+    Disalong, Usera(5)
+  
     ! Variables
     INTEGER*4 status
     TYPE (VARIANT) :: template
@@ -1374,6 +1404,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     integer*4 chart_format, line_format, color_format
     integer*4 axis, chart_area, shapes, shape_range
     character*10 cell_location
+    logical*2 l2
 
     ! Variant arguments
     TYPE (VARIANT) :: vBSTR1
@@ -1634,16 +1665,32 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     bstr1 = 0  
     CALL setcell_floatA0('p12',0.,2) 
     
- 
+    ! Put all 13C, 14C data in spreadsheet for plot
+     CALL setcell_characterA0('R1','Well name')
+     CALL setcell_characterA0('S1','13C')
+     CALL setcell_characterA0('T1','14C')
+     do i = 1, Nwlls
+         write(str,'(I3)') i+1
+         call left_trim(str)
+         rng = 'R' // str
+         call setcell_characterA0(rng(1:lens(rng)), Wllnms(i))
+         if (DBDATA(i,41) .ne. 0) then
+            rng = 'S' // str
+            CALL setcell_floatA0(rng(1:lens(rng)), real(DBDATA(i,21)/DBDATA(i,41)), 2)
+            rng = 'T' // str
+            CALL setcell_floatA0(rng(1:lens(rng)), real(DBDATA(i,22)/DBDATA(i,41)), 2)
+         endif 
+     enddo
+     
+    
+    
     ! Generate plot
     !CALL set_rangeA0('o9','p10')
     chartsA0 = $Workbook_GetCharts(workbookA0, $STATUS = status)
     CALL Check_Status(status, " Unable to get CHARTS object")
     chartA0 = Charts_Add(chartsA0, $STATUS = status)
     CALL Check_Status(status, " Unable to add CHART object")
-    
-    ! Invoke the ChartWizard to format the chart
-    !	chart.ChartWizard(gallery=chartType, title=title, categoryTitle=title, valueTitle=title)
+
     ! plot type
     CALL VariantInit(vInt)
     vInt%VT = VT_I4
@@ -1768,7 +1815,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
          ! Marker style
     call Series_SetMarkerStyle(series, xlMarkerStyleTriangle, status)
     call Series_SetMarkerSize(series, 15, status)
-    call Series_SetMarkerForeGroundColor(series, #0000FF, status)
+    call Series_SetMarkerForeGroundColor(series, RGBTOINTEGER(255,0,0), status)
     
          ! Line format
     chart_format = Series_GetFormat(series, status)
@@ -1779,6 +1826,40 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call LineFormat_SetVisible(line_format, msoFalse, status)
     CALL Check_Status(status, " Unable to set not visible")
 
+    ! All data in file
+    series_collection = $Chart_SeriesCollection(chartA0)	
+    series = SeriesCollection_NewSeries(series_collection, status)
+        ! x range
+    CALL VariantInit(vBSTR1)
+    vBSTR1%VT = VT_BSTR
+    bstr1 = ConvertStringToBSTR("=Sheet1!$S:$S")
+    vBSTR1%VU%PTR_VAL = bstr1    
+    call Series_SetXValues(series, vBSTR1, status)
+    status = VariantClear(vBSTR1)
+    bstr1 = 0
+         ! y range
+    CALL VariantInit(vBSTR1)
+    vBSTR1%VT = VT_BSTR
+    bstr1 = ConvertStringToBSTR("=Sheet1!$T:$T")
+    vBSTR1%VU%PTR_VAL = bstr1    
+    call Series_SetValues(series, vBSTR1, status)
+    status = VariantClear(vBSTR1)
+    bstr1 = 0   
+    
+         ! Name
+    call Series_SetName(series, "All data", status)
+         ! Marker style
+    call Series_SetMarkerStyle(series, xlMarkerStyleSquare, status)
+    call Series_SetMarkerSize(series, 5, status)
+    call Series_SetMarkerForeGroundColor(series, RGBTOINTEGER(0,255,0), status)
+    
+         ! Turn off line for series
+    chart_format = Series_GetFormat(series, status)
+    CALL Check_Status(status, " Unable to ChartFormat object")
+    line_format = ChartFormat_GetLine(chart_format, status)
+    CALL Check_Status(status, " Unable to LineFormat object")
+    call LineFormat_SetVisible(line_format, msoFalse, status)
+    CALL Check_Status(status, " Unable to set not visible")
     
     ! Put chart on worksheet   
     ! where
@@ -1794,7 +1875,8 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL Check_Status(status, " Unable to set plot location")
     status = VariantClear(vBSTR1)
     bstr1 = 0 
-    !
+    
+    ! Move chart
     shapes = $WorkSheet_GetShapes(worksheetA0, status)
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
@@ -1809,11 +1891,15 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call ShapeRange_IncrementTop(shape_range, 75., status)
     CALL Check_Status(status, " Unable to IncrementTop")
     
+    l2 = .true.
+    CALL $WorkBook_SetSaved(workbookA0, l2, status)
+    CALL Check_Status(status, " Unable to SetSavded")
+    
     END subroutine NewExcelA0
     
     
     subroutine add_line(rangex_str, rangey_str, title_str, color_str, weight)
-
+    USE IFQWIN
     USE IFCOM
     USE ADOBJECTS
     implicit none
@@ -1858,11 +1944,28 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     if (trim(color_str) .eq. 'black') then
         CALL ColorFormat_SetRGB(color_format, 0)
     elseif (trim(color_str) .eq. 'blue') then
-        CALL ColorFormat_SetRGB(color_format, 16711680)
+        CALL ColorFormat_SetRGB(color_format, RGBTOINTEGER(0,0,255))
     elseif (trim(color_str) .eq. 'green') then
-        CALL ColorFormat_SetRGB(color_format, 65280)
+        CALL ColorFormat_SetRGB(color_format, RGBTOINTEGER(0,255,0))
     elseif (trim(color_str) .eq. 'red') then
-        CALL ColorFormat_SetRGB(color_format, 255)
+        CALL ColorFormat_SetRGB(color_format, RGBTOINTEGER(255,0,0))
     endif
     
     end subroutine add_line
+    
+    subroutine left_trim(string)
+    character*(*) string
+    integer i, j, l
+    l = lens(string)
+    if (l .eq. 0) return
+    j = 1
+    do i = 1, lens(string)
+        if (string(i:i) .eq. ' ') then
+            j = j + 1
+        else
+            string = string(j:l)
+            exit
+        endif
+    enddo
+    return
+    end subroutine left_trim

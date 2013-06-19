@@ -145,24 +145,33 @@
 		  INTEGER i;
 
 		  IF (rangeA0 /= 0) status = COMRELEASEOBJECT ( rangeA0 )
+          rangeA0 = 0
 		  IF (chartA0 /= 0) status = COMRELEASEOBJECT ( chartA0 )
+          chartA0 = 0
 		  IF (chartsA0 /= 0) status = COMRELEASEOBJECT ( chartsA0 )
+          chartsA0 = 0
 		  IF (worksheetsA0 /= 0) status = COMRELEASEOBJECT ( worksheetA0 )
+          worksheetsA0 = 0
 		  IF (worksheetA0 /= 0) status = COMRELEASEOBJECT ( worksheetA0 )
+          worksheetsA0 = 0
 		  IF (workbookA0 /= 0) status = COMRELEASEOBJECT ( workbookA0 )
-		  IF (workbooksA0 /= 0) status = COMRELEASEOBJECT ( workbooksA0 )
+		  IF (workbookA0 /= 0) status = COMRELEASEOBJECT ( workbooksA0 )
 		  DO i=1,12
 			  IF (cellsA0(i) /= 0) status = COMRELEASEOBJECT ( cellsA0(i) )
+              cellsA0(i) = 0
 		  END DO
 		  IF (categoryAxisA0 /= 0) status = COMRELEASEOBJECT ( categoryAxisA0 )
+          categoryAxisA0 = 0
 		  IF (valueAxisA0 /= 0) status = COMRELEASEOBJECT ( valueAxisA0 )
+          valueAxisA0 = 0
 		  IF (excelappA0 /= 0) status = COMRELEASEOBJECT ( excelappA0 )
+          excelappA0 = 0
 
 		  IF (bstr1A0 /= 0) CALL SysFreeString(bstr1A0)
 		  IF (bstr2A0 /= 0) CALL SysFreeString(bstr2A0)
 		  IF (bstr3A0 /= 0) CALL SysFreeString(bstr3A0)
 	
-	  END SUBROUTINE      
+	  END SUBROUTINE RELEASEOBJECTSA0     
 !
 !
 !

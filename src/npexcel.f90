@@ -1355,7 +1355,6 @@ bret = CreateProcess (                              &
 return
 
 end
-
 Subroutine NewExcelA0(c13_meas, c14_meas, &
     c13_solid, c14_solid, &
     c13_uz, c14_uz, &
@@ -1379,6 +1378,8 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
     COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50), &
     Isdocrs(0:5)
+    INTEGER Well, Tunit, Iflag, Inum, Nrun
+    COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
     CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
     COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1), &
     Ion(4), Ffact(0:1) 
@@ -1438,11 +1439,8 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     do while (data_y > max_y) 
         max_y = max_y + 10.
     enddo     
-    ! Initialize object pointers
-    !!  CALL INITOBJECTS()
 
     ! Create an Excel object
-    !!  CALL COMINITIALIZE(status)
     CALL COMCreateObjectByProgID("Excel.Application", excelappA0, status)
     IF (excelappA0 == 0) THEN
         WRITE (*, '(" Unable to create Excel object; Aborting")')
@@ -1469,133 +1467,177 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
 
     ! set width for A, MODEL NUMBER
     call set_rangeA0('a1','a1')
-    CALL VariantInit(vBSTR1)
-    vBSTR1%VT = VT_R4
-    vBSTR1%VU%FLOAT_VAL = 16.0
-    call range_setcolumnwidth(rangeA0, vBSTR1, status)
-    CALL Check_Status(status, " Unable to set column width")
-    status = VariantClear(vBSTR1)
-    bstr1 = 0  
+    call set_column_width(16.0)
 
     ! set width for B, A0 Model
     call set_rangeA0('b1','b1')
-    CALL VariantInit(vBSTR1)
-    vBSTR1%VT = VT_R4
-    vBSTR1%VU%FLOAT_VAL = 26.0
-    call range_setcolumnwidth(rangeA0, vBSTR1, status)
-    CALL Check_Status(status, " Unable to set column width")
-    status = VariantClear(vBSTR1)
-    bstr1 = 0   
+    call set_column_width(26.0)
     
     ! set width for C, 13C, permil
     call set_rangeA0('c1','c1')
-    CALL VariantInit(vBSTR1)
-    vBSTR1%VT = VT_R4
-    vBSTR1%VU%FLOAT_VAL = 10.5
-    call range_setcolumnwidth(rangeA0, vBSTR1, status)
-    CALL Check_Status(status, " Unable to set column width")
-    status = VariantClear(vBSTR1)
-    bstr1 = 0      
-    
-    ! set width for R
-    call set_rangeA0('r1','r1')
-    CALL VariantInit(vBSTR1)
-    vBSTR1%VT = VT_R4
-    vBSTR1%VU%FLOAT_VAL = 30
-    call range_setcolumnwidth(rangeA0, vBSTR1, status)
-    CALL Check_Status(status, " Unable to set column width")
-    status = VariantClear(vBSTR1)
-    bstr1 = 0  
+    call set_column_width(10.5)   
+   
+    ! set width for T
+    call set_rangeA0('t1','t1')
+    call set_column_width(30.0)  
 
     ! set decimal places for c and o
-    call set_rangeA0('c3','c100')
-    CALL VariantInit(vBSTR1)
-    vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR('0.00')    
-    vBSTR1%VU%PTR_VAL = bstr1 
-    call range_SetNumberFormat(rangeA0, vBSTR1, status)
-    CALL Check_Status(status, " Unable to set decimal places")
+    call set_rangeA0('c3','c9')
+    call set_decimal_places('0.00')
 
-    call set_rangeA0('o3','o100')
-    call range_SetNumberFormat(rangeA0, vBSTR1, status)
-    CALL Check_Status(status, " Unable to set decimal places")
-    status = VariantClear(vBSTR1)
-    bstr1 = 0        
+    call set_rangeA0('q3','q12')
+    call set_decimal_places('0.00')
 
-    ! set decimal places for d and n
-    call set_rangeA0('d3','d100')
-    CALL VariantInit(vBSTR1)
-    vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR('0.0')    
-    vBSTR1%VU%PTR_VAL = bstr1 
-    call range_SetNumberFormat(rangeA0, vBSTR1, status)
-    CALL Check_Status(status, " Unable to set decimal places")
+    ! set decimal places for d and r
+    call set_rangeA0('d3','d9')
+    call set_decimal_places('0.0')
 
-    call set_rangeA0('n3','n100')
-    call range_SetNumberFormat(rangeA0, vBSTR1, status)
-    CALL Check_Status(status, " Unable to set decimal places")
-    status = VariantClear(vBSTR1)
-    bstr1 = 0   
+    call set_rangeA0('r3','r12')
+    call set_decimal_places('0.0') 
+    
+    call set_rangeA0('c3','p3')
+    call set_decimal_places('0.00') 
+    
+    call set_rangeA0('c12','d17')
+    call set_decimal_places('0.00000') 
     
     ! Title
     CALL setcell_characterA0('a1','Revised Fontes and Garnier (Han and Plummer, 2013)') 
 
     ! Set header character strings
-    CALL setcell_characterA0('c2','13C, permil') 
+    CALL setcell_characterA0('b2','Well name') 
+    CALL setcell_characterA0('c2','13C, permil')
+    CALL setcell_characterA0('d2','14C, pmc')  
+    CALL setcell_characterA0('e2','H2CO3')
+    CALL setcell_characterA0('f2','HCO3')
+    CALL setcell_characterA0('g2','CO3')
+    CALL setcell_characterA0('h2','TempC')
+    CALL setcell_characterA0('i2','CH4')
+    CALL setcell_characterA0('j2','13C CH4')
+    CALL setcell_characterA0('k2','14C CH4')
+    CALL setcell_characterA0('l2','DOC')
+    CALL setcell_characterA0('m2','13C DOC')
+    CALL setcell_characterA0('n2','14C DOC')
+    CALL setcell_characterA0('o2','TDIC')
+    CALL setcell_characterA0('p2','Total C')
     CALL setcell_characterA0('d2','14C, pmc')
-
+    CALL setcell_characterA0('d2','14C, pmc')
+    CALL setcell_characterA0('d2','14C, pmc')
+    CALL setcell_characterA0('d2','14C, pmc')
+    CALL setcell_characterA0('d2','14C, pmc')
+    CALL setcell_characterA0('d2','14C, pmc')
+    
     ! Measured, line 3
-    CALL setcell_characterA0('a3',well_name)
-    CALL setcell_characterA0('b3','Measured')
+    CALL setcell_characterA0('b3',well_name)
     CALL setcell_floatA0('c3',real(c13_meas),2)
     CALL setcell_floatA0('d3',real(c14_meas),2)
+    CALL setcell_floatA0('e3',real(Dbdata(Well(1),38)),2)
+    CALL setcell_floatA0('f3',real(Dbdata(Well(1),36)),2)
+    CALL setcell_floatA0('g3',real(Dbdata(Well(1),39)),2)
+    CALL setcell_floatA0('h3',real(Dbdata(Well(1),50)),2)
+    if (Dbdata(Well(1),42) .gt. 0) then
+        CALL setcell_floatA0('i3',real(Dbdata(Well(1),42)),2)
+    endif
+    CALL setcell_floatA0('j3',real(Dbdata(Well(1),44)),2)
+    CALL setcell_floatA0('k3',real(Dbdata(Well(1),46)),2)
+    if (Dbdata(Well(1),43) .gt. 0) then    
+        CALL setcell_floatA0('l3',real(Dbdata(Well(1),43)),2)
+    endif
+    CALL setcell_floatA0('m3',real(Dbdata(Well(1),45)),2)
+    CALL setcell_floatA0('n3',real(Dbdata(Well(1),47)),2)
+    ! Calculate tdic and total c   
+    CALL set_rangeA0('o3','o3')
+    call set_formula('=E3+F3+G3') 
+    CALL set_rangeA0('p3','p3')
+    call set_formula('=E3+F3+G3+I3+L3')     
     
     ! Isotopic values
-    CALL setcell_characterA0('b4','Carbonate solid')
-    CALL setcell_floatA0('c4',real(c13_solid),2)
-    CALL setcell_floatA0('d4',real(c14_solid),2)
-    CALL setcell_characterA0('b5','UZ gas')
-    CALL setcell_floatA0('c5',real(c13_uz),2)
-    CALL setcell_floatA0('d5',real(c14_uz),2)
-    
-    ! Calculate origin
-    CALL setcell_characterA0('b6','Origin, X,Y')    
-    CALL set_rangeA0('c6','d6')
-    CALL VariantInit(vBSTR1)
-    vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR('=(R[-2]C+R[-1]C)/2')
-    vBSTR1%VU%PTR_VAL = bstr1     
-    CALL Range_SetFormulaR1C1(rangeA0, vBSTR1, status)
-    CALL Check_Status(status, " Unable to set formula")
-    status = VariantClear(vBSTR1)
-    bstr1 = 0       
-
+    CALL setcell_characterA0('b5','Carbonate solid')
+    CALL setcell_floatA0('c5',real(c13_solid),2)
+    CALL setcell_floatA0('d5',real(c14_solid),2)
+    CALL setcell_characterA0('b6','UZ gas')
+    CALL setcell_floatA0('c6',real(c13_uz),2)
+    CALL setcell_floatA0('d6',real(c14_uz),2)
     ! Uncertainty in X (13C)
     CALL setcell_characterA0('b7','13C Uncertainty')
-    CALL setcell_floatA0('c7',2.0,2)    
+    CALL setcell_floatA0('c7',2.0,2) 
     
-    ! Revised F&G options
+    ! Calculate origin
+    CALL setcell_characterA0('b9','Origin, X,Y')    
+    CALL set_rangeA0('c9','c9')
+    call set_formula('=(C5+C6)/2')       
+    CALL set_rangeA0('d9','d9')
+    call set_formula('=(D5+D6)/2') 
+    
+    ! Calculate tk
+    CALL setcell_characterA0('b10','TempK')    
+    CALL set_rangeA0('c10','c10')
+    call set_formula('=H3+273.15')
+   
+    ! Fractionation
+    CALL setcell_characterA0('C11','Alpha') 
+    CALL setcell_characterA0('D11','Epsilon') 
+    CALL setcell_characterA0('B12','CO2(aq)-HCO3')
+    CALL set_rangeA0('c12','c12')
+    call set_formula('=(24.12-9866/C10)/1000+1') 
+    CALL set_rangeA0('d12','d12')
+    call set_formula('=(C12-1)*1000')  
+    CALL setcell_characterA0('B13','CO3-HCO3')  
+    CALL set_rangeA0('c13','c13')
+    call set_formula('=(2.52-867/C10)/1000+1') 
+    CALL set_rangeA0('d13','d13')
+    call set_formula('=(C13-1)*1000') 
+    CALL setcell_characterA0('B14','Calcite-HCO3')    
+    CALL set_rangeA0('c14','c14')
+    call set_formula('=(15.1-4232/C10)/1000+1') 
+    CALL set_rangeA0('d14','d14')
+    call set_formula('=(C14-1)*1000')
+    CALL setcell_characterA0('B15','CO2(g)-HCO3') 
+    CALL set_rangeA0('c15','c15')
+    call set_formula('=(23.89-9483/C10)/1000+1') 
+    CALL set_rangeA0('d15','d15')
+    call set_formula('=(C15-1)*1000') 
+    CALL setcell_characterA0('B16','CO2(aq)-CO2(g)') 
+    CALL set_rangeA0('c16','c16')
+    call set_formula('=(0.19-373/C10)/1000+1') 
+    CALL set_rangeA0('d16','d16')
+    call set_formula('=(C16-1)*1000')  
+    CALL setcell_characterA0('B17','CO2(g)-solution') 
+    CALL set_rangeA0('c17','c17')
+    call set_formula('=C15*O3/(C12*E3+F3+C13*G3)') 
+    CALL set_rangeA0('d17','d17')
+    call set_formula('=(C17-1)*1000')   
+    
+    ! A0 Models
 
-    CALL setcell_characterA0('a9','MODEL NUMBER')
-    CALL setcell_characterA0('b9','A0 model')
-    CALL setcell_characterA0('d9','A0, pmc')
+    CALL setcell_characterA0('a19','MODEL NUMBER')
+    CALL setcell_characterA0('b19','A0 model')
+    CALL setcell_characterA0('d19','A0, pmc')
+    CALL setcell_characterA0('e19','FG K')
 
     ! Tamers
-    CALL setcell_characterA0('a10','4')
-    CALL setcell_characterA0('b10','Tamers')
-    CALL setcell_floatA0('d10',real(a0_models(4)),2)
-    CALL setcell_characterA0('f10','Use Tamers (model 4) if measured is between vertical lines')
+    CALL setcell_characterA0('a20','4')
+    CALL setcell_characterA0('b20','Tamers')
+    CALL set_rangeA0('d20','d20')
+    call set_formula('=((((E3+0.5*F3)*D6+D5 *0.5*F3)/(E3+F3)) *O3+I3*J3+L3 *M3)/O3') 
+    CALL setcell_characterA0('f20','Use Tamers (model 4) if measured is between vertical lines')
     
     ! Revised F&G gas exchange
-    CALL setcell_characterA0('a11','10')
-    CALL setcell_characterA0('b11','Revised F&G, Gas exchange')
-    CALL setcell_floatA0('d11',real(a0_models(10)),2)
-    CALL setcell_characterA0('f11','Use gas exchange (model 10) if measured is left of vertical lines')
+    CALL setcell_characterA0('a21','10')
+    CALL setcell_characterA0('b21','Revised F&G, Gas exchange')
+    CALL set_rangeA0('d21','d21')
+    call set_formula('=(E3/O3*(D6+0.2*D16)+F3/O3*0.5*(D6+0.2*D16 + D5))+E21')
+    CALL set_rangeA0('e21','e21')
+    call set_formula('=(D6-0.5*(D6+0.2*D16+D5)-0.2*D15)*(C3-E3/O3*(C6+D16)-F3/O3*0.5*(C6+D16+C5))/(C6-0.5*(C6+D16+C5)-D15)')
+    CALL setcell_characterA0('f21','Use gas exchange (model 10) if measured is left of vertical lines')
     
     ! Revised F&G solid exchange
-    CALL setcell_characterA0('a12','11')
-    CALL setcell_characterA0('b12','Revised F&G, Solid exchange')
-    CALL setcell_floatA0('d12',real(a0_models(11)),2)
+    CALL setcell_characterA0('a22','11')
+    CALL setcell_characterA0('b22','Revised F&G, Solid exchange')
+    CALL set_rangeA0('d22','d22')
+    call set_formula('=(E3/O3*(D6+0.2*D16)+F3/O3*0.5*(D6+0.2*D16 + D5))+E22')
+    CALL set_rangeA0('e22','e22')
+    call set_formula('=(D5-0.5*(D6+0.2*D16+D5)-0.2*D14)*(C3-E3/O3*(C6+D16)-F3/O3*0.5*(C6+D16+C5))/(C5-0.5*(C6+D16+C5)-D14)')
     CALL setcell_characterA0('f12','Use solid exchange (model 11) if measured is right of vertical lines')
 
     ! Origin X, x values
@@ -1940,6 +1982,590 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL Check_Status(status, " Unable to SetSavded")
     
     END subroutine NewExcelA0
+!Subroutine NewExcelA0(c13_meas, c14_meas, &
+!    c13_solid, c14_solid, &
+!    c13_uz, c14_uz, &
+!    a0_models, well_name)
+!    USE filenames
+!    USE max_size
+!    USE IFQWIN
+!    USE IFCOM
+!    USE ADOBJECTS
+!    USE excel_headings
+!
+!    IMPLICIT NONE   
+!    integer lens
+!    external lens  
+!    double precision c13_meas, c14_meas, c13_solid, c14_solid, c13_uz, c14_uz
+!    double precision a0_models(*)
+!    character*(*) well_name
+!    character*20 str, rng
+!    
+!    ! common blocks
+!    INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
+!    COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50), &
+!    Isdocrs(0:5)
+!    CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
+!    COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1), &
+!    Ion(4), Ffact(0:1) 
+!    DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
+!    COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40), &
+!    Disalong, Usera(5)
+!  
+!    ! Variables
+!    INTEGER*4 status
+!    TYPE (VARIANT) :: template
+!    INTEGER*4 loopCount
+!    INTEGER*4 die1
+!    INTEGER*4 die2
+!    INTEGER*4 roll
+!    INTEGER*4 maxScale
+!    CHARACTER (LEN = 32) :: loopc
+!    INTEGER*4   i, j
+!    LOGICAL*2 l
+!    REAL*4    rnd
+!    INTEGER*2, DIMENSION(1:12) :: cellCounts
+!    integer*4 excelapp1
+!    integer*4 series_collection, series, series_format, ptr_return
+!    integer*4 chart_format, line_format, color_format
+!    integer*4 axis, chart_area, shapes, shape_range
+!    integer*4 fill
+!    character*10 cell_location
+!    logical*2 l2
+!
+!    ! Variant arguments
+!    TYPE (VARIANT) :: vBSTR1
+!    TYPE (VARIANT) :: vBSTR2
+!    TYPE (VARIANT) :: vBSTR3
+!    TYPE (VARIANT) :: vBSTR4
+!    TYPE (VARIANT) :: vBSTR5
+!
+!    TYPE (VARIANT) :: vInt
+!    real max_x, max_y, data_x, data_y
+!
+!    ! set max for graph
+!    max_x = 10
+!    max_y = 100
+!    data_x = -100
+!    data_y = -100
+!    do i = 1, Nwlls
+!        if (DBDATA(i,41) .ne. 0) then
+!            if (DBDATA(i,21)/DBDATA(i,41) > data_x) then
+!                data_x = DBDATA(i,21)/DBDATA(i,41)
+!            endif                  
+!            if (DBDATA(i,22)/DBDATA(i,41) > data_y) then
+!                data_y = DBDATA(i,21)/DBDATA(i,41)
+!            endif
+!        endif 
+!    enddo    
+!    do while (data_x > max_x) 
+!        max_x = max_x + 10.
+!    enddo 
+!    do while (data_y > max_y) 
+!        max_y = max_y + 10.
+!    enddo     
+!    ! Initialize object pointers
+!    !!  CALL INITOBJECTS()
+!
+!    ! Create an Excel object
+!    !!  CALL COMINITIALIZE(status)
+!    CALL COMCreateObjectByProgID("Excel.Application", excelappA0, status)
+!    IF (excelappA0 == 0) THEN
+!        WRITE (*, '(" Unable to create Excel object; Aborting")')
+!        CALL EXIT()
+!    END IF
+!    l = .TRUE.
+!    CALL $Application_SetVisible(excelappA0, l)
+!    CALL $Application_SetWidth(excelappA0, dble(740.), status)
+!    CALL $Application_SetHeight(excelappA0, dble(630.), status)
+!
+!    ! Get the WORKBOOKS object
+!    workbooksA0 = $Application_GetWorkbooks(excelappA0, status)
+!    CALL Check_Status(status, " Unable to get WORKBOOKS object")
+!
+!    ! Open the specified spreadsheet file (note: specify the full file path)
+!    workbookA0 = Workbooks_Add(workbooksA0,$STATUS = status )
+!    CALL Check_Status(status, " Unable to get WORKBOOK object; ensure that the file path is correct")
+!
+!    ! Get the worksheet
+!    vInt%VT = VT_I4
+!    vInt%VU%LONG_VAL = 1
+!    worksheetA0 = $Workbook_GetActiveSheet(workbookA0, status)
+!    CALL Check_Status(status, " Unable to get WORKSHEET object")
+!
+!    ! set width for A, MODEL NUMBER
+!    call set_rangeA0('a1','a1')
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_R4
+!    vBSTR1%VU%FLOAT_VAL = 16.0
+!    call range_setcolumnwidth(rangeA0, vBSTR1, status)
+!    CALL Check_Status(status, " Unable to set column width")
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0  
+!
+!    ! set width for B, A0 Model
+!    call set_rangeA0('b1','b1')
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_R4
+!    vBSTR1%VU%FLOAT_VAL = 26.0
+!    call range_setcolumnwidth(rangeA0, vBSTR1, status)
+!    CALL Check_Status(status, " Unable to set column width")
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0   
+!    
+!    ! set width for C, 13C, permil
+!    call set_rangeA0('c1','c1')
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_R4
+!    vBSTR1%VU%FLOAT_VAL = 10.5
+!    call range_setcolumnwidth(rangeA0, vBSTR1, status)
+!    CALL Check_Status(status, " Unable to set column width")
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0      
+!    
+!    ! set width for R
+!    call set_rangeA0('r1','r1')
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_R4
+!    vBSTR1%VU%FLOAT_VAL = 30
+!    call range_setcolumnwidth(rangeA0, vBSTR1, status)
+!    CALL Check_Status(status, " Unable to set column width")
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0  
+!
+!    ! set decimal places for c and o
+!    call set_rangeA0('c3','c100')
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR('0.00')    
+!    vBSTR1%VU%PTR_VAL = bstr1 
+!    call range_SetNumberFormat(rangeA0, vBSTR1, status)
+!    CALL Check_Status(status, " Unable to set decimal places")
+!
+!    call set_rangeA0('o3','o100')
+!    call range_SetNumberFormat(rangeA0, vBSTR1, status)
+!    CALL Check_Status(status, " Unable to set decimal places")
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0        
+!
+!    ! set decimal places for d and n
+!    call set_rangeA0('d3','d100')
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR('0.0')    
+!    vBSTR1%VU%PTR_VAL = bstr1 
+!    call range_SetNumberFormat(rangeA0, vBSTR1, status)
+!    CALL Check_Status(status, " Unable to set decimal places")
+!
+!    call set_rangeA0('n3','n100')
+!    call range_SetNumberFormat(rangeA0, vBSTR1, status)
+!    CALL Check_Status(status, " Unable to set decimal places")
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0   
+!    
+!    ! Title
+!    CALL setcell_characterA0('a1','Revised Fontes and Garnier (Han and Plummer, 2013)') 
+!
+!    ! Set header character strings
+!    CALL setcell_characterA0('c2','13C, permil') 
+!    CALL setcell_characterA0('d2','14C, pmc')
+!
+!    ! Measured, line 3
+!    CALL setcell_characterA0('a3',well_name)
+!    CALL setcell_characterA0('b3','Measured')
+!    CALL setcell_floatA0('c3',real(c13_meas),2)
+!    CALL setcell_floatA0('d3',real(c14_meas),2)
+!    
+!    ! Isotopic values
+!    CALL setcell_characterA0('b4','Carbonate solid')
+!    CALL setcell_floatA0('c4',real(c13_solid),2)
+!    CALL setcell_floatA0('d4',real(c14_solid),2)
+!    CALL setcell_characterA0('b5','UZ gas')
+!    CALL setcell_floatA0('c5',real(c13_uz),2)
+!    CALL setcell_floatA0('d5',real(c14_uz),2)
+!    
+!    ! Calculate origin
+!    CALL setcell_characterA0('b6','Origin, X,Y')    
+!    CALL set_rangeA0('c6','d6')
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR('=(R[-2]C+R[-1]C)/2')
+!    vBSTR1%VU%PTR_VAL = bstr1     
+!    CALL Range_SetFormulaR1C1(rangeA0, vBSTR1, status)
+!    CALL Check_Status(status, " Unable to set formula")
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0       
+!
+!    ! Uncertainty in X (13C)
+!    CALL setcell_characterA0('b7','13C Uncertainty')
+!    CALL setcell_floatA0('c7',2.0,2)    
+!    
+!    ! Revised F&G options
+!
+!    CALL setcell_characterA0('a9','MODEL NUMBER')
+!    CALL setcell_characterA0('b9','A0 model')
+!    CALL setcell_characterA0('d9','A0, pmc')
+!
+!    ! Tamers
+!    CALL setcell_characterA0('a10','4')
+!    CALL setcell_characterA0('b10','Tamers')
+!    CALL setcell_floatA0('d10',real(a0_models(4)),2)
+!    CALL setcell_characterA0('f10','Use Tamers (model 4) if measured is between vertical lines')
+!    
+!    ! Revised F&G gas exchange
+!    CALL setcell_characterA0('a11','10')
+!    CALL setcell_characterA0('b11','Revised F&G, Gas exchange')
+!    CALL setcell_floatA0('d11',real(a0_models(10)),2)
+!    CALL setcell_characterA0('f11','Use gas exchange (model 10) if measured is left of vertical lines')
+!    
+!    ! Revised F&G solid exchange
+!    CALL setcell_characterA0('a12','11')
+!    CALL setcell_characterA0('b12','Revised F&G, Solid exchange')
+!    CALL setcell_floatA0('d12',real(a0_models(11)),2)
+!    CALL setcell_characterA0('f12','Use solid exchange (model 11) if measured is right of vertical lines')
+!
+!    ! Origin X, x values
+!    CALL setcell_characterA0('n3','Origin X')
+!    CALL set_rangeA0('o3','o3')
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR('=R[3]C[-12]')
+!    vBSTR1%VU%PTR_VAL = bstr1     
+!    CALL Range_SetFormulaR1C1(rangeA0, vBSTR1, status)
+!    CALL Check_Status(status, " Unable to set formula")
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0  
+!    
+!    CALL set_rangeA0('o4','o4')
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR('=R[-1]')
+!    vBSTR1%VU%PTR_VAL = bstr1     
+!    CALL Range_SetFormulaR1C1(rangeA0, vBSTR1, status)
+!    CALL Check_Status(status, " Unable to set formula")
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0 
+!    
+!    ! Origin X, y values
+!    CALL setcell_floatA0('p3',0.0,2)
+!    CALL setcell_floatA0('p4',max_y,2)     
+!    
+!    ! Origin Y, x values
+!    CALL setcell_characterA0('n6','Origin Y')
+!    CALL setcell_floatA0('o6',-30.,2)
+!    CALL setcell_floatA0('o7',max_x,2)
+!    
+!    ! Origin Y, y values
+!    CALL set_rangeA0('p6','p6')
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR('=R[0]C[-12]')
+!    vBSTR1%VU%PTR_VAL = bstr1     
+!    CALL Range_SetFormulaR1C1(rangeA0, vBSTR1, status)
+!    CALL Check_Status(status, " Unable to set formula")
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0 
+!    
+!    CALL set_rangeA0('p7','p7')
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR('=R[-1]')
+!    vBSTR1%VU%PTR_VAL = bstr1     
+!    CALL Range_SetFormulaR1C1(rangeA0, vBSTR1, status)
+!    CALL Check_Status(status, " Unable to set formula")
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0    
+!    
+!    ! Tamers lines
+!        ! right
+!    CALL setcell_characterA0('n9','Tamers')
+!    CALL set_rangeA0('o9','o9')
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR('=R[-6] + R[-2]C[-12]')
+!    vBSTR1%VU%PTR_VAL = bstr1     
+!    CALL Range_SetFormulaR1C1(rangeA0, vBSTR1, status)
+!    CALL Check_Status(status, " Unable to set formula")
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0   
+!    CALL setcell_floatA0('p9',0.,2)
+!    
+!    CALL set_rangeA0('o10','o10')
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR('=R[-1]')
+!    vBSTR1%VU%PTR_VAL = bstr1     
+!    CALL Range_SetFormulaR1C1(rangeA0, vBSTR1, status)
+!    CALL Check_Status(status, " Unable to set formula")
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0 
+!    CALL setcell_floatA0('p10',max_y,2)
+!    
+!        ! left
+!    CALL set_rangeA0('o11','o11')
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR('=R[-8] - R[-4]C[-12]')
+!    vBSTR1%VU%PTR_VAL = bstr1     
+!    CALL Range_SetFormulaR1C1(rangeA0, vBSTR1, status)
+!    CALL Check_Status(status, " Unable to set formula")
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0  
+!    CALL setcell_floatA0('p11',max_y,2)
+!    
+!    CALL set_rangeA0('o12','o12')
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR('=R[-1]')
+!    vBSTR1%VU%PTR_VAL = bstr1     
+!    CALL Range_SetFormulaR1C1(rangeA0, vBSTR1, status)
+!    CALL Check_Status(status, " Unable to set formula")
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0  
+!    CALL setcell_floatA0('p12',0.,2) 
+!    
+!    ! Put all 13C, 14C data in spreadsheet for plot
+!     CALL setcell_characterA0('R1','Well name')
+!     CALL setcell_characterA0('S1','13C')
+!     CALL setcell_characterA0('T1','14C')
+!     do i = 1, Nwlls
+!         write(str,'(I3)') i+1
+!         call left_trim(str)
+!         rng = 'R' // str
+!         call setcell_characterA0(rng(1:lens(rng)), Wllnms(i))
+!         if (DBDATA(i,41) .ne. 0) then
+!            rng = 'S' // str
+!            CALL setcell_floatA0(rng(1:lens(rng)), real(DBDATA(i,21)/DBDATA(i,41)), 2)
+!            rng = 'T' // str
+!            CALL setcell_floatA0(rng(1:lens(rng)), real(DBDATA(i,22)/DBDATA(i,41)), 2)            
+!         endif 
+!     enddo
+!    
+!    ! Generate plot
+!    !CALL set_rangeA0('o9','p10')
+!    chartsA0 = $Workbook_GetCharts(workbookA0, $STATUS = status)
+!    CALL Check_Status(status, " Unable to get CHARTS object")
+!    chartA0 = Charts_Add(chartsA0, $STATUS = status)
+!    CALL Check_Status(status, " Unable to add CHART object")
+!
+!    ! plot type
+!    CALL VariantInit(vInt)
+!    vInt%VT = VT_I4
+!    vInt%VU%LONG_VAL = xlXYScatterLinesNoMarkers
+!    ! title
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR("Han and Plummer Plot")
+!    vBSTR1%VU%PTR_VAL = bstr1
+!    ! X axis
+!    CALL VariantInit(vBSTR2)
+!    vBSTR2%VT = VT_BSTR
+!    bstr2 = ConvertStringToBSTR("Carbon-13, permil")
+!    vBSTR2%VU%PTR_VAL = bstr2
+!    ! Y axis
+!    CALL VariantInit(vBSTR3)
+!    vBSTR3%VT = VT_BSTR
+!    bstr3 = ConvertStringToBSTR("Carbon-14, pmc")
+!    vBSTR3%VU%PTR_VAL = bstr3
+!    ! Chart wizard
+!    CALL $Chart_ChartWizard(chartA0, &
+!        Gallery = vInt, &
+!        Title = vBSTR1, &
+!        CategoryTitle = vBSTR2, &
+!        ValueTitle = vBSTR3, &
+!        $STATUS = status)
+!    CALL Check_Status(status, " Unable to invoke ChartWizard")
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0
+!    status = VariantClear(vBSTR2)
+!    bstr2 = 0
+!    status = VariantClear(vBSTR3)
+!    bstr3 = 0
+!    
+!    ! set X bounds
+!    CALL VariantInit(vInt)
+!    vInt%VT = VT_I4
+!    vInt%VU%LONG_VAL = xlCategory
+!    axis = $Chart_Axes(chartA0, vInt, xlPrimary, status)
+!    CALL Check_Status(status, " Unable to get axes")
+!    call Axis_SetMinimumScale(axis, dble(-30), status)
+!    CALL Check_Status(status, " Unable to set MinimumScale")
+!    call Axis_SetMaximumScale(axis, dble(max_x), status)
+!    CALL Check_Status(status, " Unable to set MaximumScale")
+!    call Axis_SetMajorUnit(axis, dble(10), status)
+!    CALL Check_Status(status, " Unable to set MajorUnit")
+!    call Axis_SetMinorUnit(axis, dble(2), status)
+!    CALL Check_Status(status, " Unable to set MinorUnit")
+!    call Axis_SetCrossesAt(axis, dble(-30), status)
+!    CALL Check_Status(status, " Unable to set CrossesAt")
+!    call Axis_SetMajorTickMark(axis, xlInside, status)
+!    CALL Check_Status(status, " Unable to set MajorTickMark")
+!    call Axis_SetMinorTickMark(axis, xlInside, status)
+!    CALL Check_Status(status, " Unable to set MinorTickMark")
+!    ! Turn off gridlines
+!    call Axis_SetHasMajorGridlines(axis, .false., status)
+!    CALL Check_Status(status, " Unable to set SetHasMajorGridlines")
+!    
+!     ! set Y bounds
+!    CALL VariantInit(vInt)
+!    vInt%VT = VT_I4
+!    vInt%VU%LONG_VAL = xlValue
+!    axis = $Chart_Axes(chartA0, vInt, xlPrimary, status)
+!    CALL Check_Status(status, " Unable to get axes")
+!    call Axis_SetMinimumScale(axis, dble(0), status)
+!    CALL Check_Status(status, " Unable to set MinimumScale")
+!    call Axis_SetMaximumScale(axis, dble(max_y), status)
+!    CALL Check_Status(status, " Unable to set MaximumScale")
+!    call Axis_SetMajorUnit(axis, dble(10), status)
+!    CALL Check_Status(status, " Unable to set MajorUnit")
+!    call Axis_SetMinorUnit(axis, dble(5), status) 
+!    CALL Check_Status(status, " Unable to set MinorUnit")  
+!    call Axis_SetMajorTickMark(axis, xlInside, status)
+!    CALL Check_Status(status, " Unable to set MajorTickMark")
+!    call Axis_SetMinorTickMark(axis, xlInside, status)
+!    CALL Check_Status(status, " Unable to set MinorTickMark")
+!    ! Turn off gridlines
+!    call Axis_SetHasMajorGridlines(axis, .false., status)
+!    CALL Check_Status(status, " Unable to set SetHasMajorGridlines")
+!    
+!    ! Delete series
+!    CALL VariantInit(vInt)
+!    vInt%VT = VT_I4
+!    vInt%VU%LONG_VAL = 1
+!    series_collection = $Chart_SeriesCollection(chartA0)
+!    series = SeriesCollection_Item(series_collection, vInt, status)
+!    CALL Check_Status(status, " Unable to find default series")
+!    vInt = Series_Delete(series, status)
+!    CALL Check_Status(status, " Unable to delete default series")
+!    
+!    ! Add series  X origin
+!    call add_line("=Sheet1!$O$3:$O$4","=Sheet1!$P$3:$P$4", "X origin", "black", 1.0)
+!    ! Add series  Y origin
+!    call add_line("=Sheet1!$O$6:$O$7","=Sheet1!$P$6:$P$7", "Y origin", "black", 1.0)
+!    ! Add series  Tamers left
+!    call add_line("=Sheet1!$O$11:$O$12","=Sheet1!$P$11:$P$12", "Tamers left", "blue", 2.0)
+!    ! Add series  Tamers right
+!    call add_line("=Sheet1!$O$9:$O$10","=Sheet1!$P$9:$P$10", "Tamers right", "blue", 2.0)
+!    
+!    ! All data in file
+!    series_collection = $Chart_SeriesCollection(chartA0)	
+!    series = SeriesCollection_NewSeries(series_collection, status)
+!        ! x range
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR("=Sheet1!$S2:S$1000")
+!    vBSTR1%VU%PTR_VAL = bstr1    
+!    call Series_SetXValues(series, vBSTR1, status)
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0
+!         ! y range
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR("=Sheet1!$T2:$T1000")
+!    vBSTR1%VU%PTR_VAL = bstr1    
+!    call Series_SetValues(series, vBSTR1, status)
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0   
+!    
+!         ! Name
+!    call Series_SetName(series, "All data", status)
+!         ! Marker style
+!    call Series_SetMarkerStyle(series, xlMarkerStyleSquare, status)
+!    call Series_SetMarkerSize(series, 5, status)
+!    
+!         ! Series adjustments
+!    chart_format = Series_GetFormat(series, status)
+!    CALL Check_Status(status, " Unable to ChartFormat object")
+!        ! set fill color (prefer Excel default)
+!    !fill = ChartFormat_GetFill(chart_format, status)
+!    !CALL Check_Status(status, " Unable to get fill object")
+!    !color_format = FillFormat_GetForeColor(fill, status)
+!    !CALL Check_Status(status, " Unable to get color format object")
+!    !CALL ColorFormat_SetRGB(color_format, RGBTOINTEGER(0,255,0), status)
+!    !CALL Check_Status(status, " Unable to set fill color")
+!        ! Turn off line
+!    line_format = ChartFormat_GetLine(chart_format, status)
+!    CALL Check_Status(status, " Unable to LineFormat object")
+!    call LineFormat_SetVisible(line_format, msoFalse, status)
+!    CALL Check_Status(status, " Unable to set not visible")
+!
+!    ! measured point
+!    series_collection = $Chart_SeriesCollection(chartA0)	
+!    series = SeriesCollection_NewSeries(series_collection, status)
+!        ! x range
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR("=Sheet1!$C$3:$C$3")
+!    vBSTR1%VU%PTR_VAL = bstr1    
+!    call Series_SetXValues(series, vBSTR1, status)
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0
+!         ! y range
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR("=Sheet1!$D$3:$D$3")
+!    vBSTR1%VU%PTR_VAL = bstr1    
+!    call Series_SetValues(series, vBSTR1, status)
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0   
+!    
+!         ! Name
+!    call Series_SetName(series, "Measured", status)
+!         ! Marker style
+!    call Series_SetMarkerStyle(series, xlMarkerStyleTriangle, status)
+!    call Series_SetMarkerSize(series, 10, status)
+!    
+!         ! Series adjustments
+!    chart_format = Series_GetFormat(series, status)
+!    CALL Check_Status(status, " Unable to ChartFormat object")
+!        ! set fill color (prefer Excel default)
+!    !fill = ChartFormat_GetFill(chart_format, status)
+!    !CALL Check_Status(status, " Unable to get fill object")
+!    !color_format = FillFormat_GetForeColor(fill, status)
+!    !CALL Check_Status(status, " Unable to get color format object")
+!    !CALL ColorFormat_SetRGB(color_format, RGBTOINTEGER(255,0,0), status)
+!    !CALL Check_Status(status, " Unable to set fill color")    
+!        ! Turn of line
+!    line_format = ChartFormat_GetLine(chart_format, status)
+!    CALL Check_Status(status, " Unable to LineFormat object")
+!    call LineFormat_SetVisible(line_format, msoFalse, status)
+!    CALL Check_Status(status, " Unable to set not visible")    
+!    
+!    ! Put chart on worksheet   
+!    ! where
+!    CALL VariantInit(vInt)
+!    vInt%VT = VT_I4
+!    vInt%VU%LONG_VAL = xlLocationAsObject 
+!    ! name
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR('Sheet1')
+!    vBSTR1%VU%PTR_VAL = bstr1         
+!    ptr_return = $Chart_Location(chartA0, xlLocationAsObject, vBSTR1, status)
+!    CALL Check_Status(status, " Unable to set plot location")
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0 
+!    
+!    ! Move chart
+!    shapes = $WorkSheet_GetShapes(worksheetA0, status)
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR('Chart 1')
+!    vBSTR1%VU%PTR_VAL = bstr1    
+!    shape_range = Shapes_GetRange(shapes, vBSTR1, status) 
+!    CALL Check_Status(status, " Unable to get ShapeRange")     
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0   
+!    call ShapeRange_IncrementLeft(shape_range, -14., status)
+!    CALL Check_Status(status, " Unable to IncrementLeft")
+!    call ShapeRange_IncrementTop(shape_range, 75., status)
+!    CALL Check_Status(status, " Unable to IncrementTop")
+!    
+!    l2 = .true.
+!    CALL $WorkBook_SetSaved(workbookA0, l2, status)
+!    CALL Check_Status(status, " Unable to SetSavded")
+!    
+!    END subroutine NewExcelA0
     
     
     subroutine add_line(rangex_str, rangey_str, title_str, color_str, weight)
@@ -2013,3 +2639,60 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     enddo
     return
     end subroutine left_trim
+    
+    Subroutine set_column_width(w)
+    ! assumes rangeA0 is set
+    use ADOBJECTS
+    implicit none
+    real w
+	TYPE (VARIANT) :: vBSTR1
+    integer status
+    
+    CALL VariantInit(vBSTR1)
+    vBSTR1%VT = VT_R4
+    vBSTR1%VU%FLOAT_VAL = w
+    call range_setcolumnwidth(rangeA0, vBSTR1, status)
+    CALL Check_Status(status, " Unable to set column width")
+    status = VariantClear(vBSTR1)
+    end subroutine set_column_width 
+
+    Subroutine set_decimal_places(str)
+    ! assumes rangeA0 is set
+    USE IFQWIN
+    USE IFCOM    
+    USE ADOBJECTS
+    implicit none
+    character*(*) str
+	TYPE (VARIANT) :: vBSTR1
+    integer status
+    !INTEGER*4 bstr1
+    
+    CALL VariantInit(vBSTR1)
+    vBSTR1%VT = VT_BSTR
+    bstr1 = ConvertStringToBSTR(str)    
+    vBSTR1%VU%PTR_VAL = bstr1 
+    call range_SetNumberFormat(rangeA0, vBSTR1, status)
+    CALL Check_Status(status, " Unable to set decimal places")
+    status = VariantClear(vBSTR1)
+    bstr1 = 0
+    end subroutine set_decimal_places
+  
+    Subroutine set_formula(str)
+    ! assumes rangeA0 is set
+    USE IFQWIN
+    USE IFCOM    
+    USE ADOBJECTS
+    implicit none
+    character*(*) str
+	TYPE (VARIANT) :: vBSTR1
+    integer status
+
+    CALL VariantInit(vBSTR1)
+    vBSTR1%VT = VT_BSTR
+    bstr1 = ConvertStringToBSTR(str)
+    vBSTR1%VU%PTR_VAL = bstr1     
+    CALL Range_SetFormulaR1C1(rangeA0, vBSTR1, status)
+    CALL Check_Status(status, " Unable to set formula")
+    status = VariantClear(vBSTR1)
+    bstr1 = 0  
+    end Subroutine set_formula

@@ -719,11 +719,12 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
         Cb_rev = Dbdata(i,36)             ! HCO3
         write (199, *) 'Cb =            ', Cb_rev
         ! Ct
-        Ct_rev = Ca_rev + Cb_rev          ! H2CO3 + HCO3 ? CO3?
+        Ct_rev = Ca_rev + Cb_rev + Dbdata(i,39)         ! H2CO3 + HCO3 ? CO3?
         write (199, *) 'Ct =            ', Ct_rev
         ! C14g
         C14g_rev = C14dat(2)              ! C14 activity in soil gas
         write (199, *) 'C14g =          ', C14g_rev
+
         ! C14s
         C14s_rev = C14dat(1)              ! C14 activity in carbonate minerals
         write (199, *) 'C14s =          ', C14s_rev
@@ -748,7 +749,6 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
         ! delC13b0
         delC13b0_rev = 0.5*(delC13a0_rev + delC13s_rev)
         write (199, *) 'delC13b0 =      ', delC13b0_rev
-       
         x = delC13b0_rev
         write (199, *) 
         fg_rev_uncertain = 0
@@ -774,12 +774,41 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
         write (199, *) 'delC13x =      ', delC13x_rev
         write (199, *) 'eps_x_b =      ', eps_x_b_rev
         write (199, *) 
+        ! eps_g_b_rev = D15
+        ! eps_s_b_rev = D14
+        ! eps_a_g_rev = D16
+        ! eps_g_a_rev = -D16
+        ! eps_a_s_rev = D19
+        ! eps_s_a_rev = -D19
+        ! eps_g_s_rev = D20
+        ! c1 = C3
+        ! Cs_rev = G3/2
+        ! Ca_rev = F3
+        ! Cb_rev = G3
+        ! Ct_rev = E3
+        ! C14g_rev = D6
+        ! C14s_rev = D5       
+        ! delC13_rev = C3
+        ! delC13s_rev = C5
+        ! delC13g_rev = C6
+        ! C14a0_rev = (D6+0.2*D16)    
+        ! delC13a0_rev = (C6+D16)
+        ! C14b0_rev = 0.5*(D6+0.2*D16 + D5)
+        ! delC13b0_rev = 0.5*(C6+D16 + C5)
+        ! x = 0.5*(C6+D16 + C5)       
+        ! C14x_rev = D6
+        ! delC13x_rev = C6
+        ! eps_x_b_rev = D15  
         fgk_rev = (C14x_rev - C14b0_rev - 0.2*eps_x_b_rev)
+        !fgk_rev = (D6-0.5*(D6+0.2*D16+D5)-0.2*D15)
         fgk_rev = fgk_rev * (delC13_rev - Ca_rev/Ct_rev*delC13a0_rev - Cb_rev/Ct_rev*delC13b0_rev)
+        ! fgk_rev = fgk_rev * (C3-F3/E3*(C6+D16)-G3/E3*0.5*(C6+D16+C5))
         fgk_rev = fgk_rev / (delC13x_rev - delC13b0_rev - eps_x_b_rev)
+        ! fgk_rev = fgk_rev / (C6-0.5*(C6+D16+C5)-D15)
         write (199, *) 'fgk_rev =      ', fgk_rev
 
         C14 = (Ca_rev/Ct_rev*C14a0_rev + Cb_rev/Ct_rev*C14b0_rev)+fgk_rev
+        ! C14 = (F3/E3*(D6+0.2*D16)+G3/E3*0.5*(D6+0.2*D16 + D5))+E24
         write (199, *) 'C14(TDIC) =    ', C14
         C14 = (C14*Dbdata(i,41)+Dbdata(i,42)*Dbdata(i,46)+Dbdata(i,43) &
                 *Dbdata(i,47))/Dbdata(i,1)   
@@ -819,7 +848,7 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
         Cb_rev = Dbdata(i,36)             ! HCO3
         write (199, *) 'Cb =            ', Cb_rev
         ! Ct
-        Ct_rev = Ca_rev + Cb_rev          ! H2CO3 + HCO3 ? CO3?
+        Ct_rev = Ca_rev + Cb_rev + Dbdata(i,39)         ! H2CO3 + HCO3 ? CO3?
         write (199, *) 'Ct =            ', Ct_rev
         ! C14g
         C14g_rev = C14dat(2)              ! C14 activity in soil gas
@@ -874,9 +903,37 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
         write (199, *) 'delC13x =      ', delC13x_rev
         write (199, *) 'eps_x_b =      ', eps_x_b_rev
         write (199, *) 
+        ! eps_g_b_rev = D15
+        ! eps_s_b_rev = D14
+        ! eps_a_g_rev = D16
+        ! eps_g_a_rev = -D16
+        ! eps_a_s_rev = D19
+        ! eps_s_a_rev = -D19
+        ! eps_g_s_rev = D20
+        ! c1 = C3
+        ! Cs_rev = G3/2
+        ! Ca_rev = F3
+        ! Cb_rev = G3
+        ! Ct_rev = E3
+        ! C14g_rev = D6
+        ! C14s_rev = D5       
+        ! delC13_rev = C3
+        ! delC13s_rev = C5
+        ! delC13g_rev = C6
+        ! C14a0_rev = (D6+0.2*D16)    
+        ! delC13a0_rev = (C6+D16)
+        ! C14b0_rev = 0.5*(D6+0.2*D16 + D5)
+        ! delC13b0_rev = 0.5*(C6+D16 + C5)
+        ! x = 0.5*(C6+D16 + C5)       
+        ! C14x_rev = D5
+        ! delC13x_rev = C5
+        ! eps_x_b_rev = D14          
         fgk_rev = (C14x_rev - C14b0_rev - 0.2*eps_x_b_rev)
+        !fgk_rev = (D5-0.5*(D6+0.2*D16+D5)-0.2*D14)
         fgk_rev = fgk_rev * (delC13_rev - Ca_rev/Ct_rev*delC13a0_rev - Cb_rev/Ct_rev*delC13b0_rev)
+        !fgk_rev = fgk_rev * (C3-F3/E3*(C6+D16)-G3/E3*0.5*(C6+D16+C5))
         fgk_rev = fgk_rev / (delC13x_rev - delC13b0_rev - eps_x_b_rev)
+        !fgk_rev = fgk_rev / (C5-0.5*(C6+D16+C5)-D14)
         write (199, *) 'fgk_rev =      ', fgk_rev
 
         C14 = (Ca_rev/Ct_rev*C14a0_rev + Cb_rev/Ct_rev*C14b0_rev)+fgk_rev

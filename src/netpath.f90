@@ -1778,7 +1778,7 @@ SUBROUTINE EDITC14
   EXTERNAL CLS, INPTRL, INPTIN, C14, LENS
   INTRINSIC NINT, DBLE, DABS
   CHARACTER str*100
-  DOUBLE PRECISION dummy
+  DOUBLE PRECISION dummy, age, local_dfinal
   double precision a0_models(N_C14_MODELS)
   INTEGER uncertain
   !
@@ -1814,7 +1814,15 @@ SUBROUTINE EDITC14
   END IF
 
   DO i = 1, N_C14_MODELS
-      WRITE (*,9025) i, Model(i), (C14(i,j),j=1,Iflag(1)+1)
+      age = 0
+      if (dbdata(Well(1),1) .gt.0) then
+        local_dfinal = (dbdata(Well(1),22) + dbdata(Well(1),42)*dbdata(Well(1),44) + dbdata(Well(1),23)*dbdata(Well(1),46))/dbdata(Well(1),1)
+        if ( c14(i,1) .gt. 0 .and. local_dfinal .gt. 0.0) then
+            age = 5730.0/log(2.0)*log(C14(i,1)/local_dfinal)
+        endif
+      endif 
+      WRITE (*,9025) i, Model(i), C14(i,1), age, (C14(i,j),j=2,Iflag(1)+1)
+9025   FORMAT (I4,' : ',A,':',7(F10.2)) 
       a0_models(i) = C14(i,1)
   enddo
  ! if (Iflag(1).eq.0) then
@@ -1959,15 +1967,12 @@ SUBROUTINE EDITC14
   GO TO 10
 9000 FORMAT (8X,'Initial Carbon-14, A0, (percent modern)',/,13X, &
        'for Total Dissolved Carbon',/)
-9005 FORMAT (9X,'Model',13X,'Initial well',/)
-9010 FORMAT (9X,'Model',13X,6(:,4X,'Init',I2))
+9005 FORMAT (9X,'Model',13X,'Initial well','      Age'/)
+9010 FORMAT (9X,'Model',13X,(:,5X,'Init',I2),3x,'    Age', 5(:,4X,'Init',I2))
 9015 FORMAT (' Carbon not positive for ''',A32,'''.')
 9020 FORMAT (/, &
        ' Carbon isotopes cannot be run. Hit <Enter> to continue.')
-9025   FORMAT (I4,' : ',A,':',6(F10.2))
-9026   FORMAT (I4,' : ',A,':',F10.2, A) 
-9027   FORMAT (T28,i1,F10.2, A)   
-9028   FORMAT (I4,' : ',A,i1,F10.2, A)    
+
 9030 FORMAT (/,' Enter number of model to use (<Enter> to quit, 0 to', &
        ' edit data for all models)')
 9035 FORMAT (/,' Enter number of model to use (<Enter> for ''',A,''')')
@@ -7681,15 +7686,16 @@ SUBROUTINE CISO(ISCR)
         Dinit = 10.0D0*Dinit/Cinit-1000.0D0
      END IF
      Cinit = Cinit*(1.0D0-Evap)
-     IF (Nodata(Well(0),isot(i)).EQ.0 .AND. Dbdata(Well(0),elmt(i)) &
-          .GT.0.0D0) THEN
+     IF (Nodata(Well(0),isot(i)).EQ.0 .AND. Dbdata(Well(0),elmt(i)) .GT.0.0D0) THEN
         Dfinal = Dbdata(Well(0),isot(i))/Dbdata(Well(0),elmt(i))
-        IF (elmt(i).EQ.1) Dfinal = (Dbdata(Well(0),isot(i))+Dbdata( &
+        IF (elmt(i).EQ.1) then
+            Dfinal = (Dbdata(Well(0),isot(i))+Dbdata( &
              Well(0),42) &
              *Dbdata(Well(0),isot(i)*2+2) &
              +Dbdata(Well(0),43) &
              *Dbdata(Well(0),isot(i)*2+3)) &
              /Dbdata(Well(0),1)
+        endif
      ELSE
         Dfinal = 0.0D0
      END IF

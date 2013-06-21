@@ -1710,34 +1710,23 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     
     ! Shade calculated values
     CALL set_rangeA0('q2','r31')
-    call set_fill()
+    call set_fill(10092543)
     CALL set_rangeA0('d10','e12')
-    call set_fill()
+    call set_fill(10092543)
     CALL set_rangeA0('c11','c12')
-    call set_fill()
-    !interior = range_GetInterior(rangeA0, status)
-    !CALL Check_Status(status, " Unable to get interior")
-    !    ! pattern
-    !vInt%VT = VT_I4
-    !vInt%VU%LONG_VAL = xlSolid  
-    !call Interior_SetPattern(interior, vInt, status)
-    !    ! PatternColorIndex
-    !vInt%VT = VT_I4
-    !vInt%VU%LONG_VAL = xlAutomatic  
-    !call Interior_SetPatternColorIndex(interior, vInt, status)
-    !    ! Color
-    !vInt%VT = VT_I4
-    !vInt%VU%LONG_VAL = 10092543  
-    !call Interior_SetColor(interior, vInt, status)
+    call set_fill(10092543)
+    CALL set_rangeA0('k1','k1')
+    call set_fill(10092543)
+    CALL setcell_characterA0('L1','Output shaded yellow')
+    ! Shade input values
+    CALL set_rangeA0('c3','n3')
+    call set_fill(16772300)
+    CALL set_rangeA0('c5','d7')
+    call set_fill(16772300)
+    CALL set_rangeA0('g1','g1')
+    call set_fill(16772300)
+    CALL setcell_characterA0('h1','Input shaded blue')
     
-    !vInt%VT = VT_I4
-    !vInt%VU%LONG_VAL = xlAutomatic  
-    !call Interior_SetColorIndex(interior, vInt, status)
-    
-    !vInt%VT = VT_I4
-    !vInt%VU%LONG_VAL = xlThemeColorLight2  
-    !call Interior_SetColorIndex(interior, vInt, status)
-    !call Interior_SetPatternTintAndShade(interior, vInt, status)
 
     ! More lines
         ! Zero age line
@@ -1839,15 +1828,15 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     vInt%VT = VT_I4
     vInt%VU%LONG_VAL = msoTrue   
     call Font_SetBold(font, vInt, status)
-    CALL setcell_characterA0('g22','Use Tamers (model 4) if measured is insid blue lines')
-    CALL setcell_characterA0('g23','Use gas exchange (model 10) if measured is left of lines')
-    CALL setcell_characterA0('g24','Use solid exchange (model 11) if measured is right of lines') 
+    CALL setcell_characterA0('g22','Use Tamers (model 4) if measured is inside area of blue lines')
+    CALL setcell_characterA0('g23','Use gas exchange (model 10) if measured is left of vertical blue lines')
+    CALL setcell_characterA0('g24','Use solid exchange (model 11) if measured is right of verical blue lines') 
     
     ! Notes
     CALL setcell_characterA0('a14','Note: If the initial water and final water are defined separately, the adjustment ')
-    CALL setcell_characterA0('a15','model will be applied to the initial water.  The modeled Ao value will then be')
+    CALL setcell_characterA0('a15','model will be applied to the initial water.  The modeled A0 value will then be')
     CALL setcell_characterA0('a16','adjusted using the geochemical model found in evolving the initial water to the')
-    CALL setcell_characterA0('a17','final water.  If the adjustment model is to be applied to a single water sample,')
+    CALL setcell_characterA0('a17','final water. If the adjustment model is to be applied to a single water sample,')
     CALL setcell_characterA0('a18','that sample should be selected as both the initial and final water sample.')
     
     ! Refs
@@ -1856,7 +1845,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL setcell_characterA0('a22','dating.  Chemical Geology 351 (2013) 105-114.')
     CALL setcell_characterA0('a24','See also: Han, L.-F., Plummer, L.N., and Aggarwal, P., 2012, A graphical method')
     CALL setcell_characterA0('a25','to evaluate predominant geochemical processes occurring ingroundwater')
-    CALL setcell_characterA0('a26','systems for radiocarbon dating.  Chemical Geology 318-319, 88-112.')
+    CALL setcell_characterA0('a26','systems for radiocarbon dating. Chemical Geology 318-319, 88-112.')
     
     ! Put all 13C, 14C data in spreadsheet for plot
     CALL setcell_characterA0('B28','Well name')
@@ -2851,7 +2840,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     bstr1 = 0  
     end Subroutine set_formula
     
-    Subroutine set_fill
+    Subroutine set_fill(color)
     ! assumes rangeA0 is set
     USE IFQWIN
     USE IFCOM    
@@ -2860,6 +2849,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
 	TYPE (VARIANT) :: vInt
     integer*4 interior
     integer*4 status
+    integer*4 color
     
     interior = range_GetInterior(rangeA0, status)
     CALL Check_Status(status, " Unable to get interior")
@@ -2873,7 +2863,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call Interior_SetPatternColorIndex(interior, vInt, status)
         ! Color
     vInt%VT = VT_I4
-    vInt%VU%LONG_VAL = 10092543  
+    vInt%VU%LONG_VAL = color  
     call Interior_SetColor(interior, vInt, status)
     return
     end Subroutine set_fill

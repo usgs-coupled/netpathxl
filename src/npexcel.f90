@@ -1404,7 +1404,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     integer*4 series_collection, series, series_format, ptr_return
     integer*4 chart_format, line_format, color_format
     integer*4 axis, chart_area, shapes, shape_range
-    integer*4 fill, font
+    integer*4 fill, font, interior
     character*10 cell_location
     logical*2 l2
 
@@ -1448,8 +1448,8 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     END IF
     l = .TRUE.
     CALL $Application_SetVisible(excelappA0, l)
-    CALL $Application_SetWidth(excelappA0, dble(950.), status)
-    CALL $Application_SetHeight(excelappA0, dble(750.), status)
+    CALL $Application_SetWidth(excelappA0, dble(875.), status)
+    CALL $Application_SetHeight(excelappA0, dble(650.), status)
 
     ! Get the WORKBOOKS object
     workbooksA0 = $Application_GetWorkbooks(excelappA0, status)
@@ -1473,28 +1473,32 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     
     ! set width for C, 13C, permil
     call set_rangeA0('c1','c1')
-    call set_column_width(10.5)   
+    call set_column_width(10.5) 
+    
+    ! set width for C, 13C, permil
+    call set_rangeA0('p1','p1')
+    call set_column_width(16.0)   
 
     ! set decimal 
     call set_rangeA0('c3','p3')
     call set_decimal_places('0.00')
     
     call set_rangeA0('c3','c600')
-    call set_decimal_places('0.00')
-
-    call set_rangeA0('q3','q12')
-    call set_decimal_places('0.00')
+    call set_decimal_places('0.00')   
 
     call set_rangeA0('d3','d600')
-    call set_decimal_places('0.0')
+    call set_decimal_places('0.0')  
 
-    call set_rangeA0('r3','r12')
+    call set_rangeA0('e10','e12')
+    call set_decimal_places('0')
+
+    call set_rangeA0('q3','q15')
+    call set_decimal_places('0.00')
+
+    call set_rangeA0('r5','r24')
     call set_decimal_places('0.0') 
     
-    call set_rangeA0('d3','d17')
-    call set_decimal_places('0.0') 
-    
-    call set_rangeA0('c12','c17')
+    call set_rangeA0('q19','q24')
     call set_decimal_places('0.00000') 
     
     call set_rangeA0('c20','e22')
@@ -1515,7 +1519,10 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call Font_SetBold(font, vInt, status)
     vInt%VU%LONG_VAL = 14  
     call Font_SetSize(font, vInt, status)
-
+    
+    ! Calculated values
+    CALL setcell_characterA0('p1','                                          Calculated Values') 
+    
     ! Set header character strings
     CALL setcell_characterA0('b2','Well name') 
     CALL setcell_characterA0('c2','13C, permil')
@@ -1530,14 +1537,8 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL setcell_characterA0('l2','DOC')
     CALL setcell_characterA0('m2','13C DOC')
     CALL setcell_characterA0('n2','14C DOC')
-    CALL setcell_characterA0('o2','TDIC')
-    CALL setcell_characterA0('p2','Total C')
-    CALL setcell_characterA0('d2','14C, pmc')
-    CALL setcell_characterA0('d2','14C, pmc')
-    CALL setcell_characterA0('d2','14C, pmc')
-    CALL setcell_characterA0('d2','14C, pmc')
-    CALL setcell_characterA0('d2','14C, pmc')
-    CALL setcell_characterA0('d2','14C, pmc')
+    CALL setcell_characterA0('q2','TDIC')
+    CALL setcell_characterA0('r2','Total C')
     
     ! Measured, line 3
     CALL setcell_characterA0('b3',well_name)
@@ -1558,10 +1559,10 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL setcell_floatA0('m3',real(Dbdata(Well(1),45)),2)
     CALL setcell_floatA0('n3',real(Dbdata(Well(1),47)),2)
     ! Calculate tdic and total c   
-    CALL set_rangeA0('o3','o3')
+    CALL set_rangeA0('q3','q3')
     !call set_formula('=E3+F3+G3') 
     call set_formula('=R3C5+R3C6+R3C7') 
-    CALL set_rangeA0('p3','p3')
+    CALL set_rangeA0('r3','r3')
     !call set_formula('=E3+F3+G3+I3+L3')  
     call set_formula('=R3C5+R3C6+R3C7+R3C9+R3C12')  
     
@@ -1575,21 +1576,74 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     ! Uncertainty in X (13C)
     CALL setcell_characterA0('b7','13C Uncertainty')
     CALL setcell_floatA0('c7',2.0,2) 
+    CALL setcell_floatA0('d7',5.0,2) 
     
     ! Calculate origin
-    CALL setcell_characterA0('b9','Origin, X,Y')    
-    CALL set_rangeA0('c9','c9')
+    CALL setcell_characterA0('p5','Origin, X,Y')    
+    CALL set_rangeA0('q5','q5')
     !call set_formula('=(C5+C6)/2') 
     call set_formula('=(R5C3+R6C3)/2')   
-    CALL set_rangeA0('d9','d9')
+    CALL set_rangeA0('r5','r5')
     !call set_formula('=(D5+D6)/2') 
     call set_formula('=(R5C4+R6C4)/2') 
     
     ! Calculate tk
-    CALL setcell_characterA0('b10','TempK')    
-    CALL set_rangeA0('c10','c10')
+    CALL setcell_characterA0('p6','TempK')    
+    CALL set_rangeA0('q6','q6')
     !call set_formula('=H3+273.15')
     call set_formula('=R3C8+273.15')
+
+    ! Origin X, x values
+    CALL setcell_characterA0('p8','Origin X')
+    CALL set_rangeA0('q8','q8')
+    call set_formula('=R[-3]C[0]')
+    CALL set_rangeA0('q9','q9')
+    call set_formula('=R[-4]C[0]')
+        ! Origin X, y values
+    CALL setcell_floatA0('r8',0.0,2)
+    CALL setcell_floatA0('r9',max_y,2)     
+    
+    ! Origin Y, x values
+    CALL setcell_characterA0('p10','Origin Y')
+    CALL setcell_floatA0('q10',-30.,2)
+    CALL setcell_floatA0('q11',max_x,2)
+        ! Origin Y, y values
+    CALL set_rangeA0('r10','r10')
+    call set_formula('=R[-5]C[0]')
+    CALL set_rangeA0('r11','r11')
+    call set_formula('=R[-6]C[0]')
+    
+    !CALL set_rangeA0('p7','p7')
+    !CALL VariantInit(vBSTR1)
+    !vBSTR1%VT = VT_BSTR
+    !bstr1 = ConvertStringToBSTR('=R[-1]')
+    !vBSTR1%VU%PTR_VAL = bstr1     
+    !CALL Range_SetFormulaR1C1(rangeA0, vBSTR1, status)
+    !CALL Check_Status(status, " Unable to set formula")
+    !status = VariantClear(vBSTR1)
+    !bstr1 = 0    
+    
+    ! Tamers lines
+        ! right
+    CALL setcell_characterA0('p12','Tamers')
+    CALL set_rangeA0('q12','q12')
+    call set_formula('=R[-7]C[0] + R7C3')
+    CALL setcell_floatA0('r12',0.,2)
+    
+    CALL set_rangeA0('q13','q13')
+    call set_formula('=R[-1]C[0]')
+    CALL set_rangeA0('r13','r13')
+    call set_formula('=R[-8]C[0] + R7C4')
+
+        ! left
+    CALL set_rangeA0('q14','q14')
+    call set_formula('=R[-9]C[0] - R7C3')
+    CALL set_rangeA0('r14','r14')
+    call set_formula('=R[-1]C[0]')
+    
+    CALL set_rangeA0('q15','q15')
+    call set_formula('=R[-1]C[0]')
+    CALL setcell_floatA0('r15',0.0,2)
     
     ! Fractionation
     !CALL setcell_characterA0('C11','Alpha') 
@@ -1624,45 +1678,65 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     !call set_formula('=C15*O3/(C12*E3+F3+C13*G3)') 
     !CALL set_rangeA0('d17','d17')
     !call set_formula('=(C17-1)*1000')   
-    CALL setcell_characterA0('C11','Alpha') 
-    CALL setcell_characterA0('D11','Epsilon') 
-    CALL setcell_characterA0('B12','CO2(aq)-HCO3')
-    CALL set_rangeA0('c12','c12')
-    call set_formula('=(24.12-9866/R10C3)/1000+1') 
-    CALL set_rangeA0('d12','d12')
-    call set_formula('=(R12C3-1)*1000')  
-    CALL setcell_characterA0('B13','CO3-HCO3')  
-    CALL set_rangeA0('c13','c13')
-    call set_formula('=(2.52-867/R10C3)/1000+1') 
-    CALL set_rangeA0('d13','d13')
-    call set_formula('=(R13C3-1)*1000') 
-    CALL setcell_characterA0('B14','Calcite-HCO3')    
-    CALL set_rangeA0('c14','c14')
-    call set_formula('=(15.1-4232/R10C3)/1000+1') 
-    CALL set_rangeA0('d14','d14')
-    call set_formula('=(R14C3-1)*1000')
-    CALL setcell_characterA0('B15','CO2(g)-HCO3') 
-    CALL set_rangeA0('c15','c15')
-    call set_formula('=(23.89-9483/R10C3)/1000+1') 
-    CALL set_rangeA0('d15','d15')
-    call set_formula('=(R15C3-1)*1000') 
-    CALL setcell_characterA0('B16','CO2(aq)-CO2(g)') 
-    CALL set_rangeA0('c16','c16')
-    call set_formula('=(0.19-373/R10C3)/1000+1') 
-    CALL set_rangeA0('d16','d16')
-    call set_formula('=(R16C3-1)*1000')  
-    CALL setcell_characterA0('B17','CO2(g)-solution') 
-    CALL set_rangeA0('c17','c17')
+    CALL setcell_characterA0('p18','Mook') 
+    CALL setcell_characterA0('q18','Alpha') 
+    CALL setcell_characterA0('r18','Epsilon') 
+    CALL setcell_characterA0('p19','CO2(aq)-HCO3')
+    CALL set_rangeA0('q19','q19')
+    call set_formula('=(24.12-9866/R6C17)/1000+1') 
+    CALL set_rangeA0('r19','r19')
+    call set_formula('=(R[0]C[-1]-1)*1000')  
+    CALL setcell_characterA0('p20','CO3-HCO3')  
+    CALL set_rangeA0('q20','q20')
+    call set_formula('=(2.52-867/R6C17)/1000+1') 
+    CALL set_rangeA0('r20','r20')
+    call set_formula('=(R[0]C[-1]-1)*1000') 
+    CALL setcell_characterA0('p21','Calcite-HCO3')    
+    CALL set_rangeA0('q21','q21')
+    call set_formula('=(15.1-4232/R6C17)/1000+1') 
+    CALL set_rangeA0('r21','r21')
+    call set_formula('=(R[0]C[-1]-1)*1000')
+    CALL setcell_characterA0('p22','CO2(g)-HCO3') 
+    CALL set_rangeA0('q22','q22')
+    call set_formula('=(23.89-9483/R6C17)/1000+1') 
+    CALL set_rangeA0('r22','r22')
+    call set_formula('=(R[0]C[-1]-1)*1000') 
+    CALL setcell_characterA0('p23','CO2(aq)-CO2(g)') 
+    CALL set_rangeA0('q23','q23')
+    call set_formula('=(0.19-373/R6C17)/1000+1') 
+    CALL set_rangeA0('r23','r23')
+    call set_formula('=(R[0]C[-1]-1)*1000')  
+    CALL setcell_characterA0('p24','CO2(g)-solution') 
+    CALL set_rangeA0('q24','q24')
     !call set_formula('=C15*O3/(C12*E3+F3+C13*G3)') 
-    call set_formula('=R15C3*R3C15/(R12C3*R3C5+R3C6+R13C3*R3C7)') 
-    CALL set_rangeA0('d17','d17')
-    call set_formula('=(R17C3-1)*1000')       
-    ! A0 Models
+    call set_formula('=R[-2]C[0]*R3C17/(R[-5]C[0]*R3C5+R3C6+R[-4]C[0]*R3C7)') 
+    CALL set_rangeA0('r24','r24')
+    call set_formula('=(R[0]C[-1]-1)*1000')   
+    
+    ! Shade calculated values
+    !CALL set_rangeA0('q2','r24')
+    !interior = range_GetInterior(rangeA0, status)
+    !CALL Check_Status(status, " Unable to get interior")
+    !vInt%VT = VT_I4
+    !vInt%VU%LONG_VAL = xlAutomatic  
+    !call Interior_SetColorIndex(interior, vInt, status)
+    !vInt%VT = VT_I4
+    !vInt%VU%LONG_VAL = xlThemeColorLight2  
+    !call Interior_SetColorIndex(interior, vInt, status)
+    !vInt%VT = VT_R8
+    !vInt%VU%DOUBLE_VAL = 0.799981688894314
+    !call Interior_SetColorIndex(interior, vInt, status)
+    !vInt%VT = VT_I4
+    !vInt%VU%LONG_VAL = 0 
+    !call Interior_SetColorIndex(interior, vInt, status)
+    !call Interior_SetPatternTintAndShade(interior, vInt, status)
 
-    CALL setcell_characterA0('a19','MODEL NUMBER')
-    CALL setcell_characterA0('b19','A0 model')
-    CALL setcell_characterA0('c19','FG K')
-    CALL setcell_characterA0('d19','Age, yr')
+    ! A0 Models
+    CALL setcell_characterA0('a9','MODEL NUMBER')
+    CALL setcell_characterA0('b9','A0 model')
+    CALL setcell_characterA0('c9','FG K')
+    CALL setcell_characterA0('d9','A0, pmc')
+    CALL setcell_characterA0('e9','Age, yr')
 
     !! Tamers
     !CALL setcell_characterA0('a20','4')
@@ -1690,99 +1764,80 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     !CALL setcell_characterA0('f12','Use solid exchange (model 11) if measured is right of vertical lines')
 
     ! Tamers
-    CALL setcell_characterA0('a20','4')
-    CALL setcell_characterA0('b20','Tamers')
-    CALL set_rangeA0('d20','d20')
+    CALL setcell_characterA0('a10','4')
+    CALL setcell_characterA0('b10','Tamers')
+    CALL set_rangeA0('d10','d10')
     !call set_formula('=((((E3+0.5*F3)*D6+D5 *0.5*F3)/(E3+F3)) *O3+I3*J3+L3 *M3)/O3') 
     ! =((((E3+0.5*F3)*D6+D5 *0.5*F3)/(E3+F3)) *O3+I3*J3+L3 *M3)/O3
-    call set_formula('=((((R3C5+0.5*R3C6)*R6C4+R5C4 *0.5*R3C6)/(R3C5+R3C6))*R3C15+R3C9*R3C10+R3C12*R3C13)/R3C15') 
-    CALL setcell_characterA0('g20','Use Tamers (model 4) if measured is between vertical blue lines')
-    CALL set_rangeA0('e20','e20')
-    CALL set_formula('=IF(R20C4 > 0, 5730/LN(2)*LN(R20C4/R3C4), 0)')
+    call set_formula('=((((R3C5+0.5*R3C6)*R6C4+R5C4 *0.5*R3C6)/(R3C5+R3C6))*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C17') 
+    CALL set_rangeA0('e10','e10')
+    CALL set_formula('=IF(R10C4 > 0, 5730/LN(2)*LN(R10C4/R3C4), 0)')
     
     ! Revised F&G gas exchange
-    CALL setcell_characterA0('a21','10')
-    CALL setcell_characterA0('b21','Revised F&G, Gas exchange')
-    CALL set_rangeA0('c21','c21')
-    call set_formula('=(R6C4-0.5*(R6C4+0.2*R16C4+R5C4)-0.2*R15C4)*(R3C3-R3C5/R3C15*(R6C3+R16C4)-R3C6/R3C15*0.5*(R6C3+R16C4+R5C3))/(R6C3-0.5*(R6C3+R16C4+R5C3)-R15C4)')
-    CALL set_rangeA0('d21','d21')
-    call set_formula('=(R3C5/R3C15*(R6C4+0.2*R16C4)+R3C6/R3C15*0.5*(R6C4+0.2*R16C4 + R5C4))+R21C3')
-    CALL setcell_characterA0('g21','Use gas exchange (model 10) if measured is left of vertical blue lines')
-    CALL set_rangeA0('e21','e21')
-    CALL set_formula('=IF(R21C4 > 0, 5730/LN(2)*LN(R21C4/R3C4), 0)')
+    CALL setcell_characterA0('a11','10')
+    CALL setcell_characterA0('b11','Revised F&G, Gas exchange')
+    CALL set_rangeA0('c11','c11')
+    call set_formula('=(R6C4-0.5*(R6C4+0.2*R23C18+R5C4)-0.2*R22C18)*(R3C3-R3C5/R3C17*(R6C3+R23C18)-R3C6/R3C17*0.5*(R6C3+R23C18+R5C3))/(R6C3-0.5*(R6C3+R23C18+R5C3)-R22C18)')
+    CALL set_rangeA0('d11','d11')
+    call set_formula('=(R3C5/R3C17*(R6C4+0.2*R23C18)+R3C6/R3C17*0.5*(R6C4+0.2*R23C18 + R5C4))+R11C3')
+    CALL set_rangeA0('e11','e11')
+    CALL set_formula('=IF(R11C4 > 0, 5730/LN(2)*LN(R11C4/R3C4), 0)')
     
     ! Revised F&G solid exchange
-    CALL setcell_characterA0('a22','11')
-    CALL setcell_characterA0('b22','Revised F&G, Solid exchange')
-    CALL set_rangeA0('c22','c22')
-    call set_formula('=(R5C4-0.5*(R6C4+0.2*R16C4+R5C4)-0.2*R14C4)*(R3C3-R3C5/R3C15*(R6C3+R16C4)-R3C6/R3C15*0.5*(R6C3+R16C4+R5C3))/(R5C3-0.5*(R6C3+R16C4+R5C3)-R14C4)')
-    CALL set_rangeA0('d22','d22')
-    call set_formula('=(R3C5/R3C15*(R6C4+0.2*R16C4)+R3C6/R3C15*0.5*(R6C4+0.2*R16C4 + R5C4))+R22C3')
-    CALL setcell_characterA0('g22','Use solid exchange (model 11) if measured is right of vertical blue lines')  
-    CALL set_rangeA0('e22','e22')
+    CALL setcell_characterA0('a12','11')
+    CALL setcell_characterA0('b12','Revised F&G, Solid exchange')
+    CALL set_rangeA0('c12','c12')
+    call set_formula('=(R5C4-0.5*(R6C4+0.2*R23C18+R5C4)-0.2*R21C18)*(R3C3-R3C5/R3C17*(R6C3+R23C18)-R3C6/R3C17*0.5*(R6C3+R23C18+R5C3))/(R5C3-0.5*(R6C3+R23C18+R5C3)-R21C18)')
+    CALL set_rangeA0('d12','d12')
+    call set_formula('=(R3C5/R3C17*(R6C4+0.2*R23C18)+R3C6/R3C17*0.5*(R6C4+0.2*R23C18 + R5C4))+R12C3') 
+    CALL set_rangeA0('e12','e12')
     ! 5730.0D0/DLOG(2.D0)*DLOG(dResult/Dfinal)
-    CALL set_formula('=IF(R22C4 > 0, 5730/LN(2)*LN(R22C4/R3C4), 0)')
-    
-    
-    
-    ! Origin X, x values
-    CALL setcell_characterA0('r2','Origin X')
-    CALL set_rangeA0('s2','s2')
-    call set_formula('=R[7]C[-16]')
-    CALL set_rangeA0('s3','s3')
-    call set_formula('=R[6]C[-16]')
-    
-    ! Origin X, y values
-    CALL setcell_floatA0('t2',0.0,2)
-    CALL setcell_floatA0('t3',max_y,2)     
-    
-    ! Origin Y, x values
-    CALL setcell_characterA0('r4','Origin Y')
-    CALL setcell_floatA0('s4',-30.,2)
-    CALL setcell_floatA0('s5',max_x,2)
-    
-    ! Origin Y, y values
-    CALL set_rangeA0('t4','t4')
-    call set_formula('=R[5]C[-16]')
-    CALL set_rangeA0('t5','t5')
-    call set_formula('=R[4]C[-16]')
-    
-    !CALL set_rangeA0('p7','p7')
-    !CALL VariantInit(vBSTR1)
-    !vBSTR1%VT = VT_BSTR
-    !bstr1 = ConvertStringToBSTR('=R[-1]')
-    !vBSTR1%VU%PTR_VAL = bstr1     
-    !CALL Range_SetFormulaR1C1(rangeA0, vBSTR1, status)
-    !CALL Check_Status(status, " Unable to set formula")
-    !status = VariantClear(vBSTR1)
-    !bstr1 = 0    
-    
-    ! Tamers lines
-        ! right
-    CALL setcell_characterA0('r6','Tamers')
-    CALL set_rangeA0('s6','s6')
-    call set_formula('=R[1]C[-16] + R[3]C[-16]')
-    CALL setcell_floatA0('t6',0.,2)
-    
-    CALL set_rangeA0('s7','s7')
-    call set_formula('=R[-1]C[0]')
-    CALL setcell_floatA0('t7',max_y,2)
+    CALL set_formula('=IF(R12C4 > 0, 5730/LN(2)*LN(R12C4/R3C4), 0)')
 
-        ! left
-    CALL set_rangeA0('s8','s8')
-    call set_formula('=-R[-1]C[-16] + R[1]C[-16]')
-    CALL setcell_floatA0('t8',0.,2)  
+    ! Comments
+    CALL setcell_characterA0('g21','In applying the Revised Fontes & Garnier model of Han and Plummer (2013): ')  
+        ! bold
+    CALL set_rangeA0('g21','g21')
+    font = Range_GetFont(rangeA0, status)
+    vInt%VT = VT_I4
+    vInt%VU%LONG_VAL = msoTrue   
+    call Font_SetBold(font, vInt, status)
+    CALL setcell_characterA0('g22','Use Tamers (model 4) if measured is insid blue lines')
+    CALL setcell_characterA0('g23','Use gas exchange (model 10) if measured is left of lines')
+    CALL setcell_characterA0('g23','Use solid exchange (model 11) if measured is right of lines') 
     
-    CALL set_rangeA0('s9','s9')
-    call set_formula('=R[-1]C[0]')
-    CALL setcell_floatA0('t9',max_y,2)
-
+    ! Notes
+    CALL setcell_characterA0('a14','Note: If the initial water and final water are defined separately, the adjustment ')
+    CALL setcell_characterA0('a15','model will be applied to the initial water.  The modeled Ao value will then be')
+    CALL setcell_characterA0('a16','adjusted using the geochemical model found in evolving the initial water to the')
+    CALL setcell_characterA0('a17','final water.  If the adjustment model is to be applied to a single water sample,')
+    CALL setcell_characterA0('a18','that sample should be selected as both the initial and final water sample.')
+    
+    ! Refs
+    CALL setcell_characterA0('a20','* Han, L.-F. and Plummer, L.N., 2013, Revision of Fontes & Garnier''s model for ')
+    CALL setcell_characterA0('a21','the initial 14C content of dissolved inorganic carbon used in groundwater')
+    CALL setcell_characterA0('a22','dating.  Chemical Geology 351 (2013) 105-114.')
+    CALL setcell_characterA0('a24','See also: Han, L.-F., Plummer, L.N., and Aggarwal, P., 2012, A graphical method')
+    CALL setcell_characterA0('a25','to evaluate predominant geochemical processes occurring ingroundwater')
+    CALL setcell_characterA0('a26','systems for radiocarbon dating.  Chemical Geology 318-319, 88-112.')
+    
     ! Put all 13C, 14C data in spreadsheet for plot
-    CALL setcell_characterA0('B42','Well name')
-    CALL setcell_characterA0('C42','13C')
-    CALL setcell_characterA0('D42','14C')
+    CALL setcell_characterA0('B28','Well name')
+    CALL setcell_characterA0('b28','Well name') 
+    CALL setcell_characterA0('c28','13C, permil')
+    CALL setcell_characterA0('d28','14C, pmc')  
+    CALL setcell_characterA0('e28','H2CO3')
+    CALL setcell_characterA0('f28','HCO3')
+    CALL setcell_characterA0('g28','CO3')
+    CALL setcell_characterA0('h28','TempC')
+    CALL setcell_characterA0('i28','CH4')
+    CALL setcell_characterA0('j28','13C CH4')
+    CALL setcell_characterA0('k28','14C CH4')
+    CALL setcell_characterA0('l28','DOC')
+    CALL setcell_characterA0('m28','13C DOC')
+    CALL setcell_characterA0('n28','14C DOC')    
     do i = 1, Nwlls
-        write(str,'(I3)') i+42
+        write(str,'(I3)') i+28
         call left_trim(str)
         rng = 'B' // str
         call setcell_characterA0(rng(1:lens(rng)), Wllnms(i))
@@ -1790,8 +1845,32 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
             rng = 'C' // str
             CALL setcell_floatA0(rng(1:lens(rng)), real(DBDATA(i,21)/DBDATA(i,41)), 2)
             rng = 'D' // str
-            CALL setcell_floatA0(rng(1:lens(rng)), real(DBDATA(i,22)/DBDATA(i,41)), 2)            
+            CALL setcell_floatA0(rng(1:lens(rng)), real(DBDATA(i,22)/DBDATA(i,41)), 2)     
         endif 
+        rng = 'E' // str   
+        CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,38)),2)
+        rng = 'F' // str   
+        CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,36)),2)
+        rng = 'G' // str   
+        CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,39)),2)
+        rng = 'H' // str   
+        CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,50)),2)
+        rng = 'I' // str   
+        if (Dbdata(Well(1),42) .gt. 0) then  
+            CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,42)),2)
+        endif
+        rng = 'J' // str   
+        CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,44)),2)
+        rng = 'K' // str   
+        CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,46)),2)
+        rng = 'L' // str   
+        if (Dbdata(Well(1),43) .gt. 0) then      
+            CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,43)),2)
+        endif
+        rng = 'M' // str   
+        CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,45)),2)
+        rng = 'N' // str   
+        CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,47)),2)            
     enddo
     
     ! Generate plot
@@ -1891,13 +1970,11 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL Check_Status(status, " Unable to delete default series")
     
     ! Add series  X origin
-    call add_line("=Sheet1!$S$2:$S$3","=Sheet1!$T$2:$T$3", "X origin", "black", 1.0)
+    call add_line("=Sheet1!$Q$8:$Q$9","=Sheet1!$R$8:$R$9", "X origin", "black", 1.0)
     ! Add series  Y origin
-    call add_line("=Sheet1!$S$4:$S$5","=Sheet1!$T$4:$T$5", "Y origin", "black", 1.0)
+    call add_line("=Sheet1!$Q$10:$Q$11","=Sheet1!$R$10:$R$11", "Y origin", "black", 1.0)
     ! Add series  Tamers left
-    call add_line("=Sheet1!$S$6:$S$7","=Sheet1!$T$6:$T$7", "Tamers left", "blue", 2.0)
-    ! Add series  Tamers right
-    call add_line("=Sheet1!$S$8:$S$9","=Sheet1!$T$8:$T$9", "Tamers right", "blue", 2.0)
+    call add_line("=Sheet1!$Q$12:$Q$15","=Sheet1!$R$12:$R$15", "Tamers", "blue", 2.0)
     
     ! All data in file
     series_collection = $Chart_SeriesCollection(chartA0)	
@@ -1905,7 +1982,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
         ! x range
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$C43:C$1000")
+    bstr1 = ConvertStringToBSTR("=Sheet1!$C29:C$1000")
     vBSTR1%VU%PTR_VAL = bstr1    
     call Series_SetXValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
@@ -1913,7 +1990,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
          ! y range
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$D43:$D1000")
+    bstr1 = ConvertStringToBSTR("=Sheet1!$D29:$D1000")
     vBSTR1%VU%PTR_VAL = bstr1    
     call Series_SetValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
@@ -2008,9 +2085,9 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL Check_Status(status, " Unable to get ShapeRange")     
     status = VariantClear(vBSTR1)
     bstr1 = 0   
-    call ShapeRange_IncrementLeft(shape_range, 140., status)
+    call ShapeRange_IncrementLeft(shape_range, 180., status)
     CALL Check_Status(status, " Unable to IncrementLeft")
-    call ShapeRange_IncrementTop(shape_range, -125., status) ! more negative moves chart up
+    call ShapeRange_IncrementTop(shape_range, -65., status) ! more negative moves chart up
     CALL Check_Status(status, " Unable to IncrementTop")
     
     l2 = .true.

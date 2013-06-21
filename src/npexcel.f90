@@ -1709,20 +1709,33 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call set_formula('=(R[0]C[-1]-1)*1000')   
     
     ! Shade calculated values
-    !CALL set_rangeA0('q2','r24')
+    CALL set_rangeA0('q2','r31')
+    call set_fill()
+    CALL set_rangeA0('d10','e12')
+    call set_fill()
+    CALL set_rangeA0('c11','c12')
+    call set_fill()
     !interior = range_GetInterior(rangeA0, status)
     !CALL Check_Status(status, " Unable to get interior")
+    !    ! pattern
+    !vInt%VT = VT_I4
+    !vInt%VU%LONG_VAL = xlSolid  
+    !call Interior_SetPattern(interior, vInt, status)
+    !    ! PatternColorIndex
+    !vInt%VT = VT_I4
+    !vInt%VU%LONG_VAL = xlAutomatic  
+    !call Interior_SetPatternColorIndex(interior, vInt, status)
+    !    ! Color
+    !vInt%VT = VT_I4
+    !vInt%VU%LONG_VAL = 10092543  
+    !call Interior_SetColor(interior, vInt, status)
+    
     !vInt%VT = VT_I4
     !vInt%VU%LONG_VAL = xlAutomatic  
     !call Interior_SetColorIndex(interior, vInt, status)
+    
     !vInt%VT = VT_I4
     !vInt%VU%LONG_VAL = xlThemeColorLight2  
-    !call Interior_SetColorIndex(interior, vInt, status)
-    !vInt%VT = VT_R8
-    !vInt%VU%DOUBLE_VAL = 0.799981688894314
-    !call Interior_SetColorIndex(interior, vInt, status)
-    !vInt%VT = VT_I4
-    !vInt%VU%LONG_VAL = 0 
     !call Interior_SetColorIndex(interior, vInt, status)
     !call Interior_SetPatternTintAndShade(interior, vInt, status)
 
@@ -2837,3 +2850,30 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     status = VariantClear(vBSTR1)
     bstr1 = 0  
     end Subroutine set_formula
+    
+    Subroutine set_fill
+    ! assumes rangeA0 is set
+    USE IFQWIN
+    USE IFCOM    
+    USE ADOBJECTS
+    implicit none
+	TYPE (VARIANT) :: vInt
+    integer*4 interior
+    integer*4 status
+    
+    interior = range_GetInterior(rangeA0, status)
+    CALL Check_Status(status, " Unable to get interior")
+        ! pattern
+    vInt%VT = VT_I4
+    vInt%VU%LONG_VAL = xlSolid  
+    call Interior_SetPattern(interior, vInt, status)
+        ! PatternColorIndex
+    vInt%VT = VT_I4
+    vInt%VU%LONG_VAL = xlAutomatic  
+    call Interior_SetPatternColorIndex(interior, vInt, status)
+        ! Color
+    vInt%VT = VT_I4
+    vInt%VU%LONG_VAL = 10092543  
+    call Interior_SetColor(interior, vInt, status)
+    return
+    end Subroutine set_fill

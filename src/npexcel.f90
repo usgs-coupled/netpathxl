@@ -1373,7 +1373,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     double precision a0_models(*)
     character*(*) well_name
     character*20 str, rng
-    double precision top, left
+    double precision top, left, bottom, right
     
     ! common blocks
     INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
@@ -1483,7 +1483,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     
     ! set width for C, 13C, permil
     call set_rangeA0('p1','p1')
-    call set_column_width(16.0)   
+    call set_column_width(20.0)   
 
     ! set decimal 
     call set_rangeA0('c3','p3')
@@ -1504,7 +1504,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call set_rangeA0('r5','r50')
     call set_decimal_places('0.0') 
     
-    call set_rangeA0('q19','q24')
+    call set_rangeA0('q19','q25')
     call set_decimal_places('0.00000') 
     
     call set_rangeA0('c20','e22')
@@ -1543,7 +1543,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL setcell_characterA0('l2','DOC')
     CALL setcell_characterA0('m2','13C DOC')
     CALL setcell_characterA0('n2','14C DOC')
-    CALL setcell_characterA0('o2','1/HCO3')  
+    !CALL setcell_characterA0('o2','1/HCO3')  
     CALL setcell_characterA0('q2','TDIC')
     CALL setcell_characterA0('r2','Total C')
     
@@ -1565,9 +1565,9 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     endif
     CALL setcell_floatA0('m3',real(Dbdata(Well(1),45)),2)
     CALL setcell_floatA0('n3',real(Dbdata(Well(1),47)),2)        
-    if (Dbdata(Well(1),36) .gt. 0.0) then 
-        CALL setcell_floatA0('o3',real(1.0/Dbdata(Well(1),36)),2)   
-    endif
+    !if (Dbdata(Well(1),36) .gt. 0.0) then 
+    !    CALL setcell_floatA0('o3',real(1.0/Dbdata(Well(1),36)),2)   
+    !endif
     ! Calculate tdic and total c   
     CALL set_rangeA0('q3','q3')
     !call set_formula('=E3+F3+G3') 
@@ -1584,7 +1584,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL setcell_floatA0('c6',real(c13_uz),2)
     CALL setcell_floatA0('d6',real(c14_uz),2)
     ! Uncertainty in X (13C)
-    CALL setcell_characterA0('b7','13C Uncertainty')
+    CALL setcell_characterA0('b7','Uncertainty')
     CALL setcell_floatA0('c7',2.0,2) 
     CALL setcell_floatA0('d7',5.0,2) 
     
@@ -1625,7 +1625,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
 
     ! Tamers lines
         ! right
-    CALL setcell_characterA0('p12','Tamers')
+    CALL setcell_characterA0('p12','Tamers area')
     CALL set_rangeA0('q12','q12')
     call set_formula('=R[-7]C[0] + R7C3')
     CALL setcell_floatA0('r12',0.,2)
@@ -1712,6 +1712,11 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call set_formula('=R[-2]C[0]*R3C17/(R[-5]C[0]*R3C5+R3C6+R[-4]C[0]*R3C7)') 
     CALL set_rangeA0('r24','r24')
     call set_formula('=(R[0]C[-1]-1)*1000')   
+    CALL setcell_characterA0('p25','Calcite-solution') 
+    CALL set_rangeA0('q25','q25')
+    call set_formula('=R[-4]C[0]*R3C17/(R[-6]C[0]*R3C5+R3C6+R[-5]C[0]*R3C7)') 
+    CALL set_rangeA0('r25','r25')
+    call set_formula('=(R[0]C[-1]-1)*1000')       
     
     ! Shade calculated values
     CALL set_rangeA0('q2','r31')
@@ -1724,7 +1729,8 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call set_fill(10092543)
     CALL setcell_characterA0('L1','Output shaded yellow')
     ! Shade input values
-    CALL set_rangeA0('c3','o3')
+    !CALL set_rangeA0('c3','o3')
+    CALL set_rangeA0('c3','n3')
     call set_fill(16772300)
     CALL set_rangeA0('c5','d7')
     call set_fill(16772300)
@@ -1735,22 +1741,22 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
 
     ! More lines
         ! Zero age line
-    CALL setcell_characterA0('p26','Zero-age line')
-    CALL set_rangeA0('q26','q26')
-    call set_formula('=R5C3')
-    CALL set_rangeA0('r26','r26')
-    call set_formula('=R5C4')
+    CALL setcell_characterA0('p27','Zero-age line')
     CALL set_rangeA0('q27','q27')
-    call set_formula('=R5C17')
+    call set_formula('=R5C3')
     CALL set_rangeA0('r27','r27')
+    call set_formula('=R5C4')
+    CALL set_rangeA0('q28','q28')
+    call set_formula('=R5C17')
+    CALL set_rangeA0('r28','r28')
     call set_formula('=R5C18')
     
         ! Mook line
-    CALL setcell_characterA0('p30','Mook line')
+    CALL setcell_characterA0('p30','Zero-age line (Mook)')
     CALL set_rangeA0('q30','q30')
-    call set_formula('=R27C17')
+    call set_formula('=R28C17')
     CALL set_rangeA0('r30','r30')
-    call set_formula('=R27C18')
+    call set_formula('=R28C18')
     CALL set_rangeA0('q31','q31')
     call set_formula('=R6C3-R24C18')
     CALL set_rangeA0('r31','r31')
@@ -1864,7 +1870,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL setcell_characterA0('l28','DOC')
     CALL setcell_characterA0('m28','13C DOC')
     CALL setcell_characterA0('n28','14C DOC') 
-    CALL setcell_characterA0('o28','1/HCO3')    
+    !CALL setcell_characterA0('o28','1/HCO3')    
     do i = 1, Nwlls
         write(str,'(I3)') i+28
         call left_trim(str)
@@ -1900,10 +1906,10 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
         CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,45)),2)
         rng = 'N' // str   
         CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,47)),2)   
-        if (Dbdata(i,36) .gt. 0.0) then 
-            rng = 'O' // str   
-            CALL setcell_floatA0(rng(1:lens(rng)),real(1.0/Dbdata(i,36)),2)   
-        endif
+        !if (Dbdata(i,36) .gt. 0.0) then 
+        !    rng = 'O' // str   
+        !    CALL setcell_floatA0(rng(1:lens(rng)),real(1.0/Dbdata(i,36)),2)   
+        !endif
     enddo
     
     ! Generate plot
@@ -2009,9 +2015,9 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     ! Add series  Tamers origin
     call add_line("=Sheet1!$Q$12:$Q$15","=Sheet1!$R$12:$R$15", "Tamers area", "blue", 2.0)
     ! Add series  Zero-age line
-    call add_line("=Sheet1!$Q$26:$Q$27","=Sheet1!$R$26:$R$27", "Zero-age line", "default", 2.0)
+    call add_line("=Sheet1!$Q$27:$Q$28","=Sheet1!$R$27:$R$28", "Zero-age line", "default", 2.0)
     ! Add series  Tamers origin
-    call add_line("=Sheet1!$Q$30:$Q$31","=Sheet1!$R$30:$R$31", "Mook line", "default", 2.0)
+    call add_line("=Sheet1!$Q$30:$Q$31","=Sheet1!$R$30:$R$31", "Zero-age line (Mook)", "default", 2.0)
     
     ! UZ gas point
     series_collection = $Chart_SeriesCollection(chartA0)	
@@ -2175,14 +2181,22 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     ! relocate chart to corner of g5
     CALL set_rangeA0('g5','g5')
     vInt = Range_GetLeft(rangeA0, status)
-    top = vInt%VU%DOUBLE_VAL
-    call ShapeRange_IncrementLeft(shape_range, real(top), status)
+    left = vInt%VU%DOUBLE_VAL
+    call ShapeRange_IncrementLeft(shape_range, real(left), status)
     CALL Check_Status(status, " Unable to IncrementLeft")    
     vInt = Range_GetTop(rangeA0, status)
-    left = vInt%VU%DOUBLE_VAL
-    call ShapeRange_IncrementTop(shape_range, real(left), status) ! more negative moves chart up
+    top = vInt%VU%DOUBLE_VAL
+    call ShapeRange_IncrementTop(shape_range, real(top), status) ! more negative moves chart up
     CALL Check_Status(status, " Unable to IncrementTop")   
     
+    ! set chart size
+    CALL set_rangeA0('o20','o20')
+    vInt = Range_GetLeft(rangeA0, status)
+    right = vInt%VU%DOUBLE_VAL
+    vInt = Range_GetTop(rangeA0, status)
+    bottom = vInt%VU%DOUBLE_VAL
+    call ShapeRange_SetWidth(shape_range, real(right - left), status)
+    call ShapeRange_SetHeight(shape_range, real(bottom - top), status)
     
     l2 = .true.
     CALL $WorkBook_SetSaved(workbookA0, l2, status)

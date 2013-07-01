@@ -1373,6 +1373,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     double precision a0_models(*)
     character*(*) well_name
     character*20 str, rng
+    double precision top, left
     
     ! common blocks
     INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
@@ -1453,7 +1454,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     END IF
     l = .TRUE.
     CALL $Application_SetVisible(excelappA0, l)
-    CALL $Application_SetWidth(excelappA0, dble(875.), status)
+    CALL $Application_SetWidth(excelappA0, dble(900.), status)
     CALL $Application_SetHeight(excelappA0, dble(650.), status)
 
     ! Get the WORKBOOKS object
@@ -1542,6 +1543,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL setcell_characterA0('l2','DOC')
     CALL setcell_characterA0('m2','13C DOC')
     CALL setcell_characterA0('n2','14C DOC')
+    CALL setcell_characterA0('o2','1/HCO3')  
     CALL setcell_characterA0('q2','TDIC')
     CALL setcell_characterA0('r2','Total C')
     
@@ -1562,7 +1564,10 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
         CALL setcell_floatA0('l3',real(Dbdata(Well(1),43)),2)
     endif
     CALL setcell_floatA0('m3',real(Dbdata(Well(1),45)),2)
-    CALL setcell_floatA0('n3',real(Dbdata(Well(1),47)),2)
+    CALL setcell_floatA0('n3',real(Dbdata(Well(1),47)),2)        
+    if (Dbdata(Well(1),36) .gt. 0.0) then 
+        CALL setcell_floatA0('o3',real(1.0/Dbdata(Well(1),36)),2)   
+    endif
     ! Calculate tdic and total c   
     CALL set_rangeA0('q3','q3')
     !call set_formula('=E3+F3+G3') 
@@ -1696,9 +1701,9 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call set_formula('=(23.89-9483/R6C17)/1000+1') 
     CALL set_rangeA0('r22','r22')
     call set_formula('=(R[0]C[-1]-1)*1000') 
-    CALL setcell_characterA0('p23','CO2(aq)-CO2(g)') 
+    CALL setcell_characterA0('p23','CO2(g)-CO2(aq)') 
     CALL set_rangeA0('q23','q23')
-    call set_formula('=(0.19-373/R6C17)/1000+1') 
+    call set_formula('=1.0/((0.19-373/R6C17)/1000+1)') 
     CALL set_rangeA0('r23','r23')
     call set_formula('=(R[0]C[-1]-1)*1000')  
     CALL setcell_characterA0('p24','CO2(g)-solution') 
@@ -1719,7 +1724,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call set_fill(10092543)
     CALL setcell_characterA0('L1','Output shaded yellow')
     ! Shade input values
-    CALL set_rangeA0('c3','n3')
+    CALL set_rangeA0('c3','o3')
     call set_fill(16772300)
     CALL set_rangeA0('c5','d7')
     call set_fill(16772300)
@@ -1739,10 +1744,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call set_formula('=R5C17')
     CALL set_rangeA0('r27','r27')
     call set_formula('=R5C18')
-    CALL set_rangeA0('q28','q28')
-    call set_formula('=R6C3')
-    CALL set_rangeA0('r28','r28')
-    call set_formula('=R6C4')
+    
         ! Mook line
     CALL setcell_characterA0('p30','Mook line')
     CALL set_rangeA0('q30','q30')
@@ -1750,7 +1752,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL set_rangeA0('r30','r30')
     call set_formula('=R27C18')
     CALL set_rangeA0('q31','q31')
-    call set_formula('=R28C17-R22C18')
+    call set_formula('=R6C3-R24C18')
     CALL set_rangeA0('r31','r31')
     call set_formula('=R6C4')
 
@@ -1861,7 +1863,8 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL setcell_characterA0('k28','14C CH4')
     CALL setcell_characterA0('l28','DOC')
     CALL setcell_characterA0('m28','13C DOC')
-    CALL setcell_characterA0('n28','14C DOC')    
+    CALL setcell_characterA0('n28','14C DOC') 
+    CALL setcell_characterA0('o28','1/HCO3')    
     do i = 1, Nwlls
         write(str,'(I3)') i+28
         call left_trim(str)
@@ -1896,7 +1899,11 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
         rng = 'M' // str   
         CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,45)),2)
         rng = 'N' // str   
-        CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,47)),2)            
+        CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,47)),2)   
+        if (Dbdata(i,36) .gt. 0.0) then 
+            rng = 'O' // str   
+            CALL setcell_floatA0(rng(1:lens(rng)),real(1.0/Dbdata(i,36)),2)   
+        endif
     enddo
     
     ! Generate plot
@@ -2002,9 +2009,51 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     ! Add series  Tamers origin
     call add_line("=Sheet1!$Q$12:$Q$15","=Sheet1!$R$12:$R$15", "Tamers area", "blue", 2.0)
     ! Add series  Zero-age line
-    call add_line("=Sheet1!$Q$26:$Q$28","=Sheet1!$R$26:$R$28", "Zero-age line", "default", 2.0)
+    call add_line("=Sheet1!$Q$26:$Q$27","=Sheet1!$R$26:$R$27", "Zero-age line", "default", 2.0)
     ! Add series  Tamers origin
     call add_line("=Sheet1!$Q$30:$Q$31","=Sheet1!$R$30:$R$31", "Mook line", "default", 2.0)
+    
+    ! UZ gas point
+    series_collection = $Chart_SeriesCollection(chartA0)	
+    series = SeriesCollection_NewSeries(series_collection, status)
+        ! x range
+    CALL VariantInit(vBSTR1)
+    vBSTR1%VT = VT_BSTR
+    bstr1 = ConvertStringToBSTR("=Sheet1!$C6:C$6")
+    vBSTR1%VU%PTR_VAL = bstr1    
+    call Series_SetXValues(series, vBSTR1, status)
+    status = VariantClear(vBSTR1)
+    bstr1 = 0
+         ! y range
+    CALL VariantInit(vBSTR1)
+    vBSTR1%VT = VT_BSTR
+    bstr1 = ConvertStringToBSTR("=Sheet1!$D6:$D6")
+    vBSTR1%VU%PTR_VAL = bstr1    
+    call Series_SetValues(series, vBSTR1, status)
+    status = VariantClear(vBSTR1)
+    bstr1 = 0   
+    
+         ! Name
+    call Series_SetName(series, "UZ gas", status)
+         ! Marker style
+    call Series_SetMarkerStyle(series, xlMarkerStyleSquare, status)
+    call Series_SetMarkerSize(series, 5, status)
+    
+         ! Series adjustments
+    chart_format = Series_GetFormat(series, status)
+    CALL Check_Status(status, " Unable to ChartFormat object")
+        ! set fill color (prefer Excel default)
+    !fill = ChartFormat_GetFill(chart_format, status)
+    !CALL Check_Status(status, " Unable to get fill object")
+    !color_format = FillFormat_GetForeColor(fill, status)
+    !CALL Check_Status(status, " Unable to get color format object")
+    !CALL ColorFormat_SetRGB(color_format, RGBTOINTEGER(0,255,0), status)
+    !CALL Check_Status(status, " Unable to set fill color")
+        ! Turn off line
+    line_format = ChartFormat_GetLine(chart_format, status)
+    CALL Check_Status(status, " Unable to LineFormat object")
+    call LineFormat_SetVisible(line_format, msoFalse, status)
+    CALL Check_Status(status, " Unable to set not visible")
     
     ! All data in file
     series_collection = $Chart_SeriesCollection(chartA0)	
@@ -2048,8 +2097,9 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call LineFormat_SetVisible(line_format, msoFalse, status)
     CALL Check_Status(status, " Unable to set not visible")
 
+    
     ! measured point
-    series_collection = $Chart_SeriesCollection(chartA0)	
+    series_collection = $Chart_SeriesCollection(chartA0)
     series = SeriesCollection_NewSeries(series_collection, status)
         ! x range
     CALL VariantInit(vBSTR1)
@@ -2115,10 +2165,24 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL Check_Status(status, " Unable to get ShapeRange")     
     status = VariantClear(vBSTR1)
     bstr1 = 0   
-    call ShapeRange_IncrementLeft(shape_range, 180., status)
+    !call ShapeRange_IncrementLeft(shape_range, 180., status)
+    call ShapeRange_IncrementLeft(shape_range, -1000., status)
     CALL Check_Status(status, " Unable to IncrementLeft")
-    call ShapeRange_IncrementTop(shape_range, -65., status) ! more negative moves chart up
+    !call ShapeRange_IncrementTop(shape_range, -65., status) ! more negative moves chart up
+    call ShapeRange_IncrementTop(shape_range, -1000., status) ! more negative moves chart up
     CALL Check_Status(status, " Unable to IncrementTop")
+
+    ! relocate chart to corner of g5
+    CALL set_rangeA0('g5','g5')
+    vInt = Range_GetLeft(rangeA0, status)
+    top = vInt%VU%DOUBLE_VAL
+    call ShapeRange_IncrementLeft(shape_range, real(top), status)
+    CALL Check_Status(status, " Unable to IncrementLeft")    
+    vInt = Range_GetTop(rangeA0, status)
+    left = vInt%VU%DOUBLE_VAL
+    call ShapeRange_IncrementTop(shape_range, real(left), status) ! more negative moves chart up
+    CALL Check_Status(status, " Unable to IncrementTop")   
+    
     
     l2 = .true.
     CALL $WorkBook_SetSaved(workbookA0, l2, status)

@@ -1355,7 +1355,6 @@ bret = CreateProcess (                              &
 return
 
     end
-  
 Subroutine NewExcelA0(c13_meas, c14_meas, &
     c13_solid, c14_solid, &
     c13_uz, c14_uz, &
@@ -1375,6 +1374,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     character*(*) well_name
     character*20 str, rng
     double precision top, left, bottom, right
+    character*1048 c11,d11,c12,d12
     
     ! common blocks
     INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
@@ -1724,8 +1724,8 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call set_fill(10092543)
     CALL set_rangeA0('d10','e12')
     call set_fill(10092543)
-    CALL set_rangeA0('c11','c12')
-    call set_fill(10092543)
+    !CALL set_rangeA0('c11','c12')
+    !call set_fill(10092543)
     CALL set_rangeA0('k1','k1')
     call set_fill(10092543)
     CALL setcell_characterA0('L1','Output shaded yellow')
@@ -1766,7 +1766,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     ! A0 Models
     CALL setcell_characterA0('a9','MODEL NUMBER')
     CALL setcell_characterA0('b9','A0 model')
-    CALL setcell_characterA0('c9','FG K')
+    !CALL setcell_characterA0('c9','FG K')
     CALL setcell_characterA0('d9','A0, pmc')
     CALL setcell_characterA0('e9','Age, yr')
 
@@ -1786,20 +1786,26 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     ! Revised F&G gas exchange
     CALL setcell_characterA0('a11','10')
     CALL setcell_characterA0('b11','Revised F&G, Gas exchange')
-    CALL set_rangeA0('c11','c11')
-    call set_formula('=(R6C4-0.5*(R6C4+0.2*R23C18+R5C4)-0.2*R22C18)*(R3C3-R3C5/R3C17*(R6C3+R23C18)-R3C6/R3C17*0.5*(R6C3+R23C18+R5C3))/(R6C3-0.5*(R6C3+R23C18+R5C3)-R22C18)')
+    !CALL set_rangeA0('c11','c11')
+    !call set_formula('=(R6C4-0.5*(R6C4+0.2*R23C18+R5C4)-0.2*R24C18)*(R3C3-R3C5/R3C17*(R6C3+R23C18)-R3C6/R3C17*0.5*(R6C3+R23C18+R5C3))/(R6C3-0.5*(R6C3+R23C18+R5C3)-R24C18)')
+    c11 ='((R6C4-0.5*(R6C4+0.2*R23C18+R5C4)-0.2*R24C18)*(R3C3-R3C5/R3C17*(R6C3+R23C18)-R3C6/R3C17*0.5*(R6C3+R23C18+R5C3))/(R6C3-0.5*(R6C3+R23C18+R5C3)-R24C18))'
     CALL set_rangeA0('d11','d11')
-    call set_formula('=(((R3C5/R3C17*(R6C4+0.2*R23C18)+R3C6/R3C17*0.5*(R6C4+0.2*R23C18 + R5C4))+R11C3)*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18')
+    !call set_formula('=(((R3C5/R3C17*(R6C4+0.2*R23C18)+R3C6/R3C17*0.5*(R6C4+0.2*R23C18 + R5C4))+R11C3)*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18')
+    d11 = '=(((R3C5/R3C17*(R6C4+0.2*R23C18)+R3C6/R3C17*0.5*(R6C4+0.2*R23C18 + R5C4))+'//trim(c11)//')*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18'
+    call set_formula(trim(d11))
     CALL set_rangeA0('e11','e11')
     CALL set_formula('=IF(R11C4 > 0, 5730/LN(2)*LN(R11C4/((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)), 0)')
     
     ! Revised F&G solid exchange
     CALL setcell_characterA0('a12','11')
     CALL setcell_characterA0('b12','Revised F&G, Solid exchange')
-    CALL set_rangeA0('c12','c12')
-    call set_formula('=(R5C4-0.5*(R6C4+0.2*R23C18+R5C4)-0.2*R21C18)*(R3C3-R3C5/R3C17*(R6C3+R23C18)-R3C6/R3C17*0.5*(R6C3+R23C18+R5C3))/(R5C3-0.5*(R6C3+R23C18+R5C3)-R21C18)')
+    !CALL set_rangeA0('c12','c12')
+    !call set_formula('=(R5C4-0.5*(R6C4+0.2*R23C18+R5C4)-0.2*R25C18)*(R3C3-R3C5/R3C17*(R6C3+R23C18)-R3C6/R3C17*0.5*(R6C3+R23C18+R5C3))/(R5C3-0.5*(R6C3+R23C18+R5C3)-R25C18)')
+    c12 = '((R5C4-0.5*(R6C4+0.2*R23C18+R5C4)-0.2*R25C18)*(R3C3-R3C5/R3C17*(R6C3+R23C18)-R3C6/R3C17*0.5*(R6C3+R23C18+R5C3))/(R5C3-0.5*(R6C3+R23C18+R5C3)-R25C18))'
     CALL set_rangeA0('d12','d12')
-    call set_formula('=(((R3C5/R3C17*(R6C4+0.2*R23C18)+R3C6/R3C17*0.5*(R6C4+0.2*R23C18 + R5C4))+R12C3)*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18') 
+    !call set_formula('=(((R3C5/R3C17*(R6C4+0.2*R23C18)+R3C6/R3C17*0.5*(R6C4+0.2*R23C18 + R5C4))+R12C3)*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18') 
+    d12 = '=(((R3C5/R3C17*(R6C4+0.2*R23C18)+R3C6/R3C17*0.5*(R6C4+0.2*R23C18 + R5C4))+'//trim(c12)//')*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18'
+    call set_formula(trim(d12))
     CALL set_rangeA0('e12','e12')
     ! 5730.0D0/DLOG(2.D0)*DLOG(dResult/Dfinal)
     CALL set_formula('=IF(R12C4 > 0, 5730/LN(2)*LN(R12C4/((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)), 0)')
@@ -2178,7 +2184,830 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL $WorkBook_SetSaved(workbookA0, l2, status)
     CALL Check_Status(status, " Unable to SetSavded")
     
-    END subroutine NewExcelA0
+    END subroutine NewExcelA0  
+!Subroutine NewExcelA0(c13_meas, c14_meas, &
+!    c13_solid, c14_solid, &
+!    c13_uz, c14_uz, &
+!    a0_models, well_name)
+!    USE filenames
+!    USE max_size
+!    USE IFQWIN
+!    USE IFCOM
+!    USE ADOBJECTS
+!    USE excel_headings
+!
+!    IMPLICIT NONE   
+!    integer lens
+!    external lens  
+!    double precision c13_meas, c14_meas, c13_solid, c14_solid, c13_uz, c14_uz
+!    double precision a0_models(*)
+!    character*(*) well_name
+!    character*20 str, rng
+!    double precision top, left, bottom, right
+!    
+!    ! common blocks
+!    INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
+!    COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50), &
+!        Isdocrs(0:5)
+!    INTEGER Well, Tunit, Iflag, Inum, Nrun
+!    COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
+!    CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
+!    COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1), &
+!        Ion(4), Ffact(0:1) 
+!    DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
+!    COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40), &
+!        Disalong, Usera(5)  
+!    DOUBLE PRECISION Clmain, Cleach, Pdat, Res, Sfinal, Sinit, Maxdel,  &
+!        Mindel, Dfinal
+!    COMMON /DP3   / Clmain(202,40), Cleach(202,40), Pdat(40,40),  &
+!        Res(100), Sfinal(39), Sinit(5,59), Maxdel(39),  &
+!        Mindel(39), Dfinal
+!  
+!    ! Variables
+!    INTEGER*4 status
+!    TYPE (VARIANT) :: template
+!    INTEGER*4 loopCount
+!    INTEGER*4 die1
+!    INTEGER*4 die2
+!    INTEGER*4 roll
+!    INTEGER*4 maxScale
+!    CHARACTER (LEN = 32) :: loopc
+!    INTEGER*4   i, j
+!    LOGICAL*2 l
+!    REAL*4    rnd
+!    INTEGER*2, DIMENSION(1:12) :: cellCounts
+!    integer*4 excelapp1
+!    integer*4 series_collection, series, series_format, ptr_return
+!    integer*4 chart_format, line_format, color_format
+!    integer*4 axis, chart_area, shapes, shape_range
+!    integer*4 fill, font, interior
+!    character*10 cell_location
+!    logical*2 l2
+!
+!    ! Variant arguments
+!    TYPE (VARIANT) :: vBSTR1
+!    TYPE (VARIANT) :: vBSTR2
+!    TYPE (VARIANT) :: vBSTR3
+!    TYPE (VARIANT) :: vBSTR4
+!    TYPE (VARIANT) :: vBSTR5
+!
+!    TYPE (VARIANT) :: vInt
+!    real max_x, max_y, data_x, data_y
+!
+!    ! set max for graph
+!    max_x = 10
+!    max_y = 100
+!    data_x = -100
+!    data_y = -100
+!    do i = 1, Nwlls
+!        if (DBDATA(i,41) .ne. 0) then
+!            if (DBDATA(i,21)/DBDATA(i,41) > data_x) then
+!                data_x = DBDATA(i,21)/DBDATA(i,41)
+!            endif                  
+!            if (DBDATA(i,22)/DBDATA(i,41) > data_y) then
+!                data_y = DBDATA(i,21)/DBDATA(i,41)
+!            endif
+!        endif 
+!    enddo    
+!    do while (data_x > max_x) 
+!        max_x = max_x + 10.
+!    enddo 
+!    do while (data_y > max_y) 
+!        max_y = max_y + 10.
+!    enddo     
+!
+!    ! Create an Excel object
+!    CALL COMCreateObjectByProgID("Excel.Application", excelappA0, status)
+!    IF (excelappA0 == 0) THEN
+!        WRITE (*, '(" Unable to create Excel object; Aborting")')
+!        CALL EXIT()
+!    END IF
+!    l = .TRUE.
+!    CALL $Application_SetVisible(excelappA0, l)
+!    CALL $Application_SetWidth(excelappA0, dble(900.), status)
+!    CALL $Application_SetHeight(excelappA0, dble(650.), status)
+!
+!    ! Get the WORKBOOKS object
+!    workbooksA0 = $Application_GetWorkbooks(excelappA0, status)
+!    CALL Check_Status(status, " Unable to get WORKBOOKS object")
+!
+!    ! Open the specified spreadsheet file (note: specify the full file path)
+!    workbookA0 = Workbooks_Add(workbooksA0,$STATUS = status )
+!    CALL Check_Status(status, " Unable to get WORKBOOK object; ensure that the file path is correct")
+!
+!    ! Get the worksheet
+!    worksheetA0 = $Workbook_GetActiveSheet(workbookA0, status)
+!    CALL Check_Status(status, " Unable to get WORKSHEET object")
+!
+!    ! set width for A, MODEL NUMBER
+!    call set_rangeA0('a1','a1')
+!    call set_column_width(16.0)
+!
+!    ! set width for B, A0 Model
+!    call set_rangeA0('b1','b1')
+!    call set_column_width(26.0)
+!    
+!    ! set width for C, 13C, permil
+!    call set_rangeA0('c1','c1')
+!    call set_column_width(10.5) 
+!    
+!    ! set width for C, 13C, permil
+!    call set_rangeA0('p1','p1')
+!    call set_column_width(20.0)   
+!
+!    ! set decimal 
+!    call set_rangeA0('c3','p3')
+!    call set_decimal_places('0.00')
+!    
+!    call set_rangeA0('c3','c600')
+!    call set_decimal_places('0.00')   
+!
+!    call set_rangeA0('d3','d600')
+!    call set_decimal_places('0.0')  
+!
+!    call set_rangeA0('e10','e12')
+!    call set_decimal_places('0')
+!
+!    call set_rangeA0('q3','q50')
+!    call set_decimal_places('0.00')
+!
+!    call set_rangeA0('r5','r50')
+!    call set_decimal_places('0.0') 
+!    
+!    call set_rangeA0('q19','q25')
+!    call set_decimal_places('0.00000') 
+!    
+!    call set_rangeA0('c20','e22')
+!    call set_decimal_places('0.0') 
+!
+!    ! Title
+!    CALL setcell_characterA0('a1','Revised Fontes and Garnier (Han and Plummer, 2013)*') 
+!    CALL set_rangeA0('a1','a1')
+!    !CALL VariantInit(vInt)
+!    !vInt%VT = VT_R4
+!    !vBSTR1%VU%FLOAT_VAL = 40.
+!    !call Range_SetRowHeight(rangeA0, vInt, status)
+!    !CALL Check_Status(status, " Unable to set RowHeight")
+!    
+!    font = Range_GetFont(rangeA0, status)
+!    vInt%VT = VT_I4
+!    vInt%VU%LONG_VAL = msoTrue   
+!    call Font_SetBold(font, vInt, status)
+!    vInt%VU%LONG_VAL = 14  
+!    call Font_SetSize(font, vInt, status)
+!    
+!    ! Calculated values
+!    CALL setcell_characterA0('p1','                                          Calculated Values') 
+!    
+!    ! Set header character strings
+!    CALL setcell_characterA0('b2','Well name') 
+!    CALL setcell_characterA0('c2','13C, permil')
+!    CALL setcell_characterA0('d2','14C, pmc')  
+!    CALL setcell_characterA0('e2','H2CO3')
+!    CALL setcell_characterA0('f2','HCO3')
+!    CALL setcell_characterA0('g2','CO3')
+!    CALL setcell_characterA0('h2','TempC')
+!    CALL setcell_characterA0('i2','CH4')
+!    CALL setcell_characterA0('j2','13C CH4')
+!    CALL setcell_characterA0('k2','14C CH4')
+!    CALL setcell_characterA0('l2','DOC')
+!    CALL setcell_characterA0('m2','13C DOC')
+!    CALL setcell_characterA0('n2','14C DOC')
+!    !CALL setcell_characterA0('o2','1/HCO3')  
+!    CALL setcell_characterA0('q2','TDIC')
+!    CALL setcell_characterA0('r2','Total C')
+!    
+!    ! Measured, line 3
+!    CALL setcell_characterA0('b3',well_name)
+!    CALL setcell_floatA0('c3',real(c13_meas),2)
+!    CALL setcell_floatA0('d3',real(c14_meas),2)
+!    CALL setcell_floatA0('e3',real(Dbdata(Well(1),38)),2)
+!    CALL setcell_floatA0('f3',real(Dbdata(Well(1),36)),2)
+!    CALL setcell_floatA0('g3',real(Dbdata(Well(1),39)),2)
+!    CALL setcell_floatA0('h3',real(Dbdata(Well(1),50)),2)
+!    if (Dbdata(Well(1),42) .gt. 0) then
+!        CALL setcell_floatA0('i3',real(Dbdata(Well(1),42)),2)
+!    endif
+!    CALL setcell_floatA0('j3',real(Dbdata(Well(1),44)),2)
+!    CALL setcell_floatA0('k3',real(Dbdata(Well(1),46)),2)
+!    if (Dbdata(Well(1),43) .gt. 0) then    
+!        CALL setcell_floatA0('l3',real(Dbdata(Well(1),43)),2)
+!    endif
+!    CALL setcell_floatA0('m3',real(Dbdata(Well(1),45)),2)
+!    CALL setcell_floatA0('n3',real(Dbdata(Well(1),47)),2)        
+!    !if (Dbdata(Well(1),36) .gt. 0.0) then 
+!    !    CALL setcell_floatA0('o3',real(1.0/Dbdata(Well(1),36)),2)   
+!    !endif
+!    ! Calculate tdic and total c   
+!    CALL set_rangeA0('q3','q3')
+!    !call set_formula('=E3+F3+G3') 
+!    call set_formula('=R3C5+R3C6+R3C7') 
+!    CALL set_rangeA0('r3','r3')
+!    !call set_formula('=E3+F3+G3+I3+L3')  
+!    call set_formula('=R3C5+R3C6+R3C7+R3C9+R3C12')  
+!    
+!    ! Isotopic values
+!    CALL setcell_characterA0('b5','Carbonate solid')
+!    CALL setcell_floatA0('c5',real(c13_solid),2)
+!    CALL setcell_floatA0('d5',real(c14_solid),2)
+!    CALL setcell_characterA0('b6','UZ gas')
+!    CALL setcell_floatA0('c6',real(c13_uz),2)
+!    CALL setcell_floatA0('d6',real(c14_uz),2)
+!    ! Uncertainty in X (13C)
+!    CALL setcell_characterA0('b7','Uncertainty')
+!    CALL setcell_floatA0('c7',2.0,2) 
+!    CALL setcell_floatA0('d7',5.0,2) 
+!    
+!    ! Calculate origin
+!    CALL setcell_characterA0('p5','Tamers point')    
+!    CALL set_rangeA0('q5','q5')
+!    !call set_formula('=(C5+C6)/2') 
+!    call set_formula('=(R5C3+R6C3)/2')   
+!    CALL set_rangeA0('r5','r5')
+!    !call set_formula('=(D5+D6)/2') 
+!    call set_formula('=(R5C4+R6C4)/2') 
+!    
+!    ! Calculate tk
+!    CALL setcell_characterA0('p6','TempK')    
+!    CALL set_rangeA0('q6','q6')
+!    !call set_formula('=H3+273.15')
+!    call set_formula('=R3C8+273.15')
+!
+!    ! Origin X, x values
+!    CALL setcell_characterA0('p8','Tamers X')
+!    CALL set_rangeA0('q8','q8')
+!    call set_formula('=R[-3]C[0]')
+!    CALL set_rangeA0('q9','q9')
+!    call set_formula('=R[-4]C[0]')
+!        ! Origin X, y values
+!    CALL setcell_floatA0('r8',0.0,2)
+!    CALL setcell_floatA0('r9',max_y,2)     
+!    
+!    ! Origin Y, x values
+!    CALL setcell_characterA0('p10','Tamers Y')
+!    CALL setcell_floatA0('q10',-30.,2)
+!    CALL setcell_floatA0('q11',max_x,2)
+!        ! Origin Y, y values
+!    CALL set_rangeA0('r10','r10')
+!    call set_formula('=R[-5]C[0]')
+!    CALL set_rangeA0('r11','r11')
+!    call set_formula('=R[-6]C[0]')
+!
+!    ! Tamers lines
+!        ! right
+!    CALL setcell_characterA0('p12','Tamers area')
+!    CALL set_rangeA0('q12','q12')
+!    call set_formula('=R[-7]C[0] + R7C3')
+!    CALL setcell_floatA0('r12',0.,2)
+!    
+!    CALL set_rangeA0('q13','q13')
+!    call set_formula('=R[-1]C[0]')
+!    CALL set_rangeA0('r13','r13')
+!    call set_formula('=R[-8]C[0] + R7C4')
+!
+!        ! left
+!    CALL set_rangeA0('q14','q14')
+!    call set_formula('=R[-9]C[0] - R7C3')
+!    CALL set_rangeA0('r14','r14')
+!    call set_formula('=R[-1]C[0]')
+!    
+!    CALL set_rangeA0('q15','q15')
+!    call set_formula('=R[-1]C[0]')
+!    CALL setcell_floatA0('r15',0.0,2)
+!    
+!    ! Fractionation
+!    !CALL setcell_characterA0('C11','Alpha') 
+!    !CALL setcell_characterA0('D11','Epsilon') 
+!    !CALL setcell_characterA0('B12','CO2(aq)-HCO3')
+!    !CALL set_rangeA0('c12','c12')
+!    !call set_formula('=(24.12-9866/C10)/1000+1') 
+!    !CALL set_rangeA0('d12','d12')
+!    !call set_formula('=(C12-1)*1000')  
+!    !CALL setcell_characterA0('B13','CO3-HCO3')  
+!    !CALL set_rangeA0('c13','c13')
+!    !call set_formula('=(2.52-867/C10)/1000+1') 
+!    !CALL set_rangeA0('d13','d13')
+!    !call set_formula('=(C13-1)*1000') 
+!    !CALL setcell_characterA0('B14','Calcite-HCO3')    
+!    !CALL set_rangeA0('c14','c14')
+!    !call set_formula('=(15.1-4232/C10)/1000+1') 
+!    !CALL set_rangeA0('d14','d14')
+!    !call set_formula('=(C14-1)*1000')
+!    !CALL setcell_characterA0('B15','CO2(g)-HCO3') 
+!    !CALL set_rangeA0('c15','c15')
+!    !call set_formula('=(23.89-9483/C10)/1000+1') 
+!    !CALL set_rangeA0('d15','d15')
+!    !call set_formula('=(C15-1)*1000') 
+!    !CALL setcell_characterA0('B16','CO2(aq)-CO2(g)') 
+!    !CALL set_rangeA0('c16','c16')
+!    !call set_formula('=(0.19-373/C10)/1000+1') 
+!    !CALL set_rangeA0('d16','d16')
+!    !call set_formula('=(C16-1)*1000')  
+!    !CALL setcell_characterA0('B17','CO2(g)-solution') 
+!    !CALL set_rangeA0('c17','c17')
+!    !call set_formula('=C15*O3/(C12*E3+F3+C13*G3)') 
+!    !CALL set_rangeA0('d17','d17')
+!    !call set_formula('=(C17-1)*1000')   
+!    CALL setcell_characterA0('p18','Mook') 
+!    CALL setcell_characterA0('q18','Alpha') 
+!    CALL setcell_characterA0('r18','Epsilon') 
+!    CALL setcell_characterA0('p19','CO2(aq)-HCO3')
+!    CALL set_rangeA0('q19','q19')
+!    call set_formula('=(24.12-9866/R6C17)/1000+1') 
+!    CALL set_rangeA0('r19','r19')
+!    call set_formula('=(R[0]C[-1]-1)*1000')  
+!    CALL setcell_characterA0('p20','CO3-HCO3')  
+!    CALL set_rangeA0('q20','q20')
+!    call set_formula('=(2.52-867/R6C17)/1000+1') 
+!    CALL set_rangeA0('r20','r20')
+!    call set_formula('=(R[0]C[-1]-1)*1000') 
+!    CALL setcell_characterA0('p21','Calcite-HCO3')    
+!    CALL set_rangeA0('q21','q21')
+!    call set_formula('=(15.1-4232/R6C17)/1000+1') 
+!    CALL set_rangeA0('r21','r21')
+!    call set_formula('=(R[0]C[-1]-1)*1000')
+!    CALL setcell_characterA0('p22','CO2(g)-HCO3') 
+!    CALL set_rangeA0('q22','q22')
+!    call set_formula('=(23.89-9483/R6C17)/1000+1') 
+!    CALL set_rangeA0('r22','r22')
+!    call set_formula('=(R[0]C[-1]-1)*1000') 
+!    CALL setcell_characterA0('p23','CO2(aq)-CO2(g)') 
+!    CALL set_rangeA0('q23','q23')
+!    call set_formula('=(0.19-373/R6C17)/1000+1') 
+!    CALL set_rangeA0('r23','r23')
+!    call set_formula('=(R[0]C[-1]-1)*1000')  
+!    CALL setcell_characterA0('p24','CO2(g)-solution') 
+!    CALL set_rangeA0('q24','q24')
+!    !call set_formula('=C15*O3/(C12*E3+F3+C13*G3)') 
+!    call set_formula('=R[-2]C[0]*R3C17/(R[-5]C[0]*R3C5+R3C6+R[-4]C[0]*R3C7)') 
+!    CALL set_rangeA0('r24','r24')
+!    call set_formula('=(R[0]C[-1]-1)*1000')   
+!    CALL setcell_characterA0('p25','Calcite-solution') 
+!    CALL set_rangeA0('q25','q25')
+!    call set_formula('=R[-4]C[0]*R3C17/(R[-6]C[0]*R3C5+R3C6+R[-5]C[0]*R3C7)') 
+!    CALL set_rangeA0('r25','r25')
+!    call set_formula('=(R[0]C[-1]-1)*1000')       
+!    
+!    ! Shade calculated values
+!    CALL set_rangeA0('q2','r31')
+!    call set_fill(10092543)
+!    CALL set_rangeA0('d10','e12')
+!    call set_fill(10092543)
+!    CALL set_rangeA0('c11','c12')
+!    call set_fill(10092543)
+!    CALL set_rangeA0('k1','k1')
+!    call set_fill(10092543)
+!    CALL setcell_characterA0('L1','Output shaded yellow')
+!    ! Shade input values
+!    !CALL set_rangeA0('c3','o3')
+!    CALL set_rangeA0('c3','n3')
+!    call set_fill(16772300)
+!    CALL set_rangeA0('c5','d7')
+!    call set_fill(16772300)
+!    CALL set_rangeA0('g1','g1')
+!    call set_fill(16772300)
+!    CALL setcell_characterA0('h1','Input shaded blue')
+!    
+!
+!    ! More lines
+!        ! Zero age line
+!    CALL setcell_characterA0('p27','Zero-age line')
+!    CALL set_rangeA0('q27','q27')
+!    call set_formula('=R5C3')
+!    CALL set_rangeA0('r27','r27')
+!    call set_formula('=R5C4')
+!    CALL set_rangeA0('q28','q28')
+!    call set_formula('=R5C17')
+!    CALL set_rangeA0('r28','r28')
+!    call set_formula('=R5C18')
+!    
+!        ! Mook line
+!    CALL setcell_characterA0('p30','Zero-age line (Mook)')
+!    CALL set_rangeA0('q30','q30')
+!    call set_formula('=R28C17')
+!    CALL set_rangeA0('r30','r30')
+!    call set_formula('=R28C18')
+!    CALL set_rangeA0('q31','q31')
+!    call set_formula('=R6C3-R24C18')
+!    CALL set_rangeA0('r31','r31')
+!    call set_formula('=R6C4')
+!
+!    ! A0 Models
+!    CALL setcell_characterA0('a9','MODEL NUMBER')
+!    CALL setcell_characterA0('b9','A0 model')
+!    CALL setcell_characterA0('c9','FG K')
+!    CALL setcell_characterA0('d9','A0, pmc')
+!    CALL setcell_characterA0('e9','Age, yr')
+!
+!    ! Tamers
+!    CALL setcell_characterA0('a10','4')
+!    CALL setcell_characterA0('b10','Tamers')
+!    CALL set_rangeA0('d10','d10')
+!    !call set_formula('=((((E3+0.5*F3)*D6+D5 *0.5*F3)/(E3+F3)) *O3+I3*J3+L3 *M3)/O3') 
+!    ! =((((E3+0.5*F3)*D6+D5 *0.5*F3)/(E3+F3)) *O3+I3*J3+L3 *M3)/O3
+!    call set_formula('=((((R3C5+0.5*R3C6)*R6C4+R5C4 *0.5*R3C6)/(R3C5+R3C6))*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18') 
+!    CALL set_rangeA0('e10','e10')
+!    !CALL set_formula('=IF(R10C4 > 0, 5730/LN(2)*LN(R10C4/R3C4), 0)')
+!    ! replace d3 with (d3*q3 + i3*k3 + l3*n3)/r3
+!    ! ((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)
+!    CALL set_formula('=IF(R10C4 > 0, 5730/LN(2)*LN(R10C4/((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)), 0)')
+!    
+!    ! Revised F&G gas exchange
+!    CALL setcell_characterA0('a11','10')
+!    CALL setcell_characterA0('b11','Revised F&G, Gas exchange')
+!    CALL set_rangeA0('c11','c11')
+!    call set_formula('=(R6C4-0.5*(R6C4+0.2*R23C18+R5C4)-0.2*R22C18)*(R3C3-R3C5/R3C17*(R6C3+R23C18)-R3C6/R3C17*0.5*(R6C3+R23C18+R5C3))/(R6C3-0.5*(R6C3+R23C18+R5C3)-R22C18)')
+!    CALL set_rangeA0('d11','d11')
+!    call set_formula('=(((R3C5/R3C17*(R6C4+0.2*R23C18)+R3C6/R3C17*0.5*(R6C4+0.2*R23C18 + R5C4))+R11C3)*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18')
+!    CALL set_rangeA0('e11','e11')
+!    CALL set_formula('=IF(R11C4 > 0, 5730/LN(2)*LN(R11C4/((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)), 0)')
+!    
+!    ! Revised F&G solid exchange
+!    CALL setcell_characterA0('a12','11')
+!    CALL setcell_characterA0('b12','Revised F&G, Solid exchange')
+!    CALL set_rangeA0('c12','c12')
+!    call set_formula('=(R5C4-0.5*(R6C4+0.2*R23C18+R5C4)-0.2*R21C18)*(R3C3-R3C5/R3C17*(R6C3+R23C18)-R3C6/R3C17*0.5*(R6C3+R23C18+R5C3))/(R5C3-0.5*(R6C3+R23C18+R5C3)-R21C18)')
+!    CALL set_rangeA0('d12','d12')
+!    call set_formula('=(((R3C5/R3C17*(R6C4+0.2*R23C18)+R3C6/R3C17*0.5*(R6C4+0.2*R23C18 + R5C4))+R12C3)*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18') 
+!    CALL set_rangeA0('e12','e12')
+!    ! 5730.0D0/DLOG(2.D0)*DLOG(dResult/Dfinal)
+!    CALL set_formula('=IF(R12C4 > 0, 5730/LN(2)*LN(R12C4/((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)), 0)')
+!
+!    ! Comments
+!    CALL setcell_characterA0('g21','In applying the Revised Fontes & Garnier model of Han and Plummer (2013): ')  
+!        ! bold
+!    CALL set_rangeA0('g21','g21')
+!    font = Range_GetFont(rangeA0, status)
+!    vInt%VT = VT_I4
+!    vInt%VU%LONG_VAL = msoTrue   
+!    call Font_SetBold(font, vInt, status)
+!    CALL setcell_characterA0('g22','Use Tamers (model 4) if measured is inside area of blue lines')
+!    CALL setcell_characterA0('g23','Use gas exchange (model 10) if measured is left of vertical blue lines')
+!    CALL setcell_characterA0('g24','Use solid exchange (model 11) if measured is right of verical blue lines') 
+!    
+!    ! Notes
+!    CALL setcell_characterA0('a14','Note: If the initial water and final water are defined separately, the adjustment ')
+!    CALL setcell_characterA0('a15','model will be applied to the initial water.  The modeled A0 value will then be')
+!    CALL setcell_characterA0('a16','adjusted using the geochemical model found in evolving the initial water to the')
+!    CALL setcell_characterA0('a17','final water. If the adjustment model is to be applied to a single water sample,')
+!    CALL setcell_characterA0('a18','that sample should be selected as both the initial and final water sample.')
+!    
+!    ! Refs
+!    CALL setcell_characterA0('a20','* Han, L.-F. and Plummer, L.N., 2013, Revision of Fontes & Garnier''s model for ')
+!    CALL setcell_characterA0('a21','the initial 14C content of dissolved inorganic carbon used in groundwater')
+!    CALL setcell_characterA0('a22','dating.  Chemical Geology 351 (2013) 105-114.')
+!    CALL setcell_characterA0('a24','See also: Han, L.-F., Plummer, L.N., and Aggarwal, P., 2012, A graphical method')
+!    CALL setcell_characterA0('a25','to evaluate predominant geochemical processes occurring ingroundwater')
+!    CALL setcell_characterA0('a26','systems for radiocarbon dating. Chemical Geology 318-319, 88-112.')
+!    
+!    ! Put all 13C, 14C data in spreadsheet for plot
+!    CALL setcell_characterA0('B28','Well name')
+!    CALL setcell_characterA0('b28','Well name') 
+!    CALL setcell_characterA0('c28','13C, permil')
+!    CALL setcell_characterA0('d28','14C, pmc')  
+!    CALL setcell_characterA0('e28','H2CO3')
+!    CALL setcell_characterA0('f28','HCO3')
+!    CALL setcell_characterA0('g28','CO3')
+!    CALL setcell_characterA0('h28','TempC')
+!    CALL setcell_characterA0('i28','CH4')
+!    CALL setcell_characterA0('j28','13C CH4')
+!    CALL setcell_characterA0('k28','14C CH4')
+!    CALL setcell_characterA0('l28','DOC')
+!    CALL setcell_characterA0('m28','13C DOC')
+!    CALL setcell_characterA0('n28','14C DOC') 
+!    !CALL setcell_characterA0('o28','1/HCO3')    
+!    do i = 1, Nwlls
+!        write(str,'(I3)') i+28
+!        call left_trim(str)
+!        rng = 'B' // str
+!        call setcell_characterA0(rng(1:lens(rng)), Wllnms(i))
+!        if (DBDATA(i,41) .ne. 0) then
+!            rng = 'C' // str
+!            CALL setcell_floatA0(rng(1:lens(rng)), real(DBDATA(i,21)/DBDATA(i,41)), 2)
+!            rng = 'D' // str
+!            CALL setcell_floatA0(rng(1:lens(rng)), real(DBDATA(i,22)/DBDATA(i,41)), 2)     
+!        endif 
+!        rng = 'E' // str   
+!        CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,38)),2)
+!        rng = 'F' // str   
+!        CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,36)),2)
+!        rng = 'G' // str   
+!        CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,39)),2)
+!        rng = 'H' // str   
+!        CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,50)),2)
+!        rng = 'I' // str   
+!        if (Dbdata(Well(1),42) .gt. 0) then  
+!            CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,42)),2)
+!        endif
+!        rng = 'J' // str   
+!        CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,44)),2)
+!        rng = 'K' // str   
+!        CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,46)),2)
+!        rng = 'L' // str   
+!        if (Dbdata(Well(1),43) .gt. 0) then      
+!            CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,43)),2)
+!        endif
+!        rng = 'M' // str   
+!        CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,45)),2)
+!        rng = 'N' // str   
+!        CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,47)),2)   
+!        !if (Dbdata(i,36) .gt. 0.0) then 
+!        !    rng = 'O' // str   
+!        !    CALL setcell_floatA0(rng(1:lens(rng)),real(1.0/Dbdata(i,36)),2)   
+!        !endif
+!    enddo
+!    
+!    ! Generate plot
+!    chartsA0 = $Workbook_GetCharts(workbookA0, $STATUS = status)
+!    CALL Check_Status(status, " Unable to get CHARTS object")
+!    chartA0 = Charts_Add(chartsA0, $STATUS = status)
+!    CALL Check_Status(status, " Unable to add CHART object")
+!
+!    ! plot type
+!    CALL VariantInit(vInt)
+!    vInt%VT = VT_I4
+!    vInt%VU%LONG_VAL = xlXYScatterLinesNoMarkers
+!    ! title
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR("Han and Plummer Plot")
+!    vBSTR1%VU%PTR_VAL = bstr1
+!    ! X axis
+!    CALL VariantInit(vBSTR2)
+!    vBSTR2%VT = VT_BSTR
+!    bstr2 = ConvertStringToBSTR("Carbon-13, permil")
+!    vBSTR2%VU%PTR_VAL = bstr2
+!    ! Y axis
+!    CALL VariantInit(vBSTR3)
+!    vBSTR3%VT = VT_BSTR
+!    bstr3 = ConvertStringToBSTR("Carbon-14, pmc")
+!    vBSTR3%VU%PTR_VAL = bstr3
+!    ! Chart wizard
+!    CALL $Chart_ChartWizard(chartA0, &
+!        Gallery = vInt, &
+!        Title = vBSTR1, &
+!        CategoryTitle = vBSTR2, &
+!        ValueTitle = vBSTR3, &
+!        $STATUS = status)
+!    CALL Check_Status(status, " Unable to invoke ChartWizard")
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0
+!    status = VariantClear(vBSTR2)
+!    bstr2 = 0
+!    status = VariantClear(vBSTR3)
+!    bstr3 = 0
+!    
+!    ! set X bounds
+!    CALL VariantInit(vInt)
+!    vInt%VT = VT_I4
+!    vInt%VU%LONG_VAL = xlCategory
+!    axis = $Chart_Axes(chartA0, vInt, xlPrimary, status)
+!    CALL Check_Status(status, " Unable to get axes")
+!    call Axis_SetMinimumScale(axis, dble(-30), status)
+!    CALL Check_Status(status, " Unable to set MinimumScale")
+!    call Axis_SetMaximumScale(axis, dble(max_x), status)
+!    CALL Check_Status(status, " Unable to set MaximumScale")
+!    call Axis_SetMajorUnit(axis, dble(10), status)
+!    CALL Check_Status(status, " Unable to set MajorUnit")
+!    call Axis_SetMinorUnit(axis, dble(2), status)
+!    CALL Check_Status(status, " Unable to set MinorUnit")
+!    call Axis_SetCrossesAt(axis, dble(-30), status)
+!    CALL Check_Status(status, " Unable to set CrossesAt")
+!    call Axis_SetMajorTickMark(axis, xlInside, status)
+!    CALL Check_Status(status, " Unable to set MajorTickMark")
+!    call Axis_SetMinorTickMark(axis, xlInside, status)
+!    CALL Check_Status(status, " Unable to set MinorTickMark")
+!    ! Turn off gridlines
+!    call Axis_SetHasMajorGridlines(axis, .false., status)
+!    CALL Check_Status(status, " Unable to set SetHasMajorGridlines")
+!    
+!     ! set Y bounds
+!    CALL VariantInit(vInt)
+!    vInt%VT = VT_I4
+!    vInt%VU%LONG_VAL = xlValue
+!    axis = $Chart_Axes(chartA0, vInt, xlPrimary, status)
+!    CALL Check_Status(status, " Unable to get axes")
+!    call Axis_SetMinimumScale(axis, dble(0), status)
+!    CALL Check_Status(status, " Unable to set MinimumScale")
+!    call Axis_SetMaximumScale(axis, dble(max_y), status)
+!    CALL Check_Status(status, " Unable to set MaximumScale")
+!    call Axis_SetMajorUnit(axis, dble(10), status)
+!    CALL Check_Status(status, " Unable to set MajorUnit")
+!    call Axis_SetMinorUnit(axis, dble(5), status) 
+!    CALL Check_Status(status, " Unable to set MinorUnit")  
+!    call Axis_SetMajorTickMark(axis, xlInside, status)
+!    CALL Check_Status(status, " Unable to set MajorTickMark")
+!    call Axis_SetMinorTickMark(axis, xlInside, status)
+!    CALL Check_Status(status, " Unable to set MinorTickMark")
+!    ! Turn off gridlines
+!    call Axis_SetHasMajorGridlines(axis, .false., status)
+!    CALL Check_Status(status, " Unable to set SetHasMajorGridlines")
+!    
+!    ! Delete series
+!    CALL VariantInit(vInt)
+!    vInt%VT = VT_I4
+!    vInt%VU%LONG_VAL = 1
+!    series_collection = $Chart_SeriesCollection(chartA0)
+!    series = SeriesCollection_Item(series_collection, vInt, status)
+!    CALL Check_Status(status, " Unable to find default series")
+!    vInt = Series_Delete(series, status)
+!    CALL Check_Status(status, " Unable to delete default series")
+!    
+!    ! Add series  X origin
+!    call add_line("=Sheet1!$Q$8:$Q$9","=Sheet1!$R$8:$R$9", "Tamers X", "black", 1.0)
+!    ! Add series  Y origin
+!    call add_line("=Sheet1!$Q$10:$Q$11","=Sheet1!$R$10:$R$11", "Tamers Y", "black", 1.0)
+!    ! Add series  Tamers origin
+!    call add_line("=Sheet1!$Q$12:$Q$15","=Sheet1!$R$12:$R$15", "Tamers area", "blue", 2.0)
+!    ! Add series  Zero-age line
+!    call add_line("=Sheet1!$Q$27:$Q$28","=Sheet1!$R$27:$R$28", "Zero-age line", "default", 2.0)
+!    ! Add series  Tamers origin
+!    call add_line("=Sheet1!$Q$30:$Q$31","=Sheet1!$R$30:$R$31", "Zero-age line (Mook)", "default", 2.0)
+!    
+!    ! UZ gas point
+!    series_collection = $Chart_SeriesCollection(chartA0)	
+!    series = SeriesCollection_NewSeries(series_collection, status)
+!        ! x range
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR("=Sheet1!$C6:C$6")
+!    vBSTR1%VU%PTR_VAL = bstr1    
+!    call Series_SetXValues(series, vBSTR1, status)
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0
+!         ! y range
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR("=Sheet1!$D6:$D6")
+!    vBSTR1%VU%PTR_VAL = bstr1    
+!    call Series_SetValues(series, vBSTR1, status)
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0   
+!    
+!         ! Name
+!    call Series_SetName(series, "UZ gas", status)
+!         ! Marker style
+!    call Series_SetMarkerStyle(series, xlMarkerStyleSquare, status)
+!    call Series_SetMarkerSize(series, 5, status)
+!    
+!         ! Series adjustments
+!    chart_format = Series_GetFormat(series, status)
+!    CALL Check_Status(status, " Unable to ChartFormat object")
+!        ! set fill color (prefer Excel default)
+!    !fill = ChartFormat_GetFill(chart_format, status)
+!    !CALL Check_Status(status, " Unable to get fill object")
+!    !color_format = FillFormat_GetForeColor(fill, status)
+!    !CALL Check_Status(status, " Unable to get color format object")
+!    !CALL ColorFormat_SetRGB(color_format, RGBTOINTEGER(0,255,0), status)
+!    !CALL Check_Status(status, " Unable to set fill color")
+!        ! Turn off line
+!    line_format = ChartFormat_GetLine(chart_format, status)
+!    CALL Check_Status(status, " Unable to LineFormat object")
+!    call LineFormat_SetVisible(line_format, msoFalse, status)
+!    CALL Check_Status(status, " Unable to set not visible")
+!    
+!    ! All data in file
+!    series_collection = $Chart_SeriesCollection(chartA0)	
+!    series = SeriesCollection_NewSeries(series_collection, status)
+!        ! x range
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR("=Sheet1!$C29:C$1000")
+!    vBSTR1%VU%PTR_VAL = bstr1    
+!    call Series_SetXValues(series, vBSTR1, status)
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0
+!         ! y range
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR("=Sheet1!$D29:$D1000")
+!    vBSTR1%VU%PTR_VAL = bstr1    
+!    call Series_SetValues(series, vBSTR1, status)
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0   
+!    
+!         ! Name
+!    call Series_SetName(series, "All data", status)
+!         ! Marker style
+!    call Series_SetMarkerStyle(series, xlMarkerStyleSquare, status)
+!    call Series_SetMarkerSize(series, 5, status)
+!    
+!         ! Series adjustments
+!    chart_format = Series_GetFormat(series, status)
+!    CALL Check_Status(status, " Unable to ChartFormat object")
+!        ! set fill color (prefer Excel default)
+!    !fill = ChartFormat_GetFill(chart_format, status)
+!    !CALL Check_Status(status, " Unable to get fill object")
+!    !color_format = FillFormat_GetForeColor(fill, status)
+!    !CALL Check_Status(status, " Unable to get color format object")
+!    !CALL ColorFormat_SetRGB(color_format, RGBTOINTEGER(0,255,0), status)
+!    !CALL Check_Status(status, " Unable to set fill color")
+!        ! Turn off line
+!    line_format = ChartFormat_GetLine(chart_format, status)
+!    CALL Check_Status(status, " Unable to LineFormat object")
+!    call LineFormat_SetVisible(line_format, msoFalse, status)
+!    CALL Check_Status(status, " Unable to set not visible")
+!
+!    
+!    ! measured point
+!    series_collection = $Chart_SeriesCollection(chartA0)
+!    series = SeriesCollection_NewSeries(series_collection, status)
+!        ! x range
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR("=Sheet1!$C$3:$C$3")
+!    vBSTR1%VU%PTR_VAL = bstr1    
+!    call Series_SetXValues(series, vBSTR1, status)
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0
+!         ! y range
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR("=Sheet1!$D$3:$D$3")
+!    vBSTR1%VU%PTR_VAL = bstr1    
+!    call Series_SetValues(series, vBSTR1, status)
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0   
+!    
+!         ! Name
+!    call Series_SetName(series, "Measured", status)
+!         ! Marker style
+!    call Series_SetMarkerStyle(series, xlMarkerStyleTriangle, status)
+!    call Series_SetMarkerSize(series, 10, status)
+!    
+!         ! Series adjustments
+!    chart_format = Series_GetFormat(series, status)
+!    CALL Check_Status(status, " Unable to ChartFormat object")
+!        ! set fill color (prefer Excel default)
+!    !fill = ChartFormat_GetFill(chart_format, status)
+!    !CALL Check_Status(status, " Unable to get fill object")
+!    !color_format = FillFormat_GetForeColor(fill, status)
+!    !CALL Check_Status(status, " Unable to get color format object")
+!    !CALL ColorFormat_SetRGB(color_format, RGBTOINTEGER(255,0,0), status)
+!    !CALL Check_Status(status, " Unable to set fill color")    
+!        ! Turn of line
+!    line_format = ChartFormat_GetLine(chart_format, status)
+!    CALL Check_Status(status, " Unable to LineFormat object")
+!    call LineFormat_SetVisible(line_format, msoFalse, status)
+!    CALL Check_Status(status, " Unable to set not visible")    
+!    
+!    ! Put chart on worksheet   
+!    ! where
+!    CALL VariantInit(vInt)
+!    vInt%VT = VT_I4
+!    vInt%VU%LONG_VAL = xlLocationAsObject 
+!    ! name
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR('Sheet1')
+!    vBSTR1%VU%PTR_VAL = bstr1         
+!    ptr_return = $Chart_Location(chartA0, xlLocationAsObject, vBSTR1, status)
+!    CALL Check_Status(status, " Unable to set plot location")
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0 
+!    
+!    ! Move chart
+!    shapes = $WorkSheet_GetShapes(worksheetA0, status)
+!    CALL VariantInit(vBSTR1)
+!    vBSTR1%VT = VT_BSTR
+!    bstr1 = ConvertStringToBSTR('Chart 1')
+!    vBSTR1%VU%PTR_VAL = bstr1    
+!    shape_range = Shapes_GetRange(shapes, vBSTR1, status) 
+!    CALL Check_Status(status, " Unable to get ShapeRange")     
+!    status = VariantClear(vBSTR1)
+!    bstr1 = 0   
+!    !call ShapeRange_IncrementLeft(shape_range, 180., status)
+!    call ShapeRange_IncrementLeft(shape_range, -1000., status)
+!    CALL Check_Status(status, " Unable to IncrementLeft")
+!    !call ShapeRange_IncrementTop(shape_range, -65., status) ! more negative moves chart up
+!    call ShapeRange_IncrementTop(shape_range, -1000., status) ! more negative moves chart up
+!    CALL Check_Status(status, " Unable to IncrementTop")
+!
+!    ! relocate chart to corner of g5
+!    CALL set_rangeA0('g5','g5')
+!    vInt = Range_GetLeft(rangeA0, status)
+!    left = vInt%VU%DOUBLE_VAL
+!    call ShapeRange_IncrementLeft(shape_range, real(left), status)
+!    CALL Check_Status(status, " Unable to IncrementLeft")    
+!    vInt = Range_GetTop(rangeA0, status)
+!    top = vInt%VU%DOUBLE_VAL
+!    call ShapeRange_IncrementTop(shape_range, real(top), status) ! more negative moves chart up
+!    CALL Check_Status(status, " Unable to IncrementTop")   
+!    
+!    ! set chart size
+!    CALL set_rangeA0('o20','o20')
+!    vInt = Range_GetLeft(rangeA0, status)
+!    right = vInt%VU%DOUBLE_VAL
+!    vInt = Range_GetTop(rangeA0, status)
+!    bottom = vInt%VU%DOUBLE_VAL
+!    call ShapeRange_SetWidth(shape_range, real(right - left), status)
+!    call ShapeRange_SetHeight(shape_range, real(bottom - top), status)
+!    
+!    l2 = .true.
+!    CALL $WorkBook_SetSaved(workbookA0, l2, status)
+!    CALL Check_Status(status, " Unable to SetSavded")
+!    
+!    END subroutine NewExcelA0
     
     subroutine add_line(rangex_str, rangey_str, title_str, color_str, weight)
     USE IFQWIN

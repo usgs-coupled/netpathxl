@@ -40,10 +40,10 @@ module screen_parameters
  subroutine set_color_np 
  USE IFQWIN
  implicit none
- interface
-    subroutine set_color_np
-    end subroutine set_color_np
- end interface
+ !interface
+ !   subroutine set_color_np
+ !   end subroutine set_color_np
+ !end interface
  integer *4 color, status
  
  ! set background color

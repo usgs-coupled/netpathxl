@@ -1374,7 +1374,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     character*(*) well_name
     character*20 str, rng
     double precision top, left, bottom, right
-    character*1048 c11,d11,c12,d12
+    character*1048 c11,d11,c12,d12,label
     
     ! common blocks
     INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
@@ -1414,6 +1414,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     integer*4 fill, font, interior
     character*10 cell_location
     logical*2 l2
+    character*1 line_feed
 
     ! Variant arguments
     TYPE (VARIANT) :: vBSTR1
@@ -1425,9 +1426,10 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     TYPE (VARIANT) :: vInt
     real max_x, max_y, data_x, data_y
 
+    line_feed = char(10)
     ! set max for graph
     max_x = 10
-    max_y = 100
+    max_y = 105
     data_x = -100
     data_y = -100
     do i = 1, Nwlls
@@ -1444,7 +1446,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
         max_x = max_x + 10.
     enddo 
     do while (data_y > max_y) 
-        max_y = max_y + 10.
+        max_y = max_y + 5.
     enddo     
 
     ! Create an Excel object
@@ -1456,7 +1458,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     l = .TRUE.
     CALL $Application_SetVisible(excelappA0, l)
     CALL $Application_SetWidth(excelappA0, dble(900.), status)
-    CALL $Application_SetHeight(excelappA0, dble(650.), status)
+    CALL $Application_SetHeight(excelappA0, dble(703.), status)
 
     ! Get the WORKBOOKS object
     workbooksA0 = $Application_GetWorkbooks(excelappA0, status)
@@ -1486,6 +1488,15 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call set_rangeA0('p1','p1')
     call set_column_width(20.0)   
 
+    ! set application size
+    !CALL set_rangeA0('p36','p36')
+    !vInt = Range_GetLeft(rangeA0, status)
+    !left = vInt%VU%DOUBLE_VAL   
+    !vInt = Range_GetTop(rangeA0, status)
+    !top = vInt%VU%DOUBLE_VAL    
+    !CALL $Application_SetWidth(excelappA0, left, status)
+    !CALL $Application_SetHeight(excelappA0, top, status)    
+    
     ! set decimal 
     call set_rangeA0('c3','p3')
     call set_decimal_places('0.00')
@@ -1647,38 +1658,6 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL setcell_floatA0('r15',0.0,2)
     
     ! Fractionation
-    !CALL setcell_characterA0('C11','Alpha') 
-    !CALL setcell_characterA0('D11','Epsilon') 
-    !CALL setcell_characterA0('B12','CO2(aq)-HCO3')
-    !CALL set_rangeA0('c12','c12')
-    !call set_formula('=(24.12-9866/C10)/1000+1') 
-    !CALL set_rangeA0('d12','d12')
-    !call set_formula('=(C12-1)*1000')  
-    !CALL setcell_characterA0('B13','CO3-HCO3')  
-    !CALL set_rangeA0('c13','c13')
-    !call set_formula('=(2.52-867/C10)/1000+1') 
-    !CALL set_rangeA0('d13','d13')
-    !call set_formula('=(C13-1)*1000') 
-    !CALL setcell_characterA0('B14','Calcite-HCO3')    
-    !CALL set_rangeA0('c14','c14')
-    !call set_formula('=(15.1-4232/C10)/1000+1') 
-    !CALL set_rangeA0('d14','d14')
-    !call set_formula('=(C14-1)*1000')
-    !CALL setcell_characterA0('B15','CO2(g)-HCO3') 
-    !CALL set_rangeA0('c15','c15')
-    !call set_formula('=(23.89-9483/C10)/1000+1') 
-    !CALL set_rangeA0('d15','d15')
-    !call set_formula('=(C15-1)*1000') 
-    !CALL setcell_characterA0('B16','CO2(aq)-CO2(g)') 
-    !CALL set_rangeA0('c16','c16')
-    !call set_formula('=(0.19-373/C10)/1000+1') 
-    !CALL set_rangeA0('d16','d16')
-    !call set_formula('=(C16-1)*1000')  
-    !CALL setcell_characterA0('B17','CO2(g)-solution') 
-    !CALL set_rangeA0('c17','c17')
-    !call set_formula('=C15*O3/(C12*E3+F3+C13*G3)') 
-    !CALL set_rangeA0('d17','d17')
-    !call set_formula('=(C17-1)*1000')   
     CALL setcell_characterA0('p18','Mook') 
     CALL setcell_characterA0('q18','Alpha') 
     CALL setcell_characterA0('r18','Epsilon') 
@@ -1742,7 +1721,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
 
     ! More lines
         ! Zero age line
-    CALL setcell_characterA0('p27','Zero-age line')
+    CALL setcell_characterA0('p27','Zero-age (solid ex)')
     CALL set_rangeA0('q27','q27')
     call set_formula('=R5C3')
     CALL set_rangeA0('r27','r27')
@@ -1753,7 +1732,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call set_formula('=R5C18')
     
         ! Mook line
-    CALL setcell_characterA0('p30','Zero-age line (Mook)')
+    CALL setcell_characterA0('p30','Zero-age (gas ex)')
     CALL set_rangeA0('q30','q30')
     call set_formula('=R28C17')
     CALL set_rangeA0('r30','r30')
@@ -1761,7 +1740,20 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL set_rangeA0('q31','q31')
     call set_formula('=R6C3-R24C18')
     CALL set_rangeA0('r31','r31')
-    call set_formula('=R6C4')
+    call set_formula('=R6C4-0.2*R24C18')
+    
+        ! A1 and A2
+    CALL setcell_characterA0('p33','CO2(aq) eq w UZ gas')
+    CALL set_rangeA0('q33','q33')
+    call set_formula('=R6C3+R23C18')
+    CALL set_rangeA0('r33','r33')
+    call set_formula('=R6C4+0.2*R23C18') 
+    
+    CALL setcell_characterA0('p35','HCO3 eq w UZ gas')
+    CALL set_rangeA0('q35','q35')
+    call set_formula('=R6C3-R22C18')
+    CALL set_rangeA0('r35','r35')
+    call set_formula('=R6C4-0.2*R22C18')     
 
     ! A0 Models
     CALL setcell_characterA0('a9','MODEL NUMBER')
@@ -1811,50 +1803,50 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL set_formula('=IF(R12C4 > 0, 5730/LN(2)*LN(R12C4/((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)), 0)')
 
     ! Comments
-    CALL setcell_characterA0('g21','In applying the Revised Fontes & Garnier model of Han and Plummer (2013): ')  
+    CALL setcell_characterA0('a14','In applying the Revised Fontes & Garnier model of Han and Plummer (2013): ')  
         ! bold
-    CALL set_rangeA0('g21','g21')
+    CALL set_rangeA0('a14','a14')
     font = Range_GetFont(rangeA0, status)
     vInt%VT = VT_I4
     vInt%VU%LONG_VAL = msoTrue   
     call Font_SetBold(font, vInt, status)
-    CALL setcell_characterA0('g22','Use Tamers (model 4) if measured is inside area of blue lines')
-    CALL setcell_characterA0('g23','Use gas exchange (model 10) if measured is left of vertical blue lines')
-    CALL setcell_characterA0('g24','Use solid exchange (model 11) if measured is right of verical blue lines') 
+    CALL setcell_characterA0('a15','Use Tamers (model 4) if measured is inside area of blue lines')
+    CALL setcell_characterA0('a16','Use gas exchange (model 10) if measured is left of vertical blue lines')
+    CALL setcell_characterA0('a17','Use solid exchange (model 11) if measured is right of verical blue lines') 
     
     ! Notes
-    CALL setcell_characterA0('a14','Note: If the initial water and final water are defined separately, the adjustment ')
-    CALL setcell_characterA0('a15','model will be applied to the initial water.  The modeled A0 value will then be')
-    CALL setcell_characterA0('a16','adjusted using the geochemical model found in evolving the initial water to the')
-    CALL setcell_characterA0('a17','final water. If the adjustment model is to be applied to a single water sample,')
-    CALL setcell_characterA0('a18','that sample should be selected as both the initial and final water sample.')
+    CALL setcell_characterA0('a19','Note: If the initial water and final water are defined separately, the adjustment ')
+    CALL setcell_characterA0('a20','model will be applied to the initial water.  The modeled A0 value will then be')
+    CALL setcell_characterA0('a21','adjusted using the geochemical model found in evolving the initial water to the')
+    CALL setcell_characterA0('a22','final water. If the adjustment model is to be applied to a single water sample,')
+    CALL setcell_characterA0('a23','that sample should be selected as both the initial and final water sample.')
     
     ! Refs
-    CALL setcell_characterA0('a20','* Han, L.-F. and Plummer, L.N., 2013, Revision of Fontes & Garnier''s model for ')
-    CALL setcell_characterA0('a21','the initial 14C content of dissolved inorganic carbon used in groundwater')
-    CALL setcell_characterA0('a22','dating.  Chemical Geology 351 (2013) 105-114.')
-    CALL setcell_characterA0('a24','See also: Han, L.-F., Plummer, L.N., and Aggarwal, P., 2012, A graphical method')
-    CALL setcell_characterA0('a25','to evaluate predominant geochemical processes occurring ingroundwater')
-    CALL setcell_characterA0('a26','systems for radiocarbon dating. Chemical Geology 318-319, 88-112.')
+    CALL setcell_characterA0('a25','* Han, L.-F. and Plummer, L.N., 2013, Revision of Fontes & Garnier''s model for ')
+    CALL setcell_characterA0('a26','the initial 14C content of dissolved inorganic carbon used in groundwater')
+    CALL setcell_characterA0('a27','dating.  Chemical Geology 351 (2013) 105-114.')
+    CALL setcell_characterA0('a29','See also: Han, L.-F., Plummer, L.N., and Aggarwal, P., 2012, A graphical method')
+    CALL setcell_characterA0('a30','to evaluate predominant geochemical processes occurring ingroundwater')
+    CALL setcell_characterA0('a31','systems for radiocarbon dating. Chemical Geology 318-319, 88-112.')
     
     ! Put all 13C, 14C data in spreadsheet for plot
-    CALL setcell_characterA0('B28','Well name')
-    CALL setcell_characterA0('b28','Well name') 
-    CALL setcell_characterA0('c28','13C, permil')
-    CALL setcell_characterA0('d28','14C, pmc')  
-    CALL setcell_characterA0('e28','H2CO3')
-    CALL setcell_characterA0('f28','HCO3')
-    CALL setcell_characterA0('g28','CO3')
-    CALL setcell_characterA0('h28','TempC')
-    CALL setcell_characterA0('i28','CH4')
-    CALL setcell_characterA0('j28','13C CH4')
-    CALL setcell_characterA0('k28','14C CH4')
-    CALL setcell_characterA0('l28','DOC')
-    CALL setcell_characterA0('m28','13C DOC')
-    CALL setcell_characterA0('n28','14C DOC') 
+    CALL setcell_characterA0('B33','Well name')
+    CALL setcell_characterA0('b33','Well name') 
+    CALL setcell_characterA0('c33','13C, permil')
+    CALL setcell_characterA0('d33','14C, pmc')  
+    CALL setcell_characterA0('e33','H2CO3')
+    CALL setcell_characterA0('f33','HCO3')
+    CALL setcell_characterA0('g33','CO3')
+    CALL setcell_characterA0('h33','TempC')
+    CALL setcell_characterA0('i33','CH4')
+    CALL setcell_characterA0('j33','13C CH4')
+    CALL setcell_characterA0('k33','14C CH4')
+    CALL setcell_characterA0('l33','DOC')
+    CALL setcell_characterA0('m33','13C DOC')
+    CALL setcell_characterA0('n33','14C DOC') 
     !CALL setcell_characterA0('o28','1/HCO3')    
     do i = 1, Nwlls
-        write(str,'(I3)') i+28
+        write(str,'(I3)') i+33
         call left_trim(str)
         rng = 'B' // str
         call setcell_characterA0(rng(1:lens(rng)), Wllnms(i))
@@ -1996,10 +1988,12 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call add_line("=Sheet1!$Q$10:$Q$11","=Sheet1!$R$10:$R$11", "Tamers Y", "black", 1.0)
     ! Add series  Tamers origin
     call add_line("=Sheet1!$Q$12:$Q$15","=Sheet1!$R$12:$R$15", "Tamers area", "blue", 2.0)
-    ! Add series  Zero-age line
-    call add_line("=Sheet1!$Q$27:$Q$28","=Sheet1!$R$27:$R$28", "Zero-age line", "default", 2.0)
-    ! Add series  Tamers origin
-    call add_line("=Sheet1!$Q$30:$Q$31","=Sheet1!$R$30:$R$31", "Zero-age line (Mook)", "default", 2.0)
+    ! Add series  Zero-age line gas ex
+    label = "Zero-age"//line_feed//"(gas ex)"
+    call add_line("=Sheet1!$Q$30:$Q$31","=Sheet1!$R$30:$R$31", trim(label), "default", 2.0)
+    ! Add series  Zero-age line solid ex
+    label = "Zero-age"//line_feed//"(solid ex)"
+    call add_line("=Sheet1!$Q$27:$Q$28","=Sheet1!$R$27:$R$28", trim(label), "default", 2.0)
     
     ! UZ gas point
     series_collection = $Chart_SeriesCollection(chartA0)	
@@ -2007,7 +2001,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
         ! x range
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$C6:C$6")
+    bstr1 = ConvertStringToBSTR("=Sheet1!$C6:$C6")
     vBSTR1%VU%PTR_VAL = bstr1    
     call Series_SetXValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
@@ -2020,36 +2014,27 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call Series_SetValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
     bstr1 = 0   
-    
          ! Name
     call Series_SetName(series, "UZ gas", status)
          ! Marker style
     call Series_SetMarkerStyle(series, xlMarkerStyleSquare, status)
     call Series_SetMarkerSize(series, 5, status)
-    
          ! Series adjustments
     chart_format = Series_GetFormat(series, status)
     CALL Check_Status(status, " Unable to ChartFormat object")
-        ! set fill color (prefer Excel default)
-    !fill = ChartFormat_GetFill(chart_format, status)
-    !CALL Check_Status(status, " Unable to get fill object")
-    !color_format = FillFormat_GetForeColor(fill, status)
-    !CALL Check_Status(status, " Unable to get color format object")
-    !CALL ColorFormat_SetRGB(color_format, RGBTOINTEGER(0,255,0), status)
-    !CALL Check_Status(status, " Unable to set fill color")
         ! Turn off line
     line_format = ChartFormat_GetLine(chart_format, status)
     CALL Check_Status(status, " Unable to LineFormat object")
     call LineFormat_SetVisible(line_format, msoFalse, status)
     CALL Check_Status(status, " Unable to set not visible")
-    
-    ! All data in file
+
+    ! Point A1
     series_collection = $Chart_SeriesCollection(chartA0)	
     series = SeriesCollection_NewSeries(series_collection, status)
         ! x range
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$C29:C$1000")
+    bstr1 = ConvertStringToBSTR("=Sheet1!$Q33:$Q33")
     vBSTR1%VU%PTR_VAL = bstr1    
     call Series_SetXValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
@@ -2057,7 +2042,75 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
          ! y range
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$D29:$D1000")
+    bstr1 = ConvertStringToBSTR("=Sheet1!$R33:$R33")
+    vBSTR1%VU%PTR_VAL = bstr1    
+    call Series_SetValues(series, vBSTR1, status)
+    status = VariantClear(vBSTR1)
+    bstr1 = 0   
+         ! Name
+    label = "CO2(aq) eq"//line_feed//"w UZ gas"
+    call Series_SetName(series, trim(label), status)
+         ! Marker style
+    call Series_SetMarkerStyle(series, xlMarkerStyleSquare, status)
+    call Series_SetMarkerSize(series, 5, status)
+         ! Series adjustments
+    chart_format = Series_GetFormat(series, status)
+    CALL Check_Status(status, " Unable to ChartFormat object")
+        ! Turn off line
+    line_format = ChartFormat_GetLine(chart_format, status)
+    CALL Check_Status(status, " Unable to LineFormat object")
+    call LineFormat_SetVisible(line_format, msoFalse, status)
+    CALL Check_Status(status, " Unable to set not visible")    
+  
+    ! Point A2
+    series_collection = $Chart_SeriesCollection(chartA0)	
+    series = SeriesCollection_NewSeries(series_collection, status)
+        ! x range
+    CALL VariantInit(vBSTR1)
+    vBSTR1%VT = VT_BSTR
+    bstr1 = ConvertStringToBSTR("=Sheet1!$Q35:$Q35")
+    vBSTR1%VU%PTR_VAL = bstr1    
+    call Series_SetXValues(series, vBSTR1, status)
+    status = VariantClear(vBSTR1)
+    bstr1 = 0
+         ! y range
+    CALL VariantInit(vBSTR1)
+    vBSTR1%VT = VT_BSTR
+    bstr1 = ConvertStringToBSTR("=Sheet1!$R35:$R35")
+    vBSTR1%VU%PTR_VAL = bstr1    
+    call Series_SetValues(series, vBSTR1, status)
+    status = VariantClear(vBSTR1)
+    bstr1 = 0   
+         ! Name
+    label = "HCO3 eq"//line_feed//"w UZ gas"
+    call Series_SetName(series, trim(label), status)
+         ! Marker style
+    call Series_SetMarkerStyle(series, xlMarkerStyleSquare, status)
+    call Series_SetMarkerSize(series, 5, status)
+         ! Series adjustments
+    chart_format = Series_GetFormat(series, status)
+    CALL Check_Status(status, " Unable to ChartFormat object")
+        ! Turn off line
+    line_format = ChartFormat_GetLine(chart_format, status)
+    CALL Check_Status(status, " Unable to LineFormat object")
+    call LineFormat_SetVisible(line_format, msoFalse, status)
+    CALL Check_Status(status, " Unable to set not visible")     
+    
+    ! All data in file
+    series_collection = $Chart_SeriesCollection(chartA0)	
+    series = SeriesCollection_NewSeries(series_collection, status)
+        ! x range
+    CALL VariantInit(vBSTR1)
+    vBSTR1%VT = VT_BSTR
+    bstr1 = ConvertStringToBSTR("=Sheet1!$C34:C$1000")
+    vBSTR1%VU%PTR_VAL = bstr1    
+    call Series_SetXValues(series, vBSTR1, status)
+    status = VariantClear(vBSTR1)
+    bstr1 = 0
+         ! y range
+    CALL VariantInit(vBSTR1)
+    vBSTR1%VT = VT_BSTR
+    bstr1 = ConvertStringToBSTR("=Sheet1!$D34:$D1000")
     vBSTR1%VU%PTR_VAL = bstr1    
     call Series_SetValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
@@ -2116,12 +2169,12 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     chart_format = Series_GetFormat(series, status)
     CALL Check_Status(status, " Unable to ChartFormat object")
         ! set fill color (prefer Excel default)
-    !fill = ChartFormat_GetFill(chart_format, status)
-    !CALL Check_Status(status, " Unable to get fill object")
-    !color_format = FillFormat_GetForeColor(fill, status)
-    !CALL Check_Status(status, " Unable to get color format object")
-    !CALL ColorFormat_SetRGB(color_format, RGBTOINTEGER(255,0,0), status)
-    !CALL Check_Status(status, " Unable to set fill color")    
+    fill = ChartFormat_GetFill(chart_format, status)
+    CALL Check_Status(status, " Unable to get fill object")
+    color_format = FillFormat_GetForeColor(fill, status)
+    CALL Check_Status(status, " Unable to get color format object")
+    CALL ColorFormat_SetRGB(color_format, RGBTOINTEGER(255,0,0), status)
+    CALL Check_Status(status, " Unable to set fill color")    
         ! Turn of line
     line_format = ChartFormat_GetLine(chart_format, status)
     CALL Check_Status(status, " Unable to LineFormat object")
@@ -2161,9 +2214,12 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL Check_Status(status, " Unable to IncrementTop")
 
     ! relocate chart to corner of g5
-    CALL set_rangeA0('g5','g5')
+    CALL set_rangeA0('f5','f5')
     vInt = Range_GetLeft(rangeA0, status)
     left = vInt%VU%DOUBLE_VAL
+    CALL set_rangeA0('g5','g5')
+    vInt = Range_GetLeft(rangeA0, status)
+    left = (left + vInt%VU%DOUBLE_VAL) / 2.0    
     call ShapeRange_IncrementLeft(shape_range, real(left), status)
     CALL Check_Status(status, " Unable to IncrementLeft")    
     vInt = Range_GetTop(rangeA0, status)
@@ -2172,9 +2228,12 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL Check_Status(status, " Unable to IncrementTop")   
     
     ! set chart size
-    CALL set_rangeA0('o20','o20')
+    CALL set_rangeA0('o32','o32')
     vInt = Range_GetLeft(rangeA0, status)
     right = vInt%VU%DOUBLE_VAL
+    CALL set_rangeA0('p32','p32')
+    vInt = Range_GetLeft(rangeA0, status)
+    right = (right + vInt%VU%DOUBLE_VAL) / 2.0
     vInt = Range_GetTop(rangeA0, status)
     bottom = vInt%VU%DOUBLE_VAL
     call ShapeRange_SetWidth(shape_range, real(right - left), status)

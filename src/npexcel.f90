@@ -1509,6 +1509,9 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
 
     call set_rangeA0('e10','e12')
     call set_decimal_places('0')
+    
+    call set_rangeA0('j3','j3')
+    call set_decimal_places('0') 
 
     call set_rangeA0('q3','q50')
     call set_decimal_places('0.00')
@@ -1548,13 +1551,17 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL setcell_characterA0('e2','H2CO3')
     CALL setcell_characterA0('f2','HCO3')
     CALL setcell_characterA0('g2','CO3')
+    CALL setcell_characterA0('j2','Frxn fact')
+    CALL setcell_characterA0('k2',' Relative to:')
+    CALL setcell_characterA0('k3',' 1--HCO3; 0--CO2, HCO3, CO3')
+    CALL setcell_characterA0('k4',' Default 1--consistent with published A0 models')
     CALL setcell_characterA0('h2','TempC')
-    CALL setcell_characterA0('i2','CH4')
-    CALL setcell_characterA0('j2','13C CH4')
-    CALL setcell_characterA0('k2','14C CH4')
-    CALL setcell_characterA0('l2','DOC')
-    CALL setcell_characterA0('m2','13C DOC')
-    CALL setcell_characterA0('n2','14C DOC')
+    !CALL setcell_characterA0('i2','CH4')
+    !CALL setcell_characterA0('j2','13C CH4')
+    !CALL setcell_characterA0('k2','14C CH4')
+    !CALL setcell_characterA0('l2','DOC')
+    !CALL setcell_characterA0('m2','13C DOC')
+    !CALL setcell_characterA0('n2','14C DOC')
     !CALL setcell_characterA0('o2','1/HCO3')  
     CALL setcell_characterA0('q2','TDIC')
     CALL setcell_characterA0('r2','Total C')
@@ -1567,16 +1574,18 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL setcell_floatA0('f3',real(Dbdata(Well(1),36)),2)
     CALL setcell_floatA0('g3',real(Dbdata(Well(1),39)),2)
     CALL setcell_floatA0('h3',real(Dbdata(Well(1),50)),2)
-    if (Dbdata(Well(1),42) .gt. 0) then
-        CALL setcell_floatA0('i3',real(Dbdata(Well(1),42)),2)
-    endif
-    CALL setcell_floatA0('j3',real(Dbdata(Well(1),44)),2)
-    CALL setcell_floatA0('k3',real(Dbdata(Well(1),46)),2)
-    if (Dbdata(Well(1),43) .gt. 0) then    
-        CALL setcell_floatA0('l3',real(Dbdata(Well(1),43)),2)
-    endif
-    CALL setcell_floatA0('m3',real(Dbdata(Well(1),45)),2)
-    CALL setcell_floatA0('n3',real(Dbdata(Well(1),47)),2)        
+    CALL setcell_floatA0('j3',1.0,2)
+    !if (Dbdata(Well(1),42) .gt. 0) then
+    !    CALL setcell_floatA0('i3',real(Dbdata(Well(1),42)),2)
+    !endif
+    !CALL setcell_floatA0('j3',real(Dbdata(Well(1),44)),2)
+    !CALL setcell_floatA0('k3',real(Dbdata(Well(1),46)),2)
+    !if (Dbdata(Well(1),43) .gt. 0) then    
+    !    CALL setcell_floatA0('l3',real(Dbdata(Well(1),43)),2)
+    !endif
+    !CALL setcell_floatA0('m3',real(Dbdata(Well(1),45)),2)
+    !CALL setcell_floatA0('n3',real(Dbdata(Well(1),47)),2)    
+    CALL setcell_floatA0('j3',1.0,2)
     !if (Dbdata(Well(1),36) .gt. 0.0) then 
     !    CALL setcell_floatA0('o3',real(1.0/Dbdata(Well(1),36)),2)   
     !endif
@@ -1699,7 +1708,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call set_formula('=(R[0]C[-1]-1)*1000')       
     
     ! Shade calculated values
-    CALL set_rangeA0('q2','r31')
+    CALL set_rangeA0('q2','r35')
     call set_fill(10092543)
     CALL set_rangeA0('d10','e12')
     call set_fill(10092543)
@@ -1709,8 +1718,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call set_fill(10092543)
     CALL setcell_characterA0('L1','Output shaded yellow')
     ! Shade input values
-    !CALL set_rangeA0('c3','o3')
-    CALL set_rangeA0('c3','n3')
+    CALL set_rangeA0('c3','j3')
     call set_fill(16772300)
     CALL set_rangeA0('c5','d7')
     call set_fill(16772300)
@@ -1738,9 +1746,9 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL set_rangeA0('r30','r30')
     call set_formula('=R28C18')
     CALL set_rangeA0('q31','q31')
-    call set_formula('=R6C3-R24C18')
+    call set_formula('=R6C3-if(R3C10=0,R24C18,R22C18)')
     CALL set_rangeA0('r31','r31')
-    call set_formula('=R6C4-0.2*R24C18')
+    call set_formula('=R6C4-0.2*if(R3C10=0,R24C18,R22C18)')
     
         ! A1 and A2
     CALL setcell_characterA0('p33','CO2(aq) eq w UZ gas')
@@ -1768,39 +1776,43 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL set_rangeA0('d10','d10')
     !call set_formula('=((((E3+0.5*F3)*D6+D5 *0.5*F3)/(E3+F3)) *O3+I3*J3+L3 *M3)/O3') 
     ! =((((E3+0.5*F3)*D6+D5 *0.5*F3)/(E3+F3)) *O3+I3*J3+L3 *M3)/O3
-    call set_formula('=((((R3C5+0.5*R3C6)*R6C4+R5C4 *0.5*R3C6)/(R3C5+R3C6))*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18') 
+    !call set_formula('=((((R3C5+0.5*R3C6)*R6C4+R5C4 *0.5*R3C6)/(R3C5+R3C6))*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18') 
+    call set_formula('=(((R3C5+0.5*R3C6)*R6C4+R5C4 *0.5*R3C6)/(R3C5+R3C6))') 
     CALL set_rangeA0('e10','e10')
     !CALL set_formula('=IF(R10C4 > 0, 5730/LN(2)*LN(R10C4/R3C4), 0)')
     ! replace d3 with (d3*q3 + i3*k3 + l3*n3)/r3
     ! ((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)
-    CALL set_formula('=IF(R10C4 > 0, 5730/LN(2)*LN(R10C4/((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)), 0)')
+    !CALL set_formula('=IF(R10C4 > 0, 5730/LN(2)*LN(R10C4/((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)), 0)')
+    CALL set_formula('=IF(R10C4 > 0, 5730/LN(2)*LN(R10C4/((R3C4*R3C17)/R3C17)), 0)')
     
     ! Revised F&G gas exchange
     CALL setcell_characterA0('a11','10')
     CALL setcell_characterA0('b11','Revised F&G, Gas exchange')
     !CALL set_rangeA0('c11','c11')
     !call set_formula('=(R6C4-0.5*(R6C4+0.2*R23C18+R5C4)-0.2*R24C18)*(R3C3-R3C5/R3C17*(R6C3+R23C18)-R3C6/R3C17*0.5*(R6C3+R23C18+R5C3))/(R6C3-0.5*(R6C3+R23C18+R5C3)-R24C18)')
-    c11 ='((R6C4-0.5*(R6C4+0.2*R23C18+R5C4)-0.2*R24C18)*(R3C3-R3C5/R3C17*(R6C3+R23C18)-R3C6/R3C17*0.5*(R6C3+R23C18+R5C3))/(R6C3-0.5*(R6C3+R23C18+R5C3)-R24C18))'
+    c11 ='((R6C4-0.5*(R6C4+0.2*R23C18+R5C4)-0.2*if(R3C10=0,R24C18,R22C18))*(R3C3-R3C5/R3C17*(R6C3+R23C18)-R3C6/R3C17*0.5*(R6C3+R23C18+R5C3))/(R6C3-0.5*(R6C3+R23C18+R5C3)-if(R3C10=0,R24C18,R22C18)))'
     CALL set_rangeA0('d11','d11')
     !call set_formula('=(((R3C5/R3C17*(R6C4+0.2*R23C18)+R3C6/R3C17*0.5*(R6C4+0.2*R23C18 + R5C4))+R11C3)*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18')
     d11 = '=(((R3C5/R3C17*(R6C4+0.2*R23C18)+R3C6/R3C17*0.5*(R6C4+0.2*R23C18 + R5C4))+'//trim(c11)//')*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18'
     call set_formula(trim(d11))
     CALL set_rangeA0('e11','e11')
-    CALL set_formula('=IF(R11C4 > 0, 5730/LN(2)*LN(R11C4/((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)), 0)')
+    !CALL set_formula('=IF(R11C4 > 0, 5730/LN(2)*LN(R11C4/((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)), 0)')
+    CALL set_formula('=IF(R11C4 > 0, 5730/LN(2)*LN(R11C4/((R3C4*R3C17)/R3C17)), 0)')
     
     ! Revised F&G solid exchange
     CALL setcell_characterA0('a12','11')
     CALL setcell_characterA0('b12','Revised F&G, Solid exchange')
     !CALL set_rangeA0('c12','c12')
-    !call set_formula('=(R5C4-0.5*(R6C4+0.2*R23C18+R5C4)-0.2*R25C18)*(R3C3-R3C5/R3C17*(R6C3+R23C18)-R3C6/R3C17*0.5*(R6C3+R23C18+R5C3))/(R5C3-0.5*(R6C3+R23C18+R5C3)-R25C18)')
-    c12 = '((R5C4-0.5*(R6C4+0.2*R23C18+R5C4)-0.2*R25C18)*(R3C3-R3C5/R3C17*(R6C3+R23C18)-R3C6/R3C17*0.5*(R6C3+R23C18+R5C3))/(R5C3-0.5*(R6C3+R23C18+R5C3)-R25C18))'
+    !call set_formula('=(R5C4-0.5*(R6C4+0.2*R23C18+R5C4)-0.2*(R3C10!=0,R21C18,R25C18))*(R3C3-R3C5/R3C17*(R6C3+R23C18)-R3C6/R3C17*0.5*(R6C3+R23C18+R5C3))/(R5C3-0.5*(R6C3+R23C18+R5C3)-(j3!=0,R21C18,R25C18))')
+    c12 = '((R5C4-0.5*(R6C4+0.2*R23C18+R5C4)-0.2*if(R3C10=0,R25C18,R21C18))*(R3C3-R3C5/R3C17*(R6C3+R23C18)-R3C6/R3C17*0.5*(R6C3+R23C18+R5C3))/(R5C3-0.5*(R6C3+R23C18+R5C3)-if(R3C10=0,R25C18,R21C18)))'
     CALL set_rangeA0('d12','d12')
     !call set_formula('=(((R3C5/R3C17*(R6C4+0.2*R23C18)+R3C6/R3C17*0.5*(R6C4+0.2*R23C18 + R5C4))+R12C3)*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18') 
     d12 = '=(((R3C5/R3C17*(R6C4+0.2*R23C18)+R3C6/R3C17*0.5*(R6C4+0.2*R23C18 + R5C4))+'//trim(c12)//')*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18'
     call set_formula(trim(d12))
     CALL set_rangeA0('e12','e12')
     ! 5730.0D0/DLOG(2.D0)*DLOG(dResult/Dfinal)
-    CALL set_formula('=IF(R12C4 > 0, 5730/LN(2)*LN(R12C4/((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)), 0)')
+    !CALL set_formula('=IF(R12C4 > 0, 5730/LN(2)*LN(R12C4/((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)), 0)')
+    CALL set_formula('=IF(R12C4 > 0, 5730/LN(2)*LN(R12C4/((R3C4*R3C17)/R3C17)), 0)')
 
     ! Comments
     CALL setcell_characterA0('a14','In applying the Revised Fontes & Garnier model of Han and Plummer (2013): ')  
@@ -1824,7 +1836,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     ! Refs
     CALL setcell_characterA0('a25','* Han, L.-F. and Plummer, L.N., 2013, Revision of Fontes & Garnier''s model for ')
     CALL setcell_characterA0('a26','the initial 14C content of dissolved inorganic carbon used in groundwater')
-    CALL setcell_characterA0('a27','dating.  Chemical Geology 351 (2013) 105-114.')
+    CALL setcell_characterA0('a27','dating.  Chemical Geology 351 (2013) 105-114. doi: 10.1016/j.chemgeo.2013.05.011')
     CALL setcell_characterA0('a29','See also: Han, L.-F., Plummer, L.N., and Aggarwal, P., 2012, A graphical method')
     CALL setcell_characterA0('a30','to evaluate predominant geochemical processes occurring ingroundwater')
     CALL setcell_characterA0('a31','systems for radiocarbon dating. Chemical Geology 318-319, 88-112.')
@@ -1838,12 +1850,12 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL setcell_characterA0('f33','HCO3')
     CALL setcell_characterA0('g33','CO3')
     CALL setcell_characterA0('h33','TempC')
-    CALL setcell_characterA0('i33','CH4')
-    CALL setcell_characterA0('j33','13C CH4')
-    CALL setcell_characterA0('k33','14C CH4')
-    CALL setcell_characterA0('l33','DOC')
-    CALL setcell_characterA0('m33','13C DOC')
-    CALL setcell_characterA0('n33','14C DOC') 
+    !CALL setcell_characterA0('i33','CH4')
+    !CALL setcell_characterA0('j33','13C CH4')
+    !CALL setcell_characterA0('k33','14C CH4')
+    !CALL setcell_characterA0('l33','DOC')
+    !CALL setcell_characterA0('m33','13C DOC')
+    !CALL setcell_characterA0('n33','14C DOC') 
     !CALL setcell_characterA0('o28','1/HCO3')    
     do i = 1, Nwlls
         write(str,'(I3)') i+33
@@ -1864,22 +1876,22 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
         CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,39)),2)
         rng = 'H' // str   
         CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,50)),2)
-        rng = 'I' // str   
-        if (Dbdata(Well(1),42) .gt. 0) then  
-            CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,42)),2)
-        endif
-        rng = 'J' // str   
-        CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,44)),2)
-        rng = 'K' // str   
-        CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,46)),2)
-        rng = 'L' // str   
-        if (Dbdata(Well(1),43) .gt. 0) then      
-            CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,43)),2)
-        endif
-        rng = 'M' // str   
-        CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,45)),2)
-        rng = 'N' // str   
-        CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,47)),2)   
+        !rng = 'I' // str   
+        !if (Dbdata(Well(1),42) .gt. 0) then  
+        !    CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,42)),2)
+        !endif
+        !rng = 'J' // str   
+        !CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,44)),2)
+        !rng = 'K' // str   
+        !CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,46)),2)
+        !rng = 'L' // str   
+        !if (Dbdata(Well(1),43) .gt. 0) then      
+        !    CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,43)),2)
+        !endif
+        !rng = 'M' // str   
+        !CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,45)),2)
+        !rng = 'N' // str   
+        !CALL setcell_floatA0(rng(1:lens(rng)),real(Dbdata(i,47)),2)   
         !if (Dbdata(i,36) .gt. 0.0) then 
         !    rng = 'O' // str   
         !    CALL setcell_floatA0(rng(1:lens(rng)),real(1.0/Dbdata(i,36)),2)   

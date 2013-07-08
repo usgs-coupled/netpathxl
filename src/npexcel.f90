@@ -1553,7 +1553,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL setcell_characterA0('g2','CO3')
     CALL setcell_characterA0('j2','Frxn fact')
     CALL setcell_characterA0('k2',' Relative to:')
-    CALL setcell_characterA0('k3',' 1--HCO3; 0--CO2, HCO3, CO3')
+    CALL setcell_characterA0('k3',' 1--HCO3; 0--TDIC speciation')
     CALL setcell_characterA0('k4',' Default 1--consistent with published A0 models')
     CALL setcell_characterA0('h2','TempC')
     !CALL setcell_characterA0('i2','CH4')
@@ -1838,7 +1838,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL setcell_characterA0('a26','the initial 14C content of dissolved inorganic carbon used in groundwater')
     CALL setcell_characterA0('a27','dating.  Chemical Geology 351 (2013) 105-114. doi: 10.1016/j.chemgeo.2013.05.011')
     CALL setcell_characterA0('a29','See also: Han, L.-F., Plummer, L.N., and Aggarwal, P., 2012, A graphical method')
-    CALL setcell_characterA0('a30','to evaluate predominant geochemical processes occurring ingroundwater')
+    CALL setcell_characterA0('a30','to evaluate predominant geochemical processes occurring in groundwater')
     CALL setcell_characterA0('a31','systems for radiocarbon dating. Chemical Geology 318-319, 88-112.')
     
     ! Put all 13C, 14C data in spreadsheet for plot
@@ -2229,13 +2229,17 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL set_rangeA0('f5','f5')
     vInt = Range_GetLeft(rangeA0, status)
     left = vInt%VU%DOUBLE_VAL
-    CALL set_rangeA0('g5','g5')
+    CALL set_rangeA0('g6','g6')
     vInt = Range_GetLeft(rangeA0, status)
     left = (left + vInt%VU%DOUBLE_VAL) / 2.0    
     call ShapeRange_IncrementLeft(shape_range, real(left), status)
-    CALL Check_Status(status, " Unable to IncrementLeft")    
+    CALL Check_Status(status, " Unable to IncrementLeft")   
+    CALL set_rangeA0('f5','f5') 
     vInt = Range_GetTop(rangeA0, status)
     top = vInt%VU%DOUBLE_VAL
+    CALL set_rangeA0('g6','g6')
+    vInt = Range_GetTop(rangeA0, status)
+    top = (top + vInt%VU%DOUBLE_VAL) / 2.0  
     call ShapeRange_IncrementTop(shape_range, real(top), status) ! more negative moves chart up
     CALL Check_Status(status, " Unable to IncrementTop")   
     

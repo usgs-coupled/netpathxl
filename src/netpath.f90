@@ -1917,7 +1917,16 @@ SUBROUTINE EDITC14
 !50 CALL CLS
 !  j = 0
 !  IF (ans.EQ.' ') j = Iflag(4)
-60 IF ((j.GE.4.AND.j.LE.7) .OR. j.EQ.0) THEN
+60 continue
+  IF (j.EQ.9.or.j.eq.0) THEN
+     DO jj = 1, Iflag(1)+1
+        CALL INPTRL(Usera(jj), &
+             'user-defined C-14 activity for '//Wllnms(Well(jj) &
+             )(5:LENS(Wllnms(Well(jj)))))
+     enddo
+  END IF
+  
+   IF ((j.GE.4.AND.j.LE.7) .OR. j.EQ.0) THEN
      CALL INPTRL(C14dat(1), &
           'C-14 activity in carbonate minerals (% modern)')
      CALL INPTRL(C14dat(2),'C-14 activity in soil gas CO2 (% modern)' &
@@ -1957,13 +1966,13 @@ SUBROUTINE EDITC14
      WRITE (*,9065)
      READ (*,9070) ans
   END IF
-  IF (j.EQ.9) THEN
-     DO jj = 1, Iflag(1)+1
-        CALL INPTRL(Usera(jj), &
-             'user-defined C-14 activity for '//Wllnms(Well(jj) &
-             )(5:LENS(Wllnms(Well(jj)))))
-     enddo
-  END IF
+  !IF (j.EQ.9.or.j.eq.0) THEN
+  !   DO jj = 1, Iflag(1)+1
+  !      CALL INPTRL(Usera(jj), &
+  !           'user-defined C-14 activity for '//Wllnms(Well(jj) &
+  !           )(5:LENS(Wllnms(Well(jj)))))
+  !   enddo
+  !END IF
   GO TO 10
 9000 FORMAT (8X,'Initial Carbon-14, A0, (percent modern)',/,13X, &
        'for Total Dissolved Carbon',/)

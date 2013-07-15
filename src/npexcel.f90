@@ -1484,9 +1484,13 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call set_rangeA0('c1','c1')
     call set_column_width(10.5) 
     
-    ! set width for C, 13C, permil
+    ! set width for P, descriptions
     call set_rangeA0('p1','p1')
-    call set_column_width(20.0)   
+    call set_column_width(20.0) 
+    
+    ! set width for Q, 13C, permil
+    call set_rangeA0('q1','q1')
+    call set_column_width(10.5)  
 
     ! set application size
     !CALL set_rangeA0('p36','p36')
@@ -1542,7 +1546,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call Font_SetSize(font, vInt, status)
     
     ! Calculated values
-    CALL setcell_characterA0('p1','                                          Calculated Values') 
+    CALL setcell_characterA0('q1','Calculated Values') 
     
     ! Set header character strings
     CALL setcell_characterA0('b2','Well name') 
@@ -1609,6 +1613,18 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL setcell_floatA0('c7',2.0,2) 
     CALL setcell_floatA0('d7',5.0,2) 
     
+    ! Set a heading for Tamers   
+    CALL setcell_characterA0('q4','C13, permil')
+    CALL setcell_characterA0('r4','C14, pmc')
+    CALL set_rangeA0('q4','r4')
+    font = Range_GetFont(rangeA0, status)
+    vInt%VT = VT_I4
+    vInt%VU%LONG_VAL = xlUnderlineStyleSingle   
+    call Font_SetUnderline(font, vInt, status)  
+    vInt%VT = VT_I4
+    vInt%VU%LONG_VAL = xlRight   
+    call Range_SetHorizontalAlignment(rangeA0, vInt, status) 
+    
     ! Calculate origin
     CALL setcell_characterA0('p5','Tamers point')    
     CALL set_rangeA0('q5','q5')
@@ -1670,6 +1686,16 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL setcell_characterA0('p18','Mook') 
     CALL setcell_characterA0('q18','Alpha') 
     CALL setcell_characterA0('r18','Epsilon') 
+        ! underline
+    CALL set_rangeA0('q18','r18')
+    font = Range_GetFont(rangeA0, status)
+    vInt%VT = VT_I4
+    vInt%VU%LONG_VAL = xlUnderlineStyleSingle   
+    call Font_SetUnderline(font, vInt, status)  
+    vInt%VT = VT_I4
+    vInt%VU%LONG_VAL = xlRight   
+    call Range_SetHorizontalAlignment(rangeA0, vInt, status)   
+        !
     CALL setcell_characterA0('p19','CO2(aq)-HCO3')
     CALL set_rangeA0('q19','q19')
     call set_formula('=(24.12-9866/R6C17)/1000+1') 
@@ -1726,6 +1752,17 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call set_fill(16772300)
     CALL setcell_characterA0('h1','Input shaded blue')
     
+    ! Set a heading for More lines
+    CALL setcell_characterA0('q26','C13, permil')
+    CALL setcell_characterA0('r26','C14, pmc')
+    CALL set_rangeA0('q26','r26')
+    font = Range_GetFont(rangeA0, status)
+    vInt%VT = VT_I4
+    vInt%VU%LONG_VAL = xlUnderlineStyleSingle   
+    call Font_SetUnderline(font, vInt, status)  
+    vInt%VT = VT_I4
+    vInt%VU%LONG_VAL = xlRight   
+    call Range_SetHorizontalAlignment(rangeA0, vInt, status) 
 
     ! More lines
         ! Zero age line
@@ -1813,33 +1850,36 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     ! 5730.0D0/DLOG(2.D0)*DLOG(dResult/Dfinal)
     !CALL set_formula('=IF(R12C4 > 0, 5730/LN(2)*LN(R12C4/((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)), 0)')
     CALL set_formula('=IF(R12C4 > 0, 5730/LN(2)*LN(R12C4/((R3C4*R3C17)/R3C17)), 0)')
+    
+    ! asterisk
+    CALL setcell_characterA0('a14','* See Explanation Tab')
 
-    ! Comments
-    CALL setcell_characterA0('a14','In applying the Revised Fontes & Garnier model of Han and Plummer (2013): ')  
-        ! bold
-    CALL set_rangeA0('a14','a14')
-    font = Range_GetFont(rangeA0, status)
-    vInt%VT = VT_I4
-    vInt%VU%LONG_VAL = msoTrue   
-    call Font_SetBold(font, vInt, status)
-    CALL setcell_characterA0('a15','Use Tamers (model 4) if measured is inside area of blue lines')
-    CALL setcell_characterA0('a16','Use gas exchange (model 10) if measured is left of vertical blue lines')
-    CALL setcell_characterA0('a17','Use solid exchange (model 11) if measured is right of verical blue lines') 
-    
-    ! Notes
-    CALL setcell_characterA0('a19','Note: If the initial water and final water are defined separately, the adjustment ')
-    CALL setcell_characterA0('a20','model will be applied to the initial water.  The modeled A0 value will then be')
-    CALL setcell_characterA0('a21','adjusted using the geochemical model found in evolving the initial water to the')
-    CALL setcell_characterA0('a22','final water. If the adjustment model is to be applied to a single water sample,')
-    CALL setcell_characterA0('a23','that sample should be selected as both the initial and final water sample.')
-    
-    ! Refs
-    CALL setcell_characterA0('a25','* Han, L.-F. and Plummer, L.N., 2013, Revision of Fontes & Garnier''s model for ')
-    CALL setcell_characterA0('a26','the initial 14C content of dissolved inorganic carbon used in groundwater')
-    CALL setcell_characterA0('a27','dating.  Chemical Geology 351 (2013) 105-114. doi: 10.1016/j.chemgeo.2013.05.011')
-    CALL setcell_characterA0('a29','See also: Han, L.-F., Plummer, L.N., and Aggarwal, P., 2012, A graphical method')
-    CALL setcell_characterA0('a30','to evaluate predominant geochemical processes occurring in groundwater')
-    CALL setcell_characterA0('a31','systems for radiocarbon dating. Chemical Geology 318-319, 88-112.')
+    !! Comments
+    !CALL setcell_characterA0('a14','In applying the Revised Fontes & Garnier model of Han and Plummer (2013): ')  
+    !    ! bold
+    !CALL set_rangeA0('a14','a14')
+    !font = Range_GetFont(rangeA0, status)
+    !vInt%VT = VT_I4
+    !vInt%VU%LONG_VAL = msoTrue   
+    !call Font_SetBold(font, vInt, status)
+    !CALL setcell_characterA0('a15','Use Tamers (model 4) if measured is inside area of blue lines')
+    !CALL setcell_characterA0('a16','Use gas exchange (model 10) if measured is left of vertical blue lines')
+    !CALL setcell_characterA0('a17','Use solid exchange (model 11) if measured is right of verical blue lines') 
+    !
+    !! Notes
+    !CALL setcell_characterA0('a19','Note: If the initial water and final water are defined separately, the adjustment ')
+    !CALL setcell_characterA0('a20','model will be applied to the initial water.  The modeled A0 value will then be')
+    !CALL setcell_characterA0('a21','adjusted using the geochemical model found in evolving the initial water to the')
+    !CALL setcell_characterA0('a22','final water. If the adjustment model is to be applied to a single water sample,')
+    !CALL setcell_characterA0('a23','that sample should be selected as both the initial and final water sample.')
+    !
+    !! Refs
+    !CALL setcell_characterA0('a25','* Han, L.-F. and Plummer, L.N., 2013, Revision of Fontes & Garnier''s model for ')
+    !CALL setcell_characterA0('a26','the initial 14C content of dissolved inorganic carbon used in groundwater')
+    !CALL setcell_characterA0('a27','dating.  Chemical Geology 351 (2013) 105-114. doi: 10.1016/j.chemgeo.2013.05.011')
+    !CALL setcell_characterA0('a29','See also: Han, L.-F., Plummer, L.N., and Aggarwal, P., 2012, A graphical method')
+    !CALL setcell_characterA0('a30','to evaluate predominant geochemical processes occurring in groundwater')
+    !CALL setcell_characterA0('a31','systems for radiocarbon dating. Chemical Geology 318-319, 88-112.')
     
     ! Put all 13C, 14C data in spreadsheet for plot
     CALL setcell_characterA0('B33','Well name')
@@ -2254,6 +2294,11 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     bottom = vInt%VU%DOUBLE_VAL
     call ShapeRange_SetWidth(shape_range, real(right - left), status)
     call ShapeRange_SetHeight(shape_range, real(bottom - top), status)
+ 
+    
+    ! Rename worksheet
+    !bstr1 = ConvertStringToBSTR()
+    CALL $Worksheet_SetName(worksheetA0, "Revised F&G", status) 
     
     l2 = .true.
     CALL $WorkBook_SetSaved(workbookA0, l2, status)

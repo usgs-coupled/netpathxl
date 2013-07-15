@@ -1491,6 +1491,10 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     ! set width for Q, 13C, permil
     call set_rangeA0('q1','q1')
     call set_column_width(10.5)  
+    
+    ! set width for Q, 13C, permil
+    call set_rangeA0('l1','l1')
+    call set_column_width(10.5)  
 
     ! set application size
     !CALL set_rangeA0('p36','p36')
@@ -1528,6 +1532,18 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     
     call set_rangeA0('c20','e22')
     call set_decimal_places('0.0') 
+    
+    call set_rangeA0('L7','L9')
+    call set_decimal_places('0.00')
+    
+    call set_rangeA0('M7','M9')
+    call set_decimal_places('0.0') 
+    
+    call set_rangeA0('L12','L14')
+    call set_decimal_places('0.0') 
+    
+    call set_rangeA0('M12','M14')
+    call set_decimal_places('0') 
 
     ! Title
     CALL setcell_characterA0('a1','Revised Fontes and Garnier (Han and Plummer, 2013)*') 
@@ -1602,16 +1618,27 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call set_formula('=R3C5+R3C6+R3C7+R3C9+R3C12')  
     
     ! Isotopic values
-    CALL setcell_characterA0('b5','Carbonate solid')
-    CALL setcell_floatA0('c5',real(c13_solid),2)
-    CALL setcell_floatA0('d5',real(c14_solid),2)
-    CALL setcell_characterA0('b6','UZ gas')
-    CALL setcell_floatA0('c6',real(c13_uz),2)
-    CALL setcell_floatA0('d6',real(c14_uz),2)
+    CALL setcell_characterA0('L6','C13, permil')
+    CALL setcell_characterA0('M6','C14, pmc')
+    CALL set_rangeA0('L6','M6')
+    !font = Range_GetFont(rangeA0, status)
+    !vInt%VT = VT_I4
+    !vInt%VU%LONG_VAL = xlUnderlineStyleSingle   
+    !call Font_SetUnderline(font, vInt, status)  
+    !vInt%VT = VT_I4
+    !vInt%VU%LONG_VAL = xlRight   
+    !call Range_SetHorizontalAlignment(rangeA0, vInt, status) 
+    
+    CALL setcell_characterA0('I7','Carbonate solid')
+    CALL setcell_floatA0('L7',real(c13_solid),2)
+    CALL setcell_floatA0('M7',real(c14_solid),2)
+    CALL setcell_characterA0('I8','UZ gas')
+    CALL setcell_floatA0('L8',real(c13_uz),2)
+    CALL setcell_floatA0('M8',real(c14_uz),2)
     ! Uncertainty in X (13C)
-    CALL setcell_characterA0('b7','Uncertainty')
-    CALL setcell_floatA0('c7',2.0,2) 
-    CALL setcell_floatA0('d7',5.0,2) 
+    CALL setcell_characterA0('I9','Uncertainty')
+    CALL setcell_floatA0('L9',2.0,2) 
+    CALL setcell_floatA0('M9',5.0,2) 
     
     ! Set a heading for Tamers   
     CALL setcell_characterA0('q4','C13, permil')
@@ -1629,10 +1656,10 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL setcell_characterA0('p5','Tamers point')    
     CALL set_rangeA0('q5','q5')
     !call set_formula('=(C5+C6)/2') 
-    call set_formula('=(R5C3+R6C3)/2')   
+    call set_formula('=(R7C12+R8C12)/2')   
     CALL set_rangeA0('r5','r5')
     !call set_formula('=(D5+D6)/2') 
-    call set_formula('=(R5C4+R6C4)/2') 
+    call set_formula('=(R7C13+R8C13)/2') 
     
     ! Calculate tk
     CALL setcell_characterA0('p6','TempK')    
@@ -1664,7 +1691,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
         ! right
     CALL setcell_characterA0('p12','Tamers area')
     CALL set_rangeA0('q12','q12')
-    call set_formula('=R[-7]C[0] + R7C3')
+    call set_formula('=R[-7]C[0] + R9C12')
     CALL setcell_floatA0('r12',0.,2)
     
     CALL set_rangeA0('q13','q13')
@@ -1674,7 +1701,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
 
         ! left
     CALL set_rangeA0('q14','q14')
-    call set_formula('=R[-9]C[0] - R7C3')
+    call set_formula('=R[-9]C[0] - R9C12')
     CALL set_rangeA0('r14','r14')
     call set_formula('=R[-1]C[0]')
     
@@ -1736,7 +1763,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     ! Shade calculated values
     CALL set_rangeA0('q2','r35')
     call set_fill(10092543)
-    CALL set_rangeA0('d10','e12')
+    CALL set_rangeA0('L12','M14')
     call set_fill(10092543)
     !CALL set_rangeA0('c11','c12')
     !call set_fill(10092543)
@@ -1746,7 +1773,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     ! Shade input values
     CALL set_rangeA0('c3','j3')
     call set_fill(16772300)
-    CALL set_rangeA0('c5','d7')
+    CALL set_rangeA0('L7','M9')
     call set_fill(16772300)
     CALL set_rangeA0('g1','g1')
     call set_fill(16772300)
@@ -1768,9 +1795,9 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
         ! Zero age line
     CALL setcell_characterA0('p27','Zero-age (solid ex)')
     CALL set_rangeA0('q27','q27')
-    call set_formula('=R5C3')
+    call set_formula('=R7C12')
     CALL set_rangeA0('r27','r27')
-    call set_formula('=R5C4')
+    call set_formula('=R7C13')
     CALL set_rangeA0('q28','q28')
     call set_formula('=R5C17')
     CALL set_rangeA0('r28','r28')
@@ -1783,76 +1810,76 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL set_rangeA0('r30','r30')
     call set_formula('=R28C18')
     CALL set_rangeA0('q31','q31')
-    call set_formula('=R6C3-if(R3C10=0,R24C18,R22C18)')
+    call set_formula('=R8C12-if(R3C10=0,R24C18,R22C18)')
     CALL set_rangeA0('r31','r31')
-    call set_formula('=R6C4-0.2*if(R3C10=0,R24C18,R22C18)')
+    call set_formula('=R8C13-0.2*if(R3C10=0,R24C18,R22C18)')
     
         ! A1 and A2
     CALL setcell_characterA0('p33','CO2(aq) eq w UZ gas')
     CALL set_rangeA0('q33','q33')
-    call set_formula('=R6C3+R23C18')
+    call set_formula('=R8C12+R23C18')
     CALL set_rangeA0('r33','r33')
-    call set_formula('=R6C4+0.2*R23C18') 
+    call set_formula('=R8C13+0.2*R23C18') 
     
     CALL setcell_characterA0('p35','HCO3 eq w UZ gas')
     CALL set_rangeA0('q35','q35')
-    call set_formula('=R6C3-R22C18')
+    call set_formula('=R8C12-R22C18')
     CALL set_rangeA0('r35','r35')
-    call set_formula('=R6C4-0.2*R22C18')     
+    call set_formula('=R8C13-0.2*R22C18')     
 
     ! A0 Models
-    CALL setcell_characterA0('a9','MODEL NUMBER')
-    CALL setcell_characterA0('b9','A0 model')
+    CALL setcell_characterA0('H11','Model #')
+    CALL setcell_characterA0('I11','A0 model')
     !CALL setcell_characterA0('c9','FG K')
-    CALL setcell_characterA0('d9','A0, pmc')
-    CALL setcell_characterA0('e9','Age, yr')
+    CALL setcell_characterA0('L11','A0, pmc')
+    CALL setcell_characterA0('M11','Age, yr')
 
     ! Tamers
-    CALL setcell_characterA0('a10','4')
-    CALL setcell_characterA0('b10','Tamers')
-    CALL set_rangeA0('d10','d10')
+    CALL setcell_characterA0('H12','4')
+    CALL setcell_characterA0('I12','Tamers')
+    CALL set_rangeA0('L12','L12')
     !call set_formula('=((((E3+0.5*F3)*D6+D5 *0.5*F3)/(E3+F3)) *O3+I3*J3+L3 *M3)/O3') 
     ! =((((E3+0.5*F3)*D6+D5 *0.5*F3)/(E3+F3)) *O3+I3*J3+L3 *M3)/O3
-    !call set_formula('=((((R3C5+0.5*R3C6)*R6C4+R5C4 *0.5*R3C6)/(R3C5+R3C6))*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18') 
-    call set_formula('=(((R3C5+0.5*R3C6)*R6C4+R5C4 *0.5*R3C6)/(R3C5+R3C6))') 
-    CALL set_rangeA0('e10','e10')
-    !CALL set_formula('=IF(R10C4 > 0, 5730/LN(2)*LN(R10C4/R3C4), 0)')
+    !call set_formula('=((((R3C5+0.5*R3C6)*R8C13+R7C13 *0.5*R3C6)/(R3C5+R3C6))*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18') 
+    call set_formula('=(((R3C5+0.5*R3C6)*R8C13+R7C13 *0.5*R3C6)/(R3C5+R3C6))') 
+    CALL set_rangeA0('M12','M12')
+    !CALL set_formula('=IF(R12C12 > 0, 5730/LN(2)*LN(R12C12/R3C4), 0)')
     ! replace d3 with (d3*q3 + i3*k3 + l3*n3)/r3
     ! ((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)
-    !CALL set_formula('=IF(R10C4 > 0, 5730/LN(2)*LN(R10C4/((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)), 0)')
-    CALL set_formula('=IF(R10C4 > 0, 5730/LN(2)*LN(R10C4/((R3C4*R3C17)/R3C17)), 0)')
+    !CALL set_formula('=IF(R12C12 > 0, 5730/LN(2)*LN(R12C12/((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)), 0)')
+    CALL set_formula('=IF(R12C12 > 0, 5730/LN(2)*LN(R12C12/((R3C4*R3C17)/R3C17)), 0)')
     
     ! Revised F&G gas exchange
-    CALL setcell_characterA0('a11','10')
-    CALL setcell_characterA0('b11','Revised F&G, Gas exchange')
+    CALL setcell_characterA0('H13','10')
+    CALL setcell_characterA0('I13','Revised F&G, Gas exchange')
     !CALL set_rangeA0('c11','c11')
-    !call set_formula('=(R6C4-0.5*(R6C4+0.2*R23C18+R5C4)-0.2*R24C18)*(R3C3-R3C5/R3C17*(R6C3+R23C18)-R3C6/R3C17*0.5*(R6C3+R23C18+R5C3))/(R6C3-0.5*(R6C3+R23C18+R5C3)-R24C18)')
-    c11 ='((R6C4-0.5*(R6C4+0.2*R23C18+R5C4)-0.2*if(R3C10=0,R24C18,R22C18))*(R3C3-R3C5/R3C17*(R6C3+R23C18)-R3C6/R3C17*0.5*(R6C3+R23C18+R5C3))/(R6C3-0.5*(R6C3+R23C18+R5C3)-if(R3C10=0,R24C18,R22C18)))'
-    CALL set_rangeA0('d11','d11')
-    !call set_formula('=(((R3C5/R3C17*(R6C4+0.2*R23C18)+R3C6/R3C17*0.5*(R6C4+0.2*R23C18 + R5C4))+R11C3)*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18')
-    d11 = '=(((R3C5/R3C17*(R6C4+0.2*R23C18)+R3C6/R3C17*0.5*(R6C4+0.2*R23C18 + R5C4))+'//trim(c11)//')*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18'
+    !call set_formula('=(R8C13-0.5*(R8C13+0.2*R23C18+R7C13)-0.2*R24C18)*(R3C3-R3C5/R3C17*(R8C12+R23C18)-R3C6/R3C17*0.5*(R8C12+R23C18+R7C12))/(R8C12-0.5*(R8C12+R23C18+R7C12)-R24C18)')
+    c11 ='((R8C13-0.5*(R8C13+0.2*R23C18+R7C13)-0.2*if(R3C10=0,R24C18,R22C18))*(R3C3-R3C5/R3C17*(R8C12+R23C18)-R3C6/R3C17*0.5*(R8C12+R23C18+R7C12))/(R8C12-0.5*(R8C12+R23C18+R7C12)-if(R3C10=0,R24C18,R22C18)))'
+    CALL set_rangeA0('L13','L13')
+    !call set_formula('=(((R3C5/R3C17*(R8C13+0.2*R23C18)+R3C6/R3C17*0.5*(R8C13+0.2*R23C18 + R7C13))+R11C3)*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18')
+    d11 = '=(((R3C5/R3C17*(R8C13+0.2*R23C18)+R3C6/R3C17*0.5*(R8C13+0.2*R23C18 + R7C13))+'//trim(c11)//')*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18'
     call set_formula(trim(d11))
-    CALL set_rangeA0('e11','e11')
-    !CALL set_formula('=IF(R11C4 > 0, 5730/LN(2)*LN(R11C4/((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)), 0)')
-    CALL set_formula('=IF(R11C4 > 0, 5730/LN(2)*LN(R11C4/((R3C4*R3C17)/R3C17)), 0)')
+    CALL set_rangeA0('M13','M13')
+    !CALL set_formula('=IF(R13C12 > 0, 5730/LN(2)*LN(R13C12/((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)), 0)')
+    CALL set_formula('=IF(R13C12 > 0, 5730/LN(2)*LN(R13C12/((R3C4*R3C17)/R3C17)), 0)')
     
     ! Revised F&G solid exchange
-    CALL setcell_characterA0('a12','11')
-    CALL setcell_characterA0('b12','Revised F&G, Solid exchange')
+    CALL setcell_characterA0('H14','11')
+    CALL setcell_characterA0('I14','Revised F&G, Solid exchange')
     !CALL set_rangeA0('c12','c12')
-    !call set_formula('=(R5C4-0.5*(R6C4+0.2*R23C18+R5C4)-0.2*(R3C10!=0,R21C18,R25C18))*(R3C3-R3C5/R3C17*(R6C3+R23C18)-R3C6/R3C17*0.5*(R6C3+R23C18+R5C3))/(R5C3-0.5*(R6C3+R23C18+R5C3)-(j3!=0,R21C18,R25C18))')
-    c12 = '((R5C4-0.5*(R6C4+0.2*R23C18+R5C4)-0.2*if(R3C10=0,R25C18,R21C18))*(R3C3-R3C5/R3C17*(R6C3+R23C18)-R3C6/R3C17*0.5*(R6C3+R23C18+R5C3))/(R5C3-0.5*(R6C3+R23C18+R5C3)-if(R3C10=0,R25C18,R21C18)))'
-    CALL set_rangeA0('d12','d12')
-    !call set_formula('=(((R3C5/R3C17*(R6C4+0.2*R23C18)+R3C6/R3C17*0.5*(R6C4+0.2*R23C18 + R5C4))+R12C3)*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18') 
-    d12 = '=(((R3C5/R3C17*(R6C4+0.2*R23C18)+R3C6/R3C17*0.5*(R6C4+0.2*R23C18 + R5C4))+'//trim(c12)//')*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18'
+    !call set_formula('=(R7C13-0.5*(R8C13+0.2*R23C18+R7C13)-0.2*(R3C10!=0,R21C18,R25C18))*(R3C3-R3C5/R3C17*(R8C12+R23C18)-R3C6/R3C17*0.5*(R8C12+R23C18+R7C12))/(R7C12-0.5*(R8C12+R23C18+R7C12)-(j3!=0,R21C18,R25C18))')
+    c12 = '((R7C13-0.5*(R8C13+0.2*R23C18+R7C13)-0.2*if(R3C10=0,R25C18,R21C18))*(R3C3-R3C5/R3C17*(R8C12+R23C18)-R3C6/R3C17*0.5*(R8C12+R23C18+R7C12))/(R7C12-0.5*(R8C12+R23C18+R7C12)-if(R3C10=0,R25C18,R21C18)))'
+    CALL set_rangeA0('L14','L14')
+    !call set_formula('=(((R3C5/R3C17*(R8C13+0.2*R23C18)+R3C6/R3C17*0.5*(R8C13+0.2*R23C18 + R7C13))+R12C3)*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18') 
+    d12 = '=(((R3C5/R3C17*(R8C13+0.2*R23C18)+R3C6/R3C17*0.5*(R8C13+0.2*R23C18 + R7C13))+'//trim(c12)//')*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18'
     call set_formula(trim(d12))
-    CALL set_rangeA0('e12','e12')
+    CALL set_rangeA0('M14','M14')
     ! 5730.0D0/DLOG(2.D0)*DLOG(dResult/Dfinal)
-    !CALL set_formula('=IF(R12C4 > 0, 5730/LN(2)*LN(R12C4/((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)), 0)')
-    CALL set_formula('=IF(R12C4 > 0, 5730/LN(2)*LN(R12C4/((R3C4*R3C17)/R3C17)), 0)')
+    !CALL set_formula('=IF(R14C12 > 0, 5730/LN(2)*LN(R14C12/((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)), 0)')
+    CALL set_formula('=IF(R14C12 > 0, 5730/LN(2)*LN(R14C12/((R3C4*R3C17)/R3C17)), 0)')
     
     ! asterisk
-    CALL setcell_characterA0('a14','* See Explanation Tab')
+    CALL setcell_characterA0('H17','* See Explanation Tab')
 
     !! Comments
     !CALL setcell_characterA0('a14','In applying the Revised Fontes & Garnier model of Han and Plummer (2013): ')  
@@ -2053,7 +2080,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
         ! x range
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$C6:$C6")
+    bstr1 = ConvertStringToBSTR("=Sheet1!$L8:$L8")
     vBSTR1%VU%PTR_VAL = bstr1    
     call Series_SetXValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
@@ -2061,7 +2088,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
          ! y range
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$D6:$D6")
+    bstr1 = ConvertStringToBSTR("=Sheet1!$M8:$M8")
     vBSTR1%VU%PTR_VAL = bstr1    
     call Series_SetValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
@@ -2266,28 +2293,28 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL Check_Status(status, " Unable to IncrementTop")
 
     ! relocate chart to corner of g5
-    CALL set_rangeA0('f5','f5')
+    CALL set_rangeA0('a5','a5')
     vInt = Range_GetLeft(rangeA0, status)
-    left = vInt%VU%DOUBLE_VAL
-    CALL set_rangeA0('g6','g6')
-    vInt = Range_GetLeft(rangeA0, status)
-    left = (left + vInt%VU%DOUBLE_VAL) / 2.0    
+    left = vInt%VU%DOUBLE_VAL + 5
+    !CALL set_rangeA0('g6','g6')
+    !vInt = Range_GetLeft(rangeA0, status)
+    !left = (left + vInt%VU%DOUBLE_VAL) / 2.0    
     call ShapeRange_IncrementLeft(shape_range, real(left), status)
     CALL Check_Status(status, " Unable to IncrementLeft")   
     CALL set_rangeA0('f5','f5') 
     vInt = Range_GetTop(rangeA0, status)
     top = vInt%VU%DOUBLE_VAL
-    CALL set_rangeA0('g6','g6')
-    vInt = Range_GetTop(rangeA0, status)
-    top = (top + vInt%VU%DOUBLE_VAL) / 2.0  
+    !CALL set_rangeA0('g6','g6')
+    !vInt = Range_GetTop(rangeA0, status)
+    !top = (top + vInt%VU%DOUBLE_VAL) / 2.0  
     call ShapeRange_IncrementTop(shape_range, real(top), status) ! more negative moves chart up
     CALL Check_Status(status, " Unable to IncrementTop")   
     
     ! set chart size
-    CALL set_rangeA0('o32','o32')
+    CALL set_rangeA0('G32','G32')
     vInt = Range_GetLeft(rangeA0, status)
     right = vInt%VU%DOUBLE_VAL
-    CALL set_rangeA0('p32','p32')
+    CALL set_rangeA0('H32','H32')
     vInt = Range_GetLeft(rangeA0, status)
     right = (right + vInt%VU%DOUBLE_VAL) / 2.0
     vInt = Range_GetTop(rangeA0, status)

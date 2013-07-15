@@ -1562,7 +1562,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call Font_SetSize(font, vInt, status)
     
     ! Calculated values
-    CALL setcell_characterA0('q1','Calculated Values') 
+    CALL setcell_characterA0('q1','    Calculated Values') 
     
     ! Set header character strings
     CALL setcell_characterA0('b2','Well name') 
@@ -1584,7 +1584,14 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     !CALL setcell_characterA0('n2','14C DOC')
     !CALL setcell_characterA0('o2','1/HCO3')  
     CALL setcell_characterA0('q2','TDIC')
-    CALL setcell_characterA0('r2','Total C')
+    !CALL setcell_characterA0('r2','Total C')    
+    font = Range_GetFont(rangeA0, status)
+    !vInt%VT = VT_I4
+    !vInt%VU%LONG_VAL = xlUnderlineStyleSingle   
+    !call Font_SetUnderline(font, vInt, status)  
+    vInt%VT = VT_I4
+    vInt%VU%LONG_VAL = xlRight   
+    call Range_SetHorizontalAlignment(rangeA0, vInt, status)  
     
     ! Measured, line 3
     CALL setcell_characterA0('b3',well_name)
@@ -1613,9 +1620,9 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL set_rangeA0('q3','q3')
     !call set_formula('=E3+F3+G3') 
     call set_formula('=R3C5+R3C6+R3C7') 
-    CALL set_rangeA0('r3','r3')
-    !call set_formula('=E3+F3+G3+I3+L3')  
-    call set_formula('=R3C5+R3C6+R3C7+R3C9+R3C12')  
+    !CALL set_rangeA0('r3','r3')
+    !!call set_formula('=E3+F3+G3+I3+L3')  
+    !call set_formula('=R3C5+R3C6+R3C7+R3C9+R3C12')  
     
     ! Isotopic values
     CALL setcell_characterA0('L6','C13, permil')
@@ -1710,11 +1717,11 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL setcell_floatA0('r15',0.0,2)
     
     ! Fractionation
-    CALL setcell_characterA0('p18','Mook') 
-    CALL setcell_characterA0('q18','Alpha') 
-    CALL setcell_characterA0('r18','Epsilon') 
+    CALL setcell_characterA0('p17','Mook') 
+    CALL setcell_characterA0('q17','Alpha') 
+    CALL setcell_characterA0('r17','Epsilon') 
         ! underline
-    CALL set_rangeA0('q18','r18')
+    CALL set_rangeA0('q17','r17')
     font = Range_GetFont(rangeA0, status)
     vInt%VT = VT_I4
     vInt%VU%LONG_VAL = xlUnderlineStyleSingle   
@@ -1723,41 +1730,41 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     vInt%VU%LONG_VAL = xlRight   
     call Range_SetHorizontalAlignment(rangeA0, vInt, status)   
         !
-    CALL setcell_characterA0('p19','CO2(aq)-HCO3')
-    CALL set_rangeA0('q19','q19')
+    CALL setcell_characterA0('p18','CO2(aq)-HCO3')
+    CALL set_rangeA0('q18','q18')
     call set_formula('=(24.12-9866/R6C17)/1000+1') 
-    CALL set_rangeA0('r19','r19')
+    CALL set_rangeA0('r18','r18')
     call set_formula('=(R[0]C[-1]-1)*1000')  
-    CALL setcell_characterA0('p20','CO3-HCO3')  
-    CALL set_rangeA0('q20','q20')
+    CALL setcell_characterA0('p19','CO3-HCO3')  
+    CALL set_rangeA0('q19','q19')
     call set_formula('=(2.52-867/R6C17)/1000+1') 
-    CALL set_rangeA0('r20','r20')
+    CALL set_rangeA0('r19','r19')
     call set_formula('=(R[0]C[-1]-1)*1000') 
-    CALL setcell_characterA0('p21','Calcite-HCO3')    
-    CALL set_rangeA0('q21','q21')
+    CALL setcell_characterA0('p20','Calcite-HCO3')    
+    CALL set_rangeA0('q20','q20')
     call set_formula('=(15.1-4232/R6C17)/1000+1') 
-    CALL set_rangeA0('r21','r21')
+    CALL set_rangeA0('r20','r20')
     call set_formula('=(R[0]C[-1]-1)*1000')
-    CALL setcell_characterA0('p22','CO2(g)-HCO3') 
-    CALL set_rangeA0('q22','q22')
+    CALL setcell_characterA0('p21','CO2(g)-HCO3') 
+    CALL set_rangeA0('q21','q21')
     call set_formula('=(23.89-9483/R6C17)/1000+1') 
-    CALL set_rangeA0('r22','r22')
+    CALL set_rangeA0('r21','r21')
     call set_formula('=(R[0]C[-1]-1)*1000') 
-    CALL setcell_characterA0('p23','CO2(aq)-CO2(g)') 
-    CALL set_rangeA0('q23','q23')
+    CALL setcell_characterA0('p22','CO2(aq)-CO2(g)') 
+    CALL set_rangeA0('q22','q22')
     call set_formula('=(0.19-373/R6C17)/1000+1') 
-    CALL set_rangeA0('r23','r23')
+    CALL set_rangeA0('r22','r22')
     call set_formula('=(R[0]C[-1]-1)*1000')  
-    CALL setcell_characterA0('p24','CO2(g)-solution') 
-    CALL set_rangeA0('q24','q24')
+    CALL setcell_characterA0('p23','CO2(g)-solution') 
+    CALL set_rangeA0('q23','q23')
     !call set_formula('=C15*O3/(C12*E3+F3+C13*G3)') 
     call set_formula('=R[-2]C[0]*R3C17/(R[-5]C[0]*R3C5+R3C6+R[-4]C[0]*R3C7)') 
-    CALL set_rangeA0('r24','r24')
+    CALL set_rangeA0('r23','r23')
     call set_formula('=(R[0]C[-1]-1)*1000')   
-    CALL setcell_characterA0('p25','Calcite-solution') 
-    CALL set_rangeA0('q25','q25')
+    CALL setcell_characterA0('p24','Calcite-solution') 
+    CALL set_rangeA0('q24','q24')
     call set_formula('=R[-4]C[0]*R3C17/(R[-6]C[0]*R3C5+R3C6+R[-5]C[0]*R3C7)') 
-    CALL set_rangeA0('r25','r25')
+    CALL set_rangeA0('r24','r24')
     call set_formula('=(R[0]C[-1]-1)*1000')       
     
     ! Shade calculated values
@@ -1810,22 +1817,22 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL set_rangeA0('r30','r30')
     call set_formula('=R28C18')
     CALL set_rangeA0('q31','q31')
-    call set_formula('=R8C12-if(R3C10=0,R24C18,R22C18)')
+    call set_formula('=R8C12-if(R3C10=0,R23C18,R21C18)')
     CALL set_rangeA0('r31','r31')
-    call set_formula('=R8C13-0.2*if(R3C10=0,R24C18,R22C18)')
+    call set_formula('=R8C13-0.2*if(R3C10=0,R23C18,R21C18)')
     
         ! A1 and A2
     CALL setcell_characterA0('p33','CO2(aq) eq w UZ gas')
     CALL set_rangeA0('q33','q33')
-    call set_formula('=R8C12+R23C18')
+    call set_formula('=R8C12+R22C18')
     CALL set_rangeA0('r33','r33')
-    call set_formula('=R8C13+0.2*R23C18') 
+    call set_formula('=R8C13+0.2*R22C18') 
     
     CALL setcell_characterA0('p35','HCO3 eq w UZ gas')
     CALL set_rangeA0('q35','q35')
-    call set_formula('=R8C12-R22C18')
+    call set_formula('=R8C12-R21C18')
     CALL set_rangeA0('r35','r35')
-    call set_formula('=R8C13-0.2*R22C18')     
+    call set_formula('=R8C13-0.2*R21C18')     
 
     ! A0 Models
     CALL setcell_characterA0('H11','Model #')
@@ -1853,11 +1860,12 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL setcell_characterA0('H13','10')
     CALL setcell_characterA0('I13','Revised F&G, Gas exchange')
     !CALL set_rangeA0('c11','c11')
-    !call set_formula('=(R8C13-0.5*(R8C13+0.2*R23C18+R7C13)-0.2*R24C18)*(R3C3-R3C5/R3C17*(R8C12+R23C18)-R3C6/R3C17*0.5*(R8C12+R23C18+R7C12))/(R8C12-0.5*(R8C12+R23C18+R7C12)-R24C18)')
-    c11 ='((R8C13-0.5*(R8C13+0.2*R23C18+R7C13)-0.2*if(R3C10=0,R24C18,R22C18))*(R3C3-R3C5/R3C17*(R8C12+R23C18)-R3C6/R3C17*0.5*(R8C12+R23C18+R7C12))/(R8C12-0.5*(R8C12+R23C18+R7C12)-if(R3C10=0,R24C18,R22C18)))'
+    !call set_formula('=(R8C13-0.5*(R8C13+0.2*R22C18+R7C13)-0.2*R23C18)*(R3C3-R3C5/R3C17*(R8C12+R22C18)-R3C6/R3C17*0.5*(R8C12+R22C18+R7C12))/(R8C12-0.5*(R8C12+R22C18+R7C12)-R23C18)')
+    c11 ='((R8C13-0.5*(R8C13+0.2*R22C18+R7C13)-0.2*if(R3C10=0,R23C18,R21C18))*(R3C3-R3C5/R3C17*(R8C12+R22C18)-R3C6/R3C17*0.5*(R8C12+R22C18+R7C12))/(R8C12-0.5*(R8C12+R22C18+R7C12)-if(R3C10=0,R23C18,R21C18)))'
     CALL set_rangeA0('L13','L13')
-    !call set_formula('=(((R3C5/R3C17*(R8C13+0.2*R23C18)+R3C6/R3C17*0.5*(R8C13+0.2*R23C18 + R7C13))+R11C3)*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18')
-    d11 = '=(((R3C5/R3C17*(R8C13+0.2*R23C18)+R3C6/R3C17*0.5*(R8C13+0.2*R23C18 + R7C13))+'//trim(c11)//')*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18'
+    !call set_formula('=(((R3C5/R3C17*(R8C13+0.2*R22C18)+R3C6/R3C17*0.5*(R8C13+0.2*R22C18 + R7C13))+R11C3)*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18')
+    !d11 = '=(((R3C5/R3C17*(R8C13+0.2*R22C18)+R3C6/R3C17*0.5*(R8C13+0.2*R22C18 + R7C13))+'//trim(c11)//')*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18'
+    d11 = '=(R3C5/R3C17*(R8C13+0.2*R22C18)+R3C6/R3C17*0.5*(R8C13+0.2*R22C18 + R7C13))+'//trim(c11)
     call set_formula(trim(d11))
     CALL set_rangeA0('M13','M13')
     !CALL set_formula('=IF(R13C12 > 0, 5730/LN(2)*LN(R13C12/((R3C4*R3C17 + R3C9*R3C11 + R3C12*R3C14)/R3C18)), 0)')
@@ -1867,11 +1875,12 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL setcell_characterA0('H14','11')
     CALL setcell_characterA0('I14','Revised F&G, Solid exchange')
     !CALL set_rangeA0('c12','c12')
-    !call set_formula('=(R7C13-0.5*(R8C13+0.2*R23C18+R7C13)-0.2*(R3C10!=0,R21C18,R25C18))*(R3C3-R3C5/R3C17*(R8C12+R23C18)-R3C6/R3C17*0.5*(R8C12+R23C18+R7C12))/(R7C12-0.5*(R8C12+R23C18+R7C12)-(j3!=0,R21C18,R25C18))')
-    c12 = '((R7C13-0.5*(R8C13+0.2*R23C18+R7C13)-0.2*if(R3C10=0,R25C18,R21C18))*(R3C3-R3C5/R3C17*(R8C12+R23C18)-R3C6/R3C17*0.5*(R8C12+R23C18+R7C12))/(R7C12-0.5*(R8C12+R23C18+R7C12)-if(R3C10=0,R25C18,R21C18)))'
+    !call set_formula('=(R7C13-0.5*(R8C13+0.2*R22C18+R7C13)-0.2*(R3C10!=0,R20C18,R24C18))*(R3C3-R3C5/R3C17*(R8C12+R22C18)-R3C6/R3C17*0.5*(R8C12+R22C18+R7C12))/(R7C12-0.5*(R8C12+R22C18+R7C12)-(j3!=0,R20C18,R24C18))')
+    c12 = '((R7C13-0.5*(R8C13+0.2*R22C18+R7C13)-0.2*if(R3C10=0,R24C18,R20C18))*(R3C3-R3C5/R3C17*(R8C12+R22C18)-R3C6/R3C17*0.5*(R8C12+R22C18+R7C12))/(R7C12-0.5*(R8C12+R22C18+R7C12)-if(R3C10=0,R24C18,R20C18)))'
     CALL set_rangeA0('L14','L14')
-    !call set_formula('=(((R3C5/R3C17*(R8C13+0.2*R23C18)+R3C6/R3C17*0.5*(R8C13+0.2*R23C18 + R7C13))+R12C3)*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18') 
-    d12 = '=(((R3C5/R3C17*(R8C13+0.2*R23C18)+R3C6/R3C17*0.5*(R8C13+0.2*R23C18 + R7C13))+'//trim(c12)//')*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18'
+    !call set_formula('=(((R3C5/R3C17*(R8C13+0.2*R22C18)+R3C6/R3C17*0.5*(R8C13+0.2*R22C18 + R7C13))+R12C3)*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18') 
+    !d12 = '=(((R3C5/R3C17*(R8C13+0.2*R22C18)+R3C6/R3C17*0.5*(R8C13+0.2*R22C18 + R7C13))+'//trim(c12)//')*R3C17+R3C9*R3C10+R3C12*R3C13)/R3C18'
+    d12 = '=(R3C5/R3C17*(R8C13+0.2*R22C18)+R3C6/R3C17*0.5*(R8C13+0.2*R22C18 + R7C13))+'//trim(c12)
     call set_formula(trim(d12))
     CALL set_rangeA0('M14','M14')
     ! 5730.0D0/DLOG(2.D0)*DLOG(dResult/Dfinal)

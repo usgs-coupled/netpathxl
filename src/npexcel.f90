@@ -1704,7 +1704,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL set_rangeA0('q13','q13')
     call set_formula('=R[-1]C[0]')
     CALL set_rangeA0('r13','r13')
-    call set_formula('=R[-8]C[0] + R7C4')
+    call set_formula('=R[-8]C[0] + R9C13')
 
         ! left
     CALL set_rangeA0('q14','q14')

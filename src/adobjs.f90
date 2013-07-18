@@ -356,6 +356,43 @@ subroutine set_rangeA0(str1, str2)
 
   return
 end subroutine set_rangeA0
+
+subroutine set_rangeA0_worksheet(str1, str2, wksheet)
+  USE IFCOM
+  IMPLICIT NONE   
+  character*(*) str1, str2
+  INTEGER*4 status, wksheet
+
+  TYPE (VARIANT) :: vBSTR1
+  TYPE (VARIANT) :: vBSTR2
+
+! set variants
+  CALL VariantInit(vBSTR1)
+  vBSTR1%VT = VT_BSTR
+  bstr1 = ConvertStringToBSTR(str1)
+  vBSTR1%VU%PTR_VAL = bstr1
+  CALL VariantInit(vBSTR2)
+  vBSTR2%VT = VT_BSTR
+  bstr2 = ConvertStringToBSTR(str2)
+  vBSTR2%VU%PTR_VAL = bstr2
+
+! free space
+  IF (rangeA0 /= 0) status = COMRELEASEOBJECT ( rangeA0 )
+
+! set range
+  rangeA0 = $Worksheet_GetRange(wksheet, vBSTR1, vBSTR2, status)
+
+! check result
+  CALL Check_Status(status, " Unable to get RANGE object")
+
+! free space
+  status = VariantClear(vBSTR1)
+  bstr1 = 0
+  status = VariantClear(vBSTR2)
+  bstr2 = 0
+
+  return
+end subroutine set_rangeA0_worksheet
 !
 !
 !

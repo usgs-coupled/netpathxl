@@ -687,261 +687,189 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
         C14 = Usera(IWELL)
      ELSE IF (IWHICH.EQ.10) THEN
         ! Revised Fontes and Garnier, gas exchange
-        open(UNIT=199,FILE='DebugFandG',ACTION='WRITE')
+        !!!open(UNIT=199,FILE='DebugFandG',ACTION='WRITE')
         ! gas-bicarbonate
         CALL CFRACT(eps_g_b_rev,4,IWELL,Ierror) 
-        write (199, *) 'eps_g_b =      ', eps_g_b_rev   
+        !!!write (199, *) 'eps_g_b =      ', eps_g_b_rev   
         ! solid-bicarbonate
         CALL CFRACT(eps_s_b_rev,6,IWELL,Ierror) 
-        write (199, *) 'eps_s_b =      ', eps_s_b_rev            
+        !!!write (199, *) 'eps_s_b =      ', eps_s_b_rev            
         ! CO2(g)-solution
         CALL CFRACT(eps_a_g_rev,3,IWELL,Ierror) 
         eps_g_a_rev = -eps_a_g_rev
-        write (199, *) 'eps_g_a =      ', eps_g_a_rev 
+        !!!write (199, *) 'eps_g_a =      ', eps_g_a_rev 
         ! calcite-CO2(aq)
         CALL CFRACT(eps_a_s_rev,7,IWELL,Ierror)
         eps_s_a_rev = -eps_a_s_rev      
-        write (199, *) 'eps_s_a =      ', eps_s_a_rev         
+        !!!write (199, *) 'eps_s_a =      ', eps_s_a_rev         
         ! gas-solid
         eps_g_s_rev = eps_g_a_rev + eps_a_s_rev
-        write (199, *) 'eps_g_s =      ', eps_g_s_rev 
+        !!!write (199, *) 'eps_g_s =      ', eps_g_s_rev 
         
         ! c1 
         c1 = Dbdata(i,21)/Dbdata(i,41)    ! C13DIC = DIC*C13DIC / DIC
         IF (i11.GT.0.0D0) c1 = C14dat(3)  ! C13 activity in solution
         ! Cs
         Cs_rev = Dbdata(i,36)/2.0D0       ! HCO3 / 2.0
-        write (199, *) 'Cs =            ', Cs_rev
+        !!!write (199, *) 'Cs =            ', Cs_rev
         ! Ca
         Ca_rev = Dbdata(i,38)             ! H2CO3
-        write (199, *) 'Ca =            ', Ca_rev
+        !!!write (199, *) 'Ca =            ', Ca_rev
         ! Cb
         Cb_rev = Dbdata(i,36)             ! HCO3
-        write (199, *) 'Cb =            ', Cb_rev
+        !!!write (199, *) 'Cb =            ', Cb_rev
         ! Ct
         Ct_rev = Ca_rev + Cb_rev + Dbdata(i,39)         ! H2CO3 + HCO3 ? CO3?
-        write (199, *) 'Ct =            ', Ct_rev
+        !!!write (199, *) 'Ct =            ', Ct_rev
         ! C14g
         C14g_rev = C14dat(2)              ! C14 activity in soil gas
-        write (199, *) 'C14g =          ', C14g_rev
+        !!!write (199, *) 'C14g =          ', C14g_rev
 
         ! C14s
         C14s_rev = C14dat(1)              ! C14 activity in carbonate minerals
-        write (199, *) 'C14s =          ', C14s_rev
+        !!!write (199, *) 'C14s =          ', C14s_rev
         ! delC13
         delC13_rev = c1                   ! del13C in solution
-        write (199, *) 'delC13 =        ', delC13_rev
+        !!!write (199, *) 'delC13 =        ', delC13_rev
         ! delC13s
         delC13s_rev = C14dat(4)           ! C13 activity in carbonate minerals
-        write (199, *) 'delC13s =       ', delC13s_rev
+        !!!write (199, *) 'delC13s =       ', delC13s_rev
         ! delC13g
         delC13g_rev = C14dat(5) ! c2      ! C13 activity in soil gas
-        write (199, *) 'delC13g =       ', delC13g_rev
+        !!!write (199, *) 'delC13g =       ', delC13g_rev
         ! C14a0
         C14a0_rev = C14dat(2) - 0.2*eps_g_a_rev        ! C14 activity in solution in eq with soil gas
-        write (199, *) 'C14a0 =         ', C14a0_rev
+        !!!write (199, *) 'C14a0 =         ', C14a0_rev
         ! delC13a0
         delC13a0_rev = C14dat(5) - eps_g_a_rev         ! C13 activity in solution in eq with soil gas
-        write (199, *) 'delC13a0 =      ', delC13a0_rev
+        !!!write (199, *) 'delC13a0 =      ', delC13a0_rev
         ! C14b0
         C14b0_rev = 0.5*(C14a0_rev + C14s_rev)
-        write (199, *) 'C14b0 =         ', C14b0_rev
+        !!!write (199, *) 'C14b0 =         ', C14b0_rev
         ! delC13b0
         delC13b0_rev = 0.5*(delC13a0_rev + delC13s_rev)
-        write (199, *) 'delC13b0 =      ', delC13b0_rev
+        !!!write (199, *) 'delC13b0 =      ', delC13b0_rev
         x = delC13b0_rev
-        write (199, *) 
+        !!!write (199, *) 
         fg_rev_uncertain = 0
-        !IF (delC13_rev > (x - 1) .AND. delC13_rev < (x + 1)) THEN
-        !    fg_rev_uncertain = 1
-        !    write (199, *) 'Test indicates delC13 is in the grey area'
-        !ENDIF
-        
-        !!F (delC13_rev < x - 1) THEN
-        write (199, *) 'delC13 = ', delC13_rev, ' < x = ', delC13b0_rev, ', Using g.'
+
         C14x_rev = C14g_rev
         delC13x_rev = delC13g_rev 
         eps_x_b_rev = eps_g_b_rev 
-        !    fg_rev_gas = 1
-        !ELSE
-        !    write (199, *) 'delC13 = ', delC13_rev, ' >= x = ', delC13b0_rev, ', Using s.'
-        !    C14x_rev = C14s_rev
-        !    delC13x_rev = delC13s_rev 
-        !    eps_x_b_rev = eps_s_b_rev   
-        !    fg_rev_gas = 0           
-        !ENDIF
-        write (199, *) 'C14x =         ', C14x_rev
-        write (199, *) 'delC13x =      ', delC13x_rev
-        write (199, *) 'eps_x_b =      ', eps_x_b_rev
-        write (199, *) 
-        ! eps_g_b_rev = D15
-        ! eps_s_b_rev = D14
-        ! eps_a_g_rev = D16
-        ! eps_g_a_rev = -D16
-        ! eps_a_s_rev = D19
-        ! eps_s_a_rev = -D19
-        ! eps_g_s_rev = D20
-        ! c1 = C3
-        ! Cs_rev = G3/2
-        ! Ca_rev = F3
-        ! Cb_rev = G3
-        ! Ct_rev = E3
-        ! C14g_rev = D6
-        ! C14s_rev = D5       
-        ! delC13_rev = C3
-        ! delC13s_rev = C5
-        ! delC13g_rev = C6
-        ! C14a0_rev = (D6+0.2*D16)    
-        ! delC13a0_rev = (C6+D16)
-        ! C14b0_rev = 0.5*(D6+0.2*D16 + D5)
-        ! delC13b0_rev = 0.5*(C6+D16 + C5)
-        ! x = 0.5*(C6+D16 + C5)       
-        ! C14x_rev = D6
-        ! delC13x_rev = C6
-        ! eps_x_b_rev = D15  
+
+        !!!write (199, *) 'C14x =         ', C14x_rev
+        !!!write (199, *) 'delC13x =      ', delC13x_rev
+        !!!write (199, *) 'eps_x_b =      ', eps_x_b_rev
+        !!!write (199, *) 
+
         fgk_rev = (C14x_rev - C14b0_rev - 0.2*eps_x_b_rev)
         !fgk_rev = (D6-0.5*(D6+0.2*D16+D5)-0.2*D15)
         fgk_rev = fgk_rev * (delC13_rev - Ca_rev/Ct_rev*delC13a0_rev - Cb_rev/Ct_rev*delC13b0_rev)
         ! fgk_rev = fgk_rev * (C3-F3/E3*(C6+D16)-G3/E3*0.5*(C6+D16+C5))
         fgk_rev = fgk_rev / (delC13x_rev - delC13b0_rev - eps_x_b_rev)
         ! fgk_rev = fgk_rev / (C6-0.5*(C6+D16+C5)-D15)
-        write (199, *) 'fgk_rev =      ', fgk_rev
+        !!!write (199, *) 'fgk_rev =      ', fgk_rev
 
         C14 = (Ca_rev/Ct_rev*C14a0_rev + Cb_rev/Ct_rev*C14b0_rev)+fgk_rev
         ! C14 = (F3/E3*(D6+0.2*D16)+G3/E3*0.5*(D6+0.2*D16 + D5))+E24
-        write (199, *) 'C14(TDIC) =    ', C14
-        C14 = (C14*Dbdata(i,41)+Dbdata(i,42)*Dbdata(i,46)+Dbdata(i,43) &
-                *Dbdata(i,47))/Dbdata(i,1)   
-        write (199, *) 'C14(C) =       ', C14
-        !close(199)
+        !!!write (199, *) 'C14(TDIC) =    ', C14
+        !C14 = (C14*Dbdata(i,41)+Dbdata(i,42)*Dbdata(i,46)+Dbdata(i,43) &
+        !        *Dbdata(i,47))/Dbdata(i,1)   
+        !write (199, *) 'C14(C) =       ', C14
+        !!!close(199)
      ELSE IF (IWHICH.EQ.11) THEN
         ! Revised Fontes and Garnier, solid exchange
         ! open(UNIT=199,FILE='DebugFandG',ACTION='WRITE')
         ! gas-bicarbonate
         CALL CFRACT(eps_g_b_rev,4,IWELL,Ierror) 
-        write (199, *) 'eps_g_b =      ', eps_g_b_rev   
+        !!!write (199, *) 'eps_g_b =      ', eps_g_b_rev   
         ! solid-bicarbonate
         CALL CFRACT(eps_s_b_rev,6,IWELL,Ierror) 
-        write (199, *) 'eps_s_b =      ', eps_s_b_rev            
+        !!!write (199, *) 'eps_s_b =      ', eps_s_b_rev            
         ! CO2(g)-solution
         CALL CFRACT(eps_a_g_rev,3,IWELL,Ierror) 
         eps_g_a_rev = -eps_a_g_rev
-        write (199, *) 'eps_g_a =      ', eps_g_a_rev 
+        !!!write (199, *) 'eps_g_a =      ', eps_g_a_rev 
         ! calcite-CO2(aq)
         CALL CFRACT(eps_a_s_rev,7,IWELL,Ierror)
         eps_s_a_rev = -eps_a_s_rev      
-        write (199, *) 'eps_s_a =      ', eps_s_a_rev         
+        !!!write (199, *) 'eps_s_a =      ', eps_s_a_rev         
         ! gas-solid
         eps_g_s_rev = eps_g_a_rev + eps_a_s_rev
-        write (199, *) 'eps_g_s =      ', eps_g_s_rev 
+        !!!write (199, *) 'eps_g_s =      ', eps_g_s_rev 
         
         ! c1 
         c1 = Dbdata(i,21)/Dbdata(i,41)    ! C13DIC = DIC*C13DIC / DIC
         IF (i11.GT.0.0D0) c1 = C14dat(3)  ! C13 activity in solution
         ! Cs
         Cs_rev = Dbdata(i,36)/2.0D0       ! HCO3 / 2.0
-        write (199, *) 'Cs =            ', Cs_rev
+        !!!write (199, *) 'Cs =            ', Cs_rev
         ! Ca
         Ca_rev = Dbdata(i,38)             ! H2CO3
-        write (199, *) 'Ca =            ', Ca_rev
+        !!!write (199, *) 'Ca =            ', Ca_rev
         ! Cb
         Cb_rev = Dbdata(i,36)             ! HCO3
-        write (199, *) 'Cb =            ', Cb_rev
+        !!!write (199, *) 'Cb =            ', Cb_rev
         ! Ct
         Ct_rev = Ca_rev + Cb_rev + Dbdata(i,39)         ! H2CO3 + HCO3 ? CO3?
-        write (199, *) 'Ct =            ', Ct_rev
+        !!!write (199, *) 'Ct =            ', Ct_rev
         ! C14g
         C14g_rev = C14dat(2)              ! C14 activity in soil gas
-        write (199, *) 'C14g =          ', C14g_rev
+        !!!write (199, *) 'C14g =          ', C14g_rev
         ! C14s
         C14s_rev = C14dat(1)              ! C14 activity in carbonate minerals
-        write (199, *) 'C14s =          ', C14s_rev
+        !!!write (199, *) 'C14s =          ', C14s_rev
         ! delC13
         delC13_rev = c1                   ! del13C in solution
-        write (199, *) 'delC13 =        ', delC13_rev
+        !!!write (199, *) 'delC13 =        ', delC13_rev
         ! delC13s
         delC13s_rev = C14dat(4)           ! C13 activity in carbonate minerals
-        write (199, *) 'delC13s =       ', delC13s_rev
+        !!!write (199, *) 'delC13s =       ', delC13s_rev
         ! delC13g
         delC13g_rev = C14dat(5) ! c2      ! C13 activity in soil gas
-        write (199, *) 'delC13g =       ', delC13g_rev
+        !!!write (199, *) 'delC13g =       ', delC13g_rev
         ! C14a0
         C14a0_rev = C14dat(2) - 0.2*eps_g_a_rev        ! C14 activity in solution in eq with soil gas
-        write (199, *) 'C14a0 =         ', C14a0_rev
+        !!!write (199, *) 'C14a0 =         ', C14a0_rev
         ! delC13a0
         delC13a0_rev = C14dat(5) - eps_g_a_rev         ! C13 activity in solution in eq with soil gas
-        write (199, *) 'delC13a0 =      ', delC13a0_rev
+        !!!write (199, *) 'delC13a0 =      ', delC13a0_rev
         ! C14b0
         C14b0_rev = 0.5*(C14a0_rev + C14s_rev)
-        write (199, *) 'C14b0 =         ', C14b0_rev
+        !!!write (199, *) 'C14b0 =         ', C14b0_rev
         ! delC13b0
         delC13b0_rev = 0.5*(delC13a0_rev + delC13s_rev)
-        write (199, *) 'delC13b0 =      ', delC13b0_rev
+        !!!write (199, *) 'delC13b0 =      ', delC13b0_rev
        
         x = delC13b0_rev
-        write (199, *) 
+        !!!write (199, *) 
         fg_rev_uncertain = 0
-        !IF (delC13_rev > (x - 1) .AND. delC13_rev < (x + 1)) THEN
-        !    fg_rev_uncertain = 1
-        !    write (199, *) 'Test indicates delC13 is in the grey area'
-        !ENDIF
-        
-        !!F (delC13_rev < x - 1) THEN
-        !write (199, *) 'delC13 = ', delC13_rev, ' < x = ', delC13b0_rev, ', Using g.'
-        !C14x_rev = C14g_rev
-        !delC13x_rev = delC13g_rev 
-        !eps_x_b_rev = eps_g_b_rev 
-        !    fg_rev_gas = 1
-        !ELSE
-        write (199, *) 'delC13 = ', delC13_rev, ' >= x = ', delC13b0_rev, ', Using s.'
+
+        !!!write (199, *) 'delC13 = ', delC13_rev, ' >= x = ', delC13b0_rev, ', Using s.'
         C14x_rev = C14s_rev
         delC13x_rev = delC13s_rev 
         eps_x_b_rev = eps_s_b_rev   
         !    fg_rev_gas = 0           
         !ENDIF
-        write (199, *) 'C14x =         ', C14x_rev
-        write (199, *) 'delC13x =      ', delC13x_rev
-        write (199, *) 'eps_x_b =      ', eps_x_b_rev
-        write (199, *) 
-        ! eps_g_b_rev = D15
-        ! eps_s_b_rev = D14
-        ! eps_a_g_rev = D16
-        ! eps_g_a_rev = -D16
-        ! eps_a_s_rev = D19
-        ! eps_s_a_rev = -D19
-        ! eps_g_s_rev = D20
-        ! c1 = C3
-        ! Cs_rev = G3/2
-        ! Ca_rev = F3
-        ! Cb_rev = G3
-        ! Ct_rev = E3
-        ! C14g_rev = D6
-        ! C14s_rev = D5       
-        ! delC13_rev = C3
-        ! delC13s_rev = C5
-        ! delC13g_rev = C6
-        ! C14a0_rev = (D6+0.2*D16)    
-        ! delC13a0_rev = (C6+D16)
-        ! C14b0_rev = 0.5*(D6+0.2*D16 + D5)
-        ! delC13b0_rev = 0.5*(C6+D16 + C5)
-        ! x = 0.5*(C6+D16 + C5)       
-        ! C14x_rev = D5
-        ! delC13x_rev = C5
-        ! eps_x_b_rev = D14          
+        !!!write (199, *) 'C14x =         ', C14x_rev
+        !!!write (199, *) 'delC13x =      ', delC13x_rev
+        !!!write (199, *) 'eps_x_b =      ', eps_x_b_rev
+        !!!write (199, *) 
+        
         fgk_rev = (C14x_rev - C14b0_rev - 0.2*eps_x_b_rev)
         !fgk_rev = (D5-0.5*(D6+0.2*D16+D5)-0.2*D14)
         fgk_rev = fgk_rev * (delC13_rev - Ca_rev/Ct_rev*delC13a0_rev - Cb_rev/Ct_rev*delC13b0_rev)
         !fgk_rev = fgk_rev * (C3-F3/E3*(C6+D16)-G3/E3*0.5*(C6+D16+C5))
         fgk_rev = fgk_rev / (delC13x_rev - delC13b0_rev - eps_x_b_rev)
         !fgk_rev = fgk_rev / (C5-0.5*(C6+D16+C5)-D14)
-        write (199, *) 'fgk_rev =      ', fgk_rev
+        !!!write (199, *) 'fgk_rev =      ', fgk_rev
 
         C14 = (Ca_rev/Ct_rev*C14a0_rev + Cb_rev/Ct_rev*C14b0_rev)+fgk_rev
-        write (199, *) 'C14(TDIC) =    ', C14
-        C14 = (C14*Dbdata(i,41)+Dbdata(i,42)*Dbdata(i,46)+Dbdata(i,43) &
-                *Dbdata(i,47))/Dbdata(i,1)   
-        write (199, *) 'C14(C) =       ', C14
-        close(199)        
+        !!!write (199, *) 'C14(TDIC) =    ', C14
+        !C14 = (C14*Dbdata(i,41)+Dbdata(i,42)*Dbdata(i,46)+Dbdata(i,43) &
+        !        *Dbdata(i,47))/Dbdata(i,1)   
+        !!!write (199, *) 'C14(C) =       ', C14
+        !!!close(199)        
      END IF
   END IF
 10 RETURN

@@ -2330,12 +2330,13 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     bottom = vInt%VU%DOUBLE_VAL
     call ShapeRange_SetWidth(shape_range, real(right - left), status)
     call ShapeRange_SetHeight(shape_range, real(bottom - top), status)
- 
-    
+
     ! Rename worksheet
     !bstr1 = ConvertStringToBSTR()
     CALL $Worksheet_SetName(worksheetA0, "Revised F&G", status) 
     
+    ! Put in explanation
+    call add_explanation
     l2 = .true.
     CALL $WorkBook_SetSaved(workbookA0, l2, status)
     CALL Check_Status(status, " Unable to SetSavded")
@@ -3321,3 +3322,65 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call Interior_SetColor(interior, vInt, status)
     return
     end Subroutine set_fill
+    
+    Subroutine add_explanation
+    USE ADOBJECTS
+    implicit none
+    integer*4 status
+    integer*4 work_sheets, work_sheet
+    integer i
+    character*20 row_string
+    character*2 eol
+    character*120 text(200)
+    TYPE (VARIANT) :: vInt
+    data text / &
+    "Using the Revised Fontes and Garnier model of Han and Plummer (2013) as implemented in NetpathXL	",&
+    "                                                                                                   ",&
+    "Recommendations 											                                        ",&
+    "Use Tamers (model 4) if the measured is inside area of blue lines					                ",&
+    "Use gas exchange (model 10) if the measured is left of vertical blue lines				            ",&
+    "Use solid exchange (model 11) if the measured is right of vertical blue lines				        ",&
+    "end_record"/
+    
+    ! Get the worksheet
+    work_sheets = $Workbook_GetWorkSheets(workbookA0, status)
+    vInt%VT = VT_I4
+    vInt%VU%LONG_VAL = 2 
+    work_sheet = WorkSheets_GetItem(work_sheets, vInt, status)
+    CALL Check_Status(status, " Unable to get WORKSHEET object")
+    call $Worksheet_Select(work_sheet)
+    call $Worksheet_SetName(work_sheet, "Explanation", status)
+    CALL Check_Status(status, " Unable to set WORKSHEET name")
+
+    eol = char(10)
+
+    ! Insert text
+    call set_rangeA0_worksheet("b1", "b1", work_sheet)
+
+    ! set width for P, descriptions
+    call set_column_width(95.0) 
+
+    ! set text
+    status = AUTOSETPROPERTY (rangeA0, "VALUE", text)
+    CALL Check_Status(status, " Unable to set string in cell")   
+
+    
+    do i = 1, 1000
+        if (trim(text(i)) .eq. 'end_record') exit
+        if (i .lt. 10) then
+            write(row_string,'(i1)') i
+        else if (i < 100) then
+            write(row_string,'(i2)') i
+        else
+            write(row_string,'(i3)') i
+        endif
+        row_string = 'B'//trim(row_string)
+        call set_rangeA0_worksheet(row_string, row_string, work_sheet)
+        status = AUTOSETPROPERTY (rangeA0, "VALUE", text(i))
+        CALL Check_Status(status, " Unable to set string in cell")   
+    enddo
+    
+    ! set F&G as active worksheet
+    call $Worksheet_Select(worksheetA0)
+    
+    end Subroutine add_explanation

@@ -1802,7 +1802,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
         ! Zero age line
     CALL setcell_characterA0('p27','Zero-age (solid ex)')
     CALL set_rangeA0('q27','q27')
-    call set_formula('=R7C12')
+    call set_formula('=R7C12-if(R3C10=0,R24C18,R20C18)')
     CALL set_rangeA0('r27','r27')
     call set_formula('=R7C13')
     CALL set_rangeA0('q28','q28')
@@ -2226,8 +2226,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call LineFormat_SetVisible(line_format, msoFalse, status)
     CALL Check_Status(status, " Unable to set not visible")
 
-    
-    ! measured point
+     ! measured point
     series_collection = $Chart_SeriesCollection(chartA0)
     series = SeriesCollection_NewSeries(series_collection, status)
         ! x range
@@ -2246,13 +2245,11 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call Series_SetValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
     bstr1 = 0   
-    
-         ! Name
+          ! Name
     call Series_SetName(series, "Measured", status)
          ! Marker style
     call Series_SetMarkerStyle(series, xlMarkerStyleTriangle, status)
     call Series_SetMarkerSize(series, 10, status)
-    
          ! Series adjustments
     chart_format = Series_GetFormat(series, status)
     CALL Check_Status(status, " Unable to ChartFormat object")
@@ -2268,6 +2265,41 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL Check_Status(status, " Unable to LineFormat object")
     call LineFormat_SetVisible(line_format, msoFalse, status)
     CALL Check_Status(status, " Unable to set not visible")    
+ 
+       ! Solid
+    series_collection = $Chart_SeriesCollection(chartA0)	
+    series = SeriesCollection_NewSeries(series_collection, status)
+        ! x range
+    CALL VariantInit(vBSTR1)
+    vBSTR1%VT = VT_BSTR
+    bstr1 = ConvertStringToBSTR("=Sheet1!$L$7:$L$7")
+    vBSTR1%VU%PTR_VAL = bstr1    
+    call Series_SetXValues(series, vBSTR1, status)
+    status = VariantClear(vBSTR1)
+    bstr1 = 0
+         ! y range
+    CALL VariantInit(vBSTR1)
+    vBSTR1%VT = VT_BSTR
+    bstr1 = ConvertStringToBSTR("=Sheet1!$M$7:$M$7")
+    vBSTR1%VU%PTR_VAL = bstr1    
+    call Series_SetValues(series, vBSTR1, status)
+    status = VariantClear(vBSTR1)
+    bstr1 = 0   
+         ! Name
+    call Series_SetName(series, "Solid", status)
+         ! Marker style
+    call Series_SetMarkerStyle(series, xlMarkerStyleSquare, status)
+    call Series_SetMarkerSize(series, 5, status)
+         ! Series adjustments
+    chart_format = Series_GetFormat(series, status)
+    CALL Check_Status(status, " Unable to ChartFormat object")
+        ! Turn off line
+    line_format = ChartFormat_GetLine(chart_format, status)
+    CALL Check_Status(status, " Unable to LineFormat object")
+    call LineFormat_SetVisible(line_format, msoFalse, status)
+    CALL Check_Status(status, " Unable to set not visible")
+        !end Solid
+    
     
     ! Put chart on worksheet   
     ! where
@@ -3327,19 +3359,153 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     USE ADOBJECTS
     implicit none
     integer*4 status
-    integer*4 work_sheets, work_sheet
+    integer*4 work_sheets, work_sheet, font
     integer i
     character*20 row_string
     character*2 eol
     character*120 text(200)
     TYPE (VARIANT) :: vInt
     data text / &
-    "Using the Revised Fontes and Garnier model of Han and Plummer (2013) as implemented in NetpathXL	",&
-    "                                                                                                   ",&
-    "Recommendations 											                                        ",&
-    "Use Tamers (model 4) if the measured is inside area of blue lines					                ",&
-    "Use gas exchange (model 10) if the measured is left of vertical blue lines				            ",&
-    "Use solid exchange (model 11) if the measured is right of vertical blue lines				        ",&
+"Using the Revised Fontes and Garnier model of Han and Plummer (2013) as implemented in NetpathXL	",&
+"													",&
+"Recommendations 											",&
+"													",&
+"Use Tamers (model 4) if the measured is inside area of blue lines					",&
+"													",&
+"Use gas exchange (model 10) if the measured is left of vertical blue lines				",&
+"													",&
+"Use solid exchange (model 11) if the measured is right of vertical blue lines				",&
+"													",&
+"Note: (1) If the adjustment model is to be applied to a single water sample, that sample should be	",&
+"selected as both the initial and final water sample. The age is calculated by using the A0 determined	",&
+"from the adjustment model and the measured carbon-14 of the water. (2) If the initial water and final	",&
+"water are defined separately, the adjustment model will be applied to the initial water.  This A0	",&
+"value for the initial water will then be adjusted by using the mass transfers of carbon in the	        ",&
+"geochemical model that evolves the initial water to the final water; the reaction adjustments		",&
+"calculate the carbon-14 of the final water in the absence of carbon-14 decay. Age is then determined	",&
+"by the extent that decay is needed to obtain the measured carbon-14 of the final water from the	",&
+"reaction-adjusted carbon-14. References								",&
+"													",&
+"Han, L.-F. and Plummer, L.N., 2013, Revision of Fontes & Garnier's model for the initial 14C content	",&
+"of dissolved inorganic carbon used in groundwater dating. Chemical Geology 351 (2013) 105-114. doi:	",&
+"10.1016/j.chemgeo.2013.05.011										",&
+"													",&
+"See also: Han, L.-F., Plummer, L.N., and Aggarwal, P., 2012, A graphical method to evaluate		",&
+"predominant geochemical processes occurring in groundwater systems for radiocarbon dating. Chemical	",&
+"Geology 318-319, 88-112.										",&
+"													",&
+"Background												",&
+"													",&
+"An analysis of the radiocarbon adjustment model of Fontes and Garnier (1979) (F&G) shows an		",&
+"inadequate conceptualization in the formulation of the governing equations (Han and Plummer, 2013),	",&
+"resulting in underestimation of the initial 14C values (A0) for groundwater systems that have		",&
+"undergone isotopic exchange. The degree to which A0 is underestimated by the F&G model increases with	",&
+"the extent of isotopic exchange. A new model  (Han and Plummer, 2013) revises the mass-balance method	",&
+"of F&G by using a modified model conceptualization.  The derivation yields a 'global' model both for	",&
+"carbon isotopic exchange dominated by gaseous CO2 in the unsaturated zone and for carbon isotopic	",&
+"exchange dominated by solid carbonate minerals in the saturated zone. The revised model requires	",&
+"different parameters for exchange dominated by gaseous CO2 as opposed to exchange dominated by solid	",&
+"carbonate minerals. The Revised F&G model has been implemented in NetpathXL (Parkhurst and Charlton,	",&
+"2008); in turn, NetpathXL is based on NETPATH (Plummer and others, 1994). The revised model for	",&
+"exchange dominated by gaseous CO2 generates results similar to the model of Mook (Mook, 1976). In	",&
+"closed groundwater systems, the Revised F&G model produces results similar to that of Eichinger	",&
+"(1983).  For groundwater systems where exchange occurs both in the unsaturated zone and saturated	",&
+"zone, the revised model can still be used; however, A0 will be slightly underestimated (Han and	",&
+"Plummer, 2013). Finally, in carbonate systems undergoing complex geochemical reactions, such as	",& 
+"oxidation of organic carbon, adjusted radiocarbon ages are best estimated by inverse geochemical	",&
+"modeling techniques as implemented in Netpath.							        ",&
+"													",&
+"There are two ways to apply the Revised F&G model in NetpathXL: (a) radiocarbon dating of DIC in a	",&
+"single water sample, in which the initial and final water are defined as the same sample		",&
+"('traditional' approach to radiocarbon dating without consideration of the geochemical mass balance	",&
+"reactions), and (b) radiocarbon dating of the final water when initial and final water samples are	",&
+"defined separately (in NetpathXL).									",&
+"													",&
+"Features of the spreadsheet										",&
+"													",&
+"1.  Once generated, the spreadsheet stands alone; it can be saved and used in future calculations,	",&
+"and it is closed only manually (external to NetpathXL).						",&
+"													",&
+"2.  The table of data in the lower left part of the spreadsheet contains the d13C and 14C data for	",&
+"all the samples in the NetpathXL file (.xls) (which may be generated by using DBXL, see Parkhurst and	",&
+"Charlton, 2008); the inorganic carbon speciation is computed from the WATEQ aqueous model of		",&
+"NetpathXL.												",&
+"													",&
+"3.  The measured value is the initial water of the inverse model, as selected in NetpathXL.  To	",&
+"change to another sample, copy and paste a line from the table of data in the lower left part of the	",&
+"spreadsheet to the blue-shaded columns of line 3. However, changes made in the Revised F&G		",&
+"spreadsheet have no effect on the NetpathXL model definitions.					        ",&
+"													",&
+"4.  Column 10, line 3 is a switch used to define fractionation factors for CO2(g) and calcite as, '1'	",&
+"relative to the isotopic composition of HCO3-, and '0' relative to the average isotopic composition	",&
+"of the DIC in the sample; the latter accounts for sample pH and distribution of inorganic species.	",&
+"In most cases the results will be similar because HCO3- usually is the predominant inorganic carbon	",&
+"species in groundwater.  Switching to option '0' might be more appropriate for samples from systems	",&
+"with high or low pH where CO3-2 or CO2(aq) are relatively more important; for example, in a closed-	",&
+"system quartz-sand aquifer that contains minor calcite and the pH is still low, such that CO2(aq)	",&
+"predominates.  Here calcite-solution might be more appropriate than calcite-HCO3-. (See Wigley et	",&
+"al., 1978).												",&
+"													",&
+"5.  Cells L7-L9 and M7-M9 contain user-defined values of d13C (permil) and 14C pmc for the carbonate	",&
+"solid (usually calcite), the unsaturated zone CO2 gas, and an estimate of the combined uncertainty in	",&
+"the unsaturated zone gas isotopic composition and the solid carbonate minerals isotopic composition.	",&
+"													",&
+"6.  The yellow shaded fields of the spreadsheet are calculated within the spreadsheet.  Fractionation	",&
+"factors are calculated at the sample temperature.  Concentrations are in mmol per kg of water.	        ",&
+"													",&
+"Features of the plot											",&
+"													",&
+"1.  Tamers Point is the approximate isotopic composition of a sample that has reached calcite		",&
+"saturation in a closed system.  It is located at the crossing of Tamers lines X and Y.  In the	        ",&
+"spreadsheet, Tamers Point is computed in cells Q5 and R5 from defined values of d13C and 14C of	",&
+"calcite and soil gas CO2 (cells L7, L8, M7, and M8).  Tamers X and Tamers Y lines are vertical and	",&
+"horizontal extensions of the Tamers point.								",&
+"													",&
+"2.  Considering uncertainty in d13C and 14C, Tamers area is the approximate region in d13C - 14C	",&
+"space where Tamer’s model applies, and is shown as the blue rectangle on the plot.  Tamers area is	",&
+"computed around the Tamers point by using the assigned uncertainty in isotopic composition of soil	",&
+"gas CO2 and calcite (cells L9 and M9).  Tamer’s area extends to 0 pmc for samples that have aged, but	",&
+"are not affected by extensive isotopic exchange with solid carbonate minerals.			        ",&
+"													",&
+"3.  Zero-age line for systems open to soil gas CO2 (Mook model).  This line is drawn from Tamer’s	",&
+"point to the isotopic composition of HCO3- (or TDIC, if Frxn fact is 0) in equilibrium with soil gas	",&
+"CO2.  Points plotting along the line represent increasing exposure of a sample at the Tamers point to	",&
+"soil gas CO2.  Samples have zero age along this line representing a positive correction in 14C to	",&
+"Tamer’s point and are consistent with the Mook model.  As the isotopic composition of soil gas CO2	",&
+"often is not measured, some guesswork is involved in establishing this line, choosing, by trial and	",&
+"error, a value of the isotopic composition of soil gas CO2 (cells L8 and M8) that results in the	",&
+"calculated zero-age line passing through the trend in sample points (if such a trend exists).  Many	",&
+"datasets may not have samples plotting along this zero-age line.  Samples plotting below the zero-age	",&
+"line (gas ex) have radiocarbon age.  The zero-age line (gas exchange) is computed in cells Q30, R30,	",&
+"Q31, and R31.												",&
+"													",&
+"4.  Two other reference points are plotted:  (1) the defined (assumed) isotopic composition of soil	",&
+"gas CO2, and (2) the isotopic composition of CO2 (aq) in equilibrium with soil gas CO2.		",&
+"													",&
+"5.  The plot also shows the zero-age line for samples undergoing isotopic exchange (and/or water-rock	",&
+"reaction) in a closed system, according to the Revised F&G model (zero-age (solid ex) line).  This	",&
+"line is drawn from the Tamer’s point (cells Q5, R5) to the isotopic composition of calcite (user	",&
+"defined), (cells L8, M8).  Frequently, the isotopic composition of the solid carbonate minerals is	",&
+"assumed to be 0 permil in d13C (typical marine carbonate) and 0 pmc (old).  The Revised F&G model is	",&
+"that of Tamers, if there is no isotopic exchange.  Otherwise, it can be shown to be identical to that	",&
+"of Eichinger’s model (Eichinger, 1983), and very similar to the Pearson model (Ingerson and Pearson,	",&
+"1964).  [Note: Several typographical corrections to previous publications that discuss the Eichinger	",&
+"model are reported in Plummer and Glynn (2013)].  Samples plotting along this solid-exchange line	",&
+"have zero radiocarbon age, even though their 14C content decreases with increasing values of d13C.	",&
+"Samples plotting below the zero-age line (solid ex) have radiocarbon age.				",&
+"													",&
+"6.  A0 and the radiocarbon ages from Tamers, Revised F&G, Gas exchange, and Revised F&G, Solid	        ",&
+"exchange are computed in cells L12-L14 and M12-M14.  For another sample, copy the values in the lower	",&
+"left table into the blue cells, C3 - H3.								",&
+"													",&
+"7.  Changing values in any of the blue cells will cause the chart and all of the calculated values	",&
+"(yellow cells) to be updated.										",&
+"													",&
+"Further information											",&
+"													",&
+"See the document 'Implementation of the Revised Fontes and Garnier radiocarbon adjustment model in	",&
+"NetpathXL' for further information. This document can be found from the 'Start menu->All Programs' or	",&
+"in the Doc directory of the NetpathXL installation.							",&
     "end_record"/
     
     ! Get the worksheet
@@ -3379,6 +3545,40 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
         status = AUTOSETPROPERTY (rangeA0, "VALUE", text(i))
         CALL Check_Status(status, " Unable to set string in cell")   
     enddo
+    
+    ! Set bold
+    vInt%VT = VT_I4
+    vInt%VU%LONG_VAL = msoTrue 
+    
+    CALL set_rangeA0_worksheet('b1','b1', work_sheet)
+    font = Range_GetFont(rangeA0, status)
+    call Font_SetBold(font, vInt, status)  
+    
+    CALL set_rangeA0_worksheet('b3','b3', work_sheet)
+    font = Range_GetFont(rangeA0, status)
+    call Font_SetBold(font, vInt, status)
+    
+    CALL set_rangeA0_worksheet('b29','b29', work_sheet)
+    font = Range_GetFont(rangeA0, status)
+    call Font_SetBold(font, vInt, status)
+    
+    CALL set_rangeA0_worksheet('b56','b56', work_sheet)
+    font = Range_GetFont(rangeA0, status)
+    call Font_SetBold(font, vInt, status)
+    
+    CALL set_rangeA0_worksheet('b56','b56', work_sheet)
+    font = Range_GetFont(rangeA0, status)
+    call Font_SetBold(font, vInt, status)
+    
+    CALL set_rangeA0_worksheet('b88','b88', work_sheet)
+    font = Range_GetFont(rangeA0, status)
+    call Font_SetBold(font, vInt, status)
+    
+    CALL set_rangeA0_worksheet('b136','b136', work_sheet)
+    font = Range_GetFont(rangeA0, status)
+    call Font_SetBold(font, vInt, status)
+    
+    
     
     ! set F&G as active worksheet
     call $Worksheet_Select(worksheetA0)

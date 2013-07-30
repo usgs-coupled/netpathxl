@@ -1515,8 +1515,12 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call set_rangeA0('d3','d600')
     call set_decimal_places('0.0')  
 
-    call set_rangeA0('e10','e12')
-    call set_decimal_places('0')
+    call set_rangeA0('e3','h600')
+    call set_decimal_places('0.00')
+ 
+    call set_rangeA0('H12','h14')
+    call set_decimal_places('0')   
+    
     
     call set_rangeA0('j3','j3')
     call set_decimal_places('0') 
@@ -1527,12 +1531,9 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call set_rangeA0('r5','r50')
     call set_decimal_places('0.0') 
     
-    call set_rangeA0('q19','q25')
+    call set_rangeA0('q18','q24')
     call set_decimal_places('0.00000') 
-    
-    call set_rangeA0('c20','e22')
-    call set_decimal_places('0.0') 
-    
+        
     call set_rangeA0('L7','L9')
     call set_decimal_places('0.00')
     
@@ -1702,7 +1703,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL setcell_floatA0('r12',0.,2)
     
     CALL set_rangeA0('q13','q13')
-    call set_formula('=R[-1]C[0]')
+    call set_formula('=R[-1]C[0]+0')
     CALL set_rangeA0('r13','r13')
     call set_formula('=R[-8]C[0] + R9C13')
 
@@ -1768,7 +1769,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     call set_formula('=(R[0]C[-1]-1)*1000')       
     
     ! Shade calculated values
-    CALL set_rangeA0('q2','r35')
+    CALL set_rangeA0('q2','r37')
     call set_fill(10092543)
     CALL set_rangeA0('L12','M14')
     call set_fill(10092543)
@@ -1832,7 +1833,13 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL set_rangeA0('q35','q35')
     call set_formula('=R8C12-R21C18')
     CALL set_rangeA0('r35','r35')
-    call set_formula('=R8C13-0.2*R21C18')     
+    call set_formula('=R8C13-0.2*R21C18')   
+    
+    CALL setcell_characterA0('p37','HCO3 eq w solid')
+    CALL set_rangeA0('q37','q37')
+    call set_formula('=R7C12-R20C18')
+    CALL set_rangeA0('r37','r37')
+    call set_formula('=IF((R7C13-0.2*R20C18)<0,0,R7C13-0.2*R20C18)')    
 
     ! A0 Models
     CALL setcell_characterA0('H11','Model #')
@@ -2077,10 +2084,12 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     ! Add series  Tamers origin
     call add_line("=Sheet1!$Q$12:$Q$15","=Sheet1!$R$12:$R$15", "Tamers area", "blue", 2.0)
     ! Add series  Zero-age line gas ex
-    label = "Zero-age"//line_feed//"(gas ex)"
+    !label = "Zero-age"//line_feed//"(gas ex)"
+    label = "Zero-age (gas ex)"
     call add_line("=Sheet1!$Q$30:$Q$31","=Sheet1!$R$30:$R$31", trim(label), "default", 2.0)
     ! Add series  Zero-age line solid ex
-    label = "Zero-age"//line_feed//"(solid ex)"
+    !label = "Zero-age"//line_feed//"(solid ex)"
+    label = "Zero-age (solid ex)"
     call add_line("=Sheet1!$Q$27:$Q$28","=Sheet1!$R$27:$R$28", trim(label), "default", 2.0)
     
     ! UZ gas point
@@ -2136,7 +2145,8 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     status = VariantClear(vBSTR1)
     bstr1 = 0   
          ! Name
-    label = "CO2(aq) eq"//line_feed//"w UZ gas"
+    !label = "CO2(aq) eq"//line_feed//"w UZ gas"
+    label = "CO2(aq) eq w UZ gas"
     call Series_SetName(series, trim(label), status)
          ! Marker style
     call Series_SetMarkerStyle(series, xlMarkerStyleSquare, status)
@@ -2170,7 +2180,8 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     status = VariantClear(vBSTR1)
     bstr1 = 0   
          ! Name
-    label = "HCO3 eq"//line_feed//"w UZ gas"
+    !label = "HCO3 eq"//line_feed//"w UZ gas"
+    label = "HCO3 eq w UZ gas"
     call Series_SetName(series, trim(label), status)
          ! Marker style
     call Series_SetMarkerStyle(series, xlMarkerStyleSquare, status)
@@ -2300,6 +2311,41 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     CALL Check_Status(status, " Unable to set not visible")
         !end Solid
     
+       ! HCO3 eq Solid
+    series_collection = $Chart_SeriesCollection(chartA0)	
+    series = SeriesCollection_NewSeries(series_collection, status)
+        ! x range
+    CALL VariantInit(vBSTR1)
+    vBSTR1%VT = VT_BSTR
+    bstr1 = ConvertStringToBSTR("=Sheet1!$Q$37:$Q$37")
+    vBSTR1%VU%PTR_VAL = bstr1    
+    call Series_SetXValues(series, vBSTR1, status)
+    status = VariantClear(vBSTR1)
+    bstr1 = 0
+         ! y range
+    CALL VariantInit(vBSTR1)
+    vBSTR1%VT = VT_BSTR
+    bstr1 = ConvertStringToBSTR("=Sheet1!$R$37:$R$37")
+    vBSTR1%VU%PTR_VAL = bstr1    
+    call Series_SetValues(series, vBSTR1, status)
+    status = VariantClear(vBSTR1)
+    bstr1 = 0   
+         ! Name
+    !label = "HCO3 eq"//line_feed//"w Solid"
+    label = "HCO3 eq w solid"
+    call Series_SetName(series, trim(label), status)
+         ! Marker style
+    call Series_SetMarkerStyle(series, xlMarkerStyleSquare, status)
+    call Series_SetMarkerSize(series, 5, status)
+         ! Series adjustments
+    chart_format = Series_GetFormat(series, status)
+    CALL Check_Status(status, " Unable to ChartFormat object")
+        ! Turn off line
+    line_format = ChartFormat_GetLine(chart_format, status)
+    CALL Check_Status(status, " Unable to LineFormat object")
+    call LineFormat_SetVisible(line_format, msoFalse, status)
+    CALL Check_Status(status, " Unable to set not visible")
+        !end HCO3 eq Solid        
     
     ! Put chart on worksheet   
     ! where

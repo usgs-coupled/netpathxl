@@ -1,0 +1,175 @@
+DATABASE C:\Program Files (x86)\USGS\Phreeqc Interactive 3.0.3-7671\database\iso.dat
+KNOBS
+-conv 1e-13
+#
+# 25 C
+#
+# PCO2 -3
+#
+SOLUTION
+      -temp 5
+	pH 4 charge
+	C  1  CO2(g) -3
+	[13C] -20.8
+      [14C] 98.85
+	O(0)  0.24
+END
+USE solution 1
+GAS_PHASE
+	-fixed_volume 
+      -volume  .001
+	CO2(g) 0
+	[13C]O2(g) 0
+      [14C]O2(g) 0
+SAVE solution 1
+SAVE gas_phase 1
+END
+USER_GRAPH 1
+    -headings               Carbon-13 Carbon-14
+    -axis_titles            "Carbon-13, in permil" "Carbon-14, in pmc" ""
+    -chart_title            "5 C: PCO2 -3, -2.5, -2, -1.5, -1: Soil gas -20, 100: Solid 0,0: Tamers -10, 50"
+    -axis_scale x_axis      -20 0 auto auto
+    -axis_scale y_axis      0 100 auto auto
+    -start
+10 graph_x (calc_value("R(13C)")/0.0111802 - 1)*1000
+20 graph_y calc_value("R(14C)")/1.175887709e-12*100
+    -end
+USE solution 1
+REACTION
+	Calcite    1
+	Ca[13C]O3   0.0111802  
+      .129 mmol  #in 100 steps
+END
+PRINT 
+	-user_graph false
+END
+#USER_GRAPH 1
+#	-active false
+#END
+#
+# PCO2 -2.5
+#
+SOLUTION 1
+      -temp 5
+	pH 4 charge
+	C  1  CO2(g) -2.5
+	[13C] -20.8
+      [14C] 98.85
+	O(0)  0.24
+END
+USE solution 1
+GAS_PHASE
+	-fixed_volume 
+      -volume  .001
+	CO2(g) 0
+	[13C]O2(g) 0
+      [14C]O2(g) 0
+SAVE solution 1
+SAVE gas_phase 1
+END
+PRINT 
+	-user_graph true
+USE solution 1
+REACTION
+	Calcite    1
+	Ca[13C]O3   0.0111802  
+      0.241 mmol  #in 100 steps
+END
+PRINT 
+	-user_graph false
+END
+#
+# PCO2 -2
+#
+SOLUTION
+      -temp 5
+	pH 4 charge
+	C  1  CO2(g) -2
+	[13C] -20.8
+      [14C] 98.85
+	O(0)  0.24
+END
+USE solution 1
+GAS_PHASE
+	-fixed_volume 
+      -volume  .001
+	CO2(g) 0
+	[13C]O2(g) 0
+      [14C]O2(g) 0
+SAVE solution 1
+SAVE gas_phase 1
+END
+PRINT 
+	-user_graph true
+USE solution 1
+REACTION
+	Calcite    1
+	Ca[13C]O3   0.0111802  
+      0.654 mmol  #in 100 steps
+END
+PRINT 
+	-user_graph false
+END
+#
+# PCO2 -1.5
+#
+SOLUTION 1
+      -temp 5
+	pH 4 charge
+	C  1  CO2(g) -1.5
+	[13C] -20.8
+      [14C] 98.85
+	O(0)  0.24
+END
+USE solution 1
+GAS_PHASE
+	-fixed_volume 
+      -volume  .001
+	CO2(g) 0
+	[13C]O2(g) 0
+      [14C]O2(g) 0
+SAVE solution 1
+SAVE gas_phase 1
+END
+PRINT 
+	-user_graph true
+USE solution 1
+REACTION
+	Calcite    1
+	Ca[13C]O3   0.0111802  
+      1.77 mmol  #in 100 steps
+END
+PRINT 
+	-user_graph false
+END
+
+#
+# PCO2 -1.0
+#
+SOLUTION 1
+      -temp 5
+	pH 4 charge
+	C  1  CO2(g) -1
+	[13C] -20.8
+      [14C] 98.85
+	O(0)  0.24
+END
+USE solution 1
+GAS_PHASE
+	-fixed_volume 
+      -volume  .001
+	CO2(g) 0
+	[13C]O2(g) 0
+      [14C]O2(g) 0
+SAVE solution 1
+SAVE gas_phase 1
+END
+PRINT 
+	-user_graph true
+END
+USE solution 1
+REACTION
+	Calcite    1
+	Ca[13C]O3   0.0111802  
+      3.88 mmol  #in 100 steps
+END

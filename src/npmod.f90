@@ -11,7 +11,7 @@ module filenames
      'I5', 'I6', 'I7', 'I8', 'I0', 'EX', 'X1', 'X2', 'X3', 'X4',  &
      'X5'/
   character *256 excel_root, excel_filename, excel_path, excel_wfile
-  character *256 excel_wateq_filename
+  character *256 excel_wateq_filename, file_suffix
   logical excel_file, excel_cb
 end module filenames
 
@@ -19,12 +19,13 @@ module version
   CHARACTER*32 ProgramName, VersionNumber, datestr, DBXLName
   DATA ProgramName/'NetpathXL'/
   DATA DBXLName/'DBXL'/
-  DATA VersionNumber/'1.3'/
-  DATA datestr/'September 8, 2010'/
+  DATA VersionNumber/'1.4'/
+  DATA datestr/'July 15, 2013'/
 end module version
 
 module max_size
     PARAMETER MAXWELLS=400
+    PARAMETER N_C14_MODELS=11
 end module max_size
 
 module screen_parameters

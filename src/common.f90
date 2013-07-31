@@ -226,7 +226,7 @@ end subroutine font
 !
 !
 !
-integer function fileopen_db(Dfile, path, typefile)
+integer function fileopen_db(Dfile, path, typefile, suffix)
   USE IFwin
   implicit none
  INTEGER LENS 
@@ -243,14 +243,14 @@ integer function fileopen_db(Dfile, path, typefile)
   ! null-terminated empty string.
   !
   character*(*),parameter :: filter_spec_lon = "DB files"C//"*.lon"C  
-  character*(*),parameter :: filter_spec_xls = "Excel files"C//"*.xls"C
+  character*(*),parameter :: filter_spec_xls = "Excel files"C//"*.xlsx;*.xls"C//"All files"C//"*.*"C
   
   ! Declare string variable to return the file specification.
   ! Initialize with an initial filespec, if any - null string
   ! otherwise
   !
   character*(*) typefile
-  character*10 suffix
+  character*(*) suffix
   character*512 :: file_spec = ""C
   character*(*) dfile, path
   integer status,ilen, i, strcmp_nocase
@@ -319,12 +319,25 @@ integer function fileopen_db(Dfile, path, typefile)
            exit
         endif
      enddo
-     do i = LEN(dfile) - 3, 1, -1
-        if (strcmp_nocase(dfile(i:i+3),suffix) .eq. 0) then
-           dfile = dfile(1:i-1)
-           exit
-        endif
+     do i = LEN(dfile), 1, -1
+         if (dfile(i:i) .eq. '.') then
+             suffix = dfile(i+1:LEN(dfile))
+             dfile = dfile(1:i-1)
+             exit
+         endif
      enddo
+     if (i .eq. 1) then
+	    write(*,*) "No suffix (xls, xlsx, lon) found for file ", len(path)
+		write(*,*) "Stopping"
+		stop  
+     endif
+     
+     !do i = LEN(dfile) - 3, 1, -1
+     !   if (strcmp_nocase(dfile(i:i+3),suffix) .eq. 0) then
+     !      dfile = dfile(1:i-1)
+     !      exit
+     !   endif
+     !enddo
   endif
   fileopen_db = status
   return

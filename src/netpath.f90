@@ -3,6 +3,14 @@ PROGRAM NETPATHXL
   USE max_size
   use filenames
   implicit none
+   ! --------------------------------------
+  !       NETPATHXL 2.15 June 12, 2013
+  !                  by
+  !           David Parkhurst
+  !
+  !    with technical assistance from
+  !           L. Niel Plummert
+  ! -------------------------------------- 
   ! --------------------------------------
   !       NETPATHXL 2.14 June 12, 2005
   !                  by
@@ -100,7 +108,7 @@ PROGRAM NETPATHXL
   CHARACTER Pname*8, Ename*2, Force*1
   COMMON /CHAR3 / Pname(39), Ename(39), Force(39)
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1), &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1), &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -260,7 +268,7 @@ BLOCK DATA
 !
 
 CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1), &
      Ion(4), Ffact(0:1)
 CHARACTER Elelong*12, Pelt*2
 COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -272,7 +280,8 @@ DATA Model/'Original Data       ', 'Mass Balance        ',  &
      'Vogel               ', 'Tamers              ',  &
      'Ingerson and Pearson', 'Mook                ',  &
      'Fontes and Garnier  ', 'Eichinger           ',  &
-     'User-defined        '/
+     'User-defined        ', &
+     'Revised F&G gas ex  ', 'Revised F&G solid ex'/
 DATA Yes/'No ', 'Yes'/
 DATA Ion/'Computed  ', '50/50     ', 'Ca/Na     ', 'Var. Ca/Mg'/
 DATA Elelong/'            ', 'Carbon      ', 'Sulfur      ',  &
@@ -493,6 +502,7 @@ END SUBROUTINE ADDPHA
 !
 DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
   USE max_size
+  IMPLICIT none
   INTEGER IWHICH, IWELL
   !
   ! The result of a specific A0 model for the selected initial well
@@ -511,8 +521,9 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
   !       7 'Fontes and Garnier  '
   !       8 'Eichinger           '
   !       9 'User-defined        '
+  !      10 'Revised F&G gas ex  '
+  !      11 'Revised F&G solid ex'
   !
-
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
   COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
@@ -527,8 +538,17 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
        c4, cans, cm, ct, fract3, fract4, fract6,  &
        fract7, fraction, t
   DOUBLE PRECISION i10, i11
-  double precision fgk
-  COMMON /FontGarnier/ fgk
+  double precision fgk, fgk_rev, fg_rev_gas_c14, fg_rev_solid_c14  
+  integer fg_rev_uncertain, fg_rev_gas
+  COMMON /FontGarnier/ fgk, fgk_rev, fg_rev_gas_c14, fg_rev_solid_c14, &
+    fg_rev_uncertain, fg_rev_gas
+  double precision Cs_rev, Ca_rev, Cb_rev, Ct_rev, C14g_rev, eps_g_s_rev
+  double precision C14s_rev, delC13_rev, delC13s_rev, delC13g_rev 
+  double precision C14a0_rev, delC13a0_rev, C14b0_rev, delC13b0_rev 
+  double precision eps_g_b_rev, eps_s_a_rev, eps_s_b_rev, eps_a_s_rev
+  double precision eps_g_a_rev, eps_a_g_rev
+  double precision C14x_rev, delC13x_rev, eps_x_b_rev
+  double precision x
   EQUIVALENCE (C14dat(10),i10)
   EQUIVALENCE (C14dat(11),i11)
   EXTERNAL CFRACT
@@ -626,7 +646,8 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
              *Dbdata(i,47))/Dbdata(i,1)
      ELSE IF (IWHICH.EQ.7) THEN
         ! Fontes and Garnier
-        cm = Dbdata(i,36)/2.0D0
+
+            cm = Dbdata(i,36)/2.0D0
         !   Use this instead of TDIC
         ct = Dbdata(i,38)+Dbdata(i,36)
         CALL CFRACT(fraction,4,IWELL,Ierror)
@@ -643,7 +664,6 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
         C14 = (1-cm/ct)*C14dat(2)+cm/ct*C14dat(1)+fgk
         C14 = (C14*Dbdata(i,41)+Dbdata(i,42)*Dbdata(i,46)+Dbdata(i,43) &
              *Dbdata(i,47))/Dbdata(i,1)
-
      ELSE IF (IWHICH.EQ.8) THEN
         ! Eichinger
         CALL CFRACT(fract7,7,IWELL,Ierror)
@@ -665,6 +685,191 @@ DOUBLE PRECISION FUNCTION C14(IWHICH,IWELL)
      ELSE IF (IWHICH.EQ.9) THEN
         ! User-entered value
         C14 = Usera(IWELL)
+     ELSE IF (IWHICH.EQ.10) THEN
+        ! Revised Fontes and Garnier, gas exchange
+        !!!open(UNIT=199,FILE='DebugFandG',ACTION='WRITE')
+        ! gas-bicarbonate
+        CALL CFRACT(eps_g_b_rev,4,IWELL,Ierror) 
+        !!!write (199, *) 'eps_g_b =      ', eps_g_b_rev   
+        ! solid-bicarbonate
+        CALL CFRACT(eps_s_b_rev,6,IWELL,Ierror) 
+        !!!write (199, *) 'eps_s_b =      ', eps_s_b_rev            
+        ! CO2(g)-solution
+        CALL CFRACT(eps_a_g_rev,3,IWELL,Ierror) 
+        eps_g_a_rev = -eps_a_g_rev
+        !!!write (199, *) 'eps_g_a =      ', eps_g_a_rev 
+        ! calcite-CO2(aq)
+        CALL CFRACT(eps_a_s_rev,7,IWELL,Ierror)
+        eps_s_a_rev = -eps_a_s_rev      
+        !!!write (199, *) 'eps_s_a =      ', eps_s_a_rev         
+        ! gas-solid
+        eps_g_s_rev = eps_g_a_rev + eps_a_s_rev
+        !!!write (199, *) 'eps_g_s =      ', eps_g_s_rev 
+        
+        ! c1 
+        c1 = Dbdata(i,21)/Dbdata(i,41)    ! C13DIC = DIC*C13DIC / DIC
+        IF (i11.GT.0.0D0) c1 = C14dat(3)  ! C13 activity in solution
+        ! Cs
+        Cs_rev = Dbdata(i,36)/2.0D0       ! HCO3 / 2.0
+        !!!write (199, *) 'Cs =            ', Cs_rev
+        ! Ca
+        Ca_rev = Dbdata(i,38)             ! H2CO3
+        !!!write (199, *) 'Ca =            ', Ca_rev
+        ! Cb
+        Cb_rev = Dbdata(i,36)             ! HCO3
+        !!!write (199, *) 'Cb =            ', Cb_rev
+        ! Ct
+        Ct_rev = Ca_rev + Cb_rev + Dbdata(i,39)         ! H2CO3 + HCO3 ? CO3?
+        !!!write (199, *) 'Ct =            ', Ct_rev
+        ! C14g
+        C14g_rev = C14dat(2)              ! C14 activity in soil gas
+        !!!write (199, *) 'C14g =          ', C14g_rev
+
+        ! C14s
+        C14s_rev = C14dat(1)              ! C14 activity in carbonate minerals
+        !!!write (199, *) 'C14s =          ', C14s_rev
+        ! delC13
+        delC13_rev = c1                   ! del13C in solution
+        !!!write (199, *) 'delC13 =        ', delC13_rev
+        ! delC13s
+        delC13s_rev = C14dat(4)           ! C13 activity in carbonate minerals
+        !!!write (199, *) 'delC13s =       ', delC13s_rev
+        ! delC13g
+        delC13g_rev = C14dat(5) ! c2      ! C13 activity in soil gas
+        !!!write (199, *) 'delC13g =       ', delC13g_rev
+        ! C14a0
+        C14a0_rev = C14dat(2) - 0.2*eps_g_a_rev        ! C14 activity in solution in eq with soil gas
+        !!!write (199, *) 'C14a0 =         ', C14a0_rev
+        ! delC13a0
+        delC13a0_rev = C14dat(5) - eps_g_a_rev         ! C13 activity in solution in eq with soil gas
+        !!!write (199, *) 'delC13a0 =      ', delC13a0_rev
+        ! C14b0
+        C14b0_rev = 0.5*(C14a0_rev + C14s_rev)
+        !!!write (199, *) 'C14b0 =         ', C14b0_rev
+        ! delC13b0
+        delC13b0_rev = 0.5*(delC13a0_rev + delC13s_rev)
+        !!!write (199, *) 'delC13b0 =      ', delC13b0_rev
+        x = delC13b0_rev
+        !!!write (199, *) 
+        fg_rev_uncertain = 0
+
+        C14x_rev = C14g_rev
+        delC13x_rev = delC13g_rev 
+        eps_x_b_rev = eps_g_b_rev 
+
+        !!!write (199, *) 'C14x =         ', C14x_rev
+        !!!write (199, *) 'delC13x =      ', delC13x_rev
+        !!!write (199, *) 'eps_x_b =      ', eps_x_b_rev
+        !!!write (199, *) 
+
+        fgk_rev = (C14x_rev - C14b0_rev - 0.2*eps_x_b_rev)
+        !fgk_rev = (D6-0.5*(D6+0.2*D16+D5)-0.2*D15)
+        fgk_rev = fgk_rev * (delC13_rev - Ca_rev/Ct_rev*delC13a0_rev - Cb_rev/Ct_rev*delC13b0_rev)
+        ! fgk_rev = fgk_rev * (C3-F3/E3*(C6+D16)-G3/E3*0.5*(C6+D16+C5))
+        fgk_rev = fgk_rev / (delC13x_rev - delC13b0_rev - eps_x_b_rev)
+        ! fgk_rev = fgk_rev / (C6-0.5*(C6+D16+C5)-D15)
+        !!!write (199, *) 'fgk_rev =      ', fgk_rev
+
+        C14 = (Ca_rev/Ct_rev*C14a0_rev + Cb_rev/Ct_rev*C14b0_rev)+fgk_rev
+        ! C14 = (F3/E3*(D6+0.2*D16)+G3/E3*0.5*(D6+0.2*D16 + D5))+E24
+        !!!write (199, *) 'C14(TDIC) =    ', C14
+        !C14 = (C14*Dbdata(i,41)+Dbdata(i,42)*Dbdata(i,46)+Dbdata(i,43) &
+        !        *Dbdata(i,47))/Dbdata(i,1)   
+        !write (199, *) 'C14(C) =       ', C14
+        !!!close(199)
+     ELSE IF (IWHICH.EQ.11) THEN
+        ! Revised Fontes and Garnier, solid exchange
+        ! open(UNIT=199,FILE='DebugFandG',ACTION='WRITE')
+        ! gas-bicarbonate
+        CALL CFRACT(eps_g_b_rev,4,IWELL,Ierror) 
+        !!!write (199, *) 'eps_g_b =      ', eps_g_b_rev   
+        ! solid-bicarbonate
+        CALL CFRACT(eps_s_b_rev,6,IWELL,Ierror) 
+        !!!write (199, *) 'eps_s_b =      ', eps_s_b_rev            
+        ! CO2(g)-solution
+        CALL CFRACT(eps_a_g_rev,3,IWELL,Ierror) 
+        eps_g_a_rev = -eps_a_g_rev
+        !!!write (199, *) 'eps_g_a =      ', eps_g_a_rev 
+        ! calcite-CO2(aq)
+        CALL CFRACT(eps_a_s_rev,7,IWELL,Ierror)
+        eps_s_a_rev = -eps_a_s_rev      
+        !!!write (199, *) 'eps_s_a =      ', eps_s_a_rev         
+        ! gas-solid
+        eps_g_s_rev = eps_g_a_rev + eps_a_s_rev
+        !!!write (199, *) 'eps_g_s =      ', eps_g_s_rev 
+        
+        ! c1 
+        c1 = Dbdata(i,21)/Dbdata(i,41)    ! C13DIC = DIC*C13DIC / DIC
+        IF (i11.GT.0.0D0) c1 = C14dat(3)  ! C13 activity in solution
+        ! Cs
+        Cs_rev = Dbdata(i,36)/2.0D0       ! HCO3 / 2.0
+        !!!write (199, *) 'Cs =            ', Cs_rev
+        ! Ca
+        Ca_rev = Dbdata(i,38)             ! H2CO3
+        !!!write (199, *) 'Ca =            ', Ca_rev
+        ! Cb
+        Cb_rev = Dbdata(i,36)             ! HCO3
+        !!!write (199, *) 'Cb =            ', Cb_rev
+        ! Ct
+        Ct_rev = Ca_rev + Cb_rev + Dbdata(i,39)         ! H2CO3 + HCO3 ? CO3?
+        !!!write (199, *) 'Ct =            ', Ct_rev
+        ! C14g
+        C14g_rev = C14dat(2)              ! C14 activity in soil gas
+        !!!write (199, *) 'C14g =          ', C14g_rev
+        ! C14s
+        C14s_rev = C14dat(1)              ! C14 activity in carbonate minerals
+        !!!write (199, *) 'C14s =          ', C14s_rev
+        ! delC13
+        delC13_rev = c1                   ! del13C in solution
+        !!!write (199, *) 'delC13 =        ', delC13_rev
+        ! delC13s
+        delC13s_rev = C14dat(4)           ! C13 activity in carbonate minerals
+        !!!write (199, *) 'delC13s =       ', delC13s_rev
+        ! delC13g
+        delC13g_rev = C14dat(5) ! c2      ! C13 activity in soil gas
+        !!!write (199, *) 'delC13g =       ', delC13g_rev
+        ! C14a0
+        C14a0_rev = C14dat(2) - 0.2*eps_g_a_rev        ! C14 activity in solution in eq with soil gas
+        !!!write (199, *) 'C14a0 =         ', C14a0_rev
+        ! delC13a0
+        delC13a0_rev = C14dat(5) - eps_g_a_rev         ! C13 activity in solution in eq with soil gas
+        !!!write (199, *) 'delC13a0 =      ', delC13a0_rev
+        ! C14b0
+        C14b0_rev = 0.5*(C14a0_rev + C14s_rev)
+        !!!write (199, *) 'C14b0 =         ', C14b0_rev
+        ! delC13b0
+        delC13b0_rev = 0.5*(delC13a0_rev + delC13s_rev)
+        !!!write (199, *) 'delC13b0 =      ', delC13b0_rev
+       
+        x = delC13b0_rev
+        !!!write (199, *) 
+        fg_rev_uncertain = 0
+
+        !!!write (199, *) 'delC13 = ', delC13_rev, ' >= x = ', delC13b0_rev, ', Using s.'
+        C14x_rev = C14s_rev
+        delC13x_rev = delC13s_rev 
+        eps_x_b_rev = eps_s_b_rev   
+        !    fg_rev_gas = 0           
+        !ENDIF
+        !!!write (199, *) 'C14x =         ', C14x_rev
+        !!!write (199, *) 'delC13x =      ', delC13x_rev
+        !!!write (199, *) 'eps_x_b =      ', eps_x_b_rev
+        !!!write (199, *) 
+        
+        fgk_rev = (C14x_rev - C14b0_rev - 0.2*eps_x_b_rev)
+        !fgk_rev = (D5-0.5*(D6+0.2*D16+D5)-0.2*D14)
+        fgk_rev = fgk_rev * (delC13_rev - Ca_rev/Ct_rev*delC13a0_rev - Cb_rev/Ct_rev*delC13b0_rev)
+        !fgk_rev = fgk_rev * (C3-F3/E3*(C6+D16)-G3/E3*0.5*(C6+D16+C5))
+        fgk_rev = fgk_rev / (delC13x_rev - delC13b0_rev - eps_x_b_rev)
+        !fgk_rev = fgk_rev / (C5-0.5*(C6+D16+C5)-D14)
+        !!!write (199, *) 'fgk_rev =      ', fgk_rev
+
+        C14 = (Ca_rev/Ct_rev*C14a0_rev + Cb_rev/Ct_rev*C14b0_rev)+fgk_rev
+        !!!write (199, *) 'C14(TDIC) =    ', C14
+        !C14 = (C14*Dbdata(i,41)+Dbdata(i,42)*Dbdata(i,46)+Dbdata(i,43) &
+        !        *Dbdata(i,47))/Dbdata(i,1)   
+        !!!write (199, *) 'C14(C) =       ', C14
+        !!!close(199)        
      END IF
   END IF
 10 RETURN
@@ -1031,7 +1236,7 @@ SUBROUTINE EDIT
   !
 
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
   COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
@@ -1258,6 +1463,218 @@ END SUBROUTINE EDIT
 !
 !
 !
+!SUBROUTINE EDITC14xx
+!  USE max_size
+!  implicit none
+!  !
+!  ! The model to be used for the initial Carbon-14 value is selected, and
+!  ! the parameters for it are modified.  Parameters for all the models
+!  ! may be entered because all the models may be run.
+!  !
+!  CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
+!  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
+!       Ion(4), Ffact(0:1)
+!  DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
+!  COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
+!       Disalong, Usera(5)
+!  INTEGER Well, Tunit, Iflag, Inum, Nrun
+!  COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun  
+!  double precision fgk, fgk_rev, fg_rev_gas_c14, fg_rev_solid_c14  
+!  integer fg_rev_uncertain, fg_rev_gas
+!  COMMON /FontGarnier/ fgk, fgk_rev, fg_rev_gas_c14, fg_rev_solid_c14, &
+!    fg_rev_uncertain, fg_rev_gas
+!  INTEGER idone, i, ierr, j, jj, ii11, ii10, LENS
+!  CHARACTER*38 c1words(0:3), c2words(0:3)
+!  CHARACTER ans*2
+!  DOUBLE PRECISION i10, i11
+!  EQUIVALENCE (C14dat(10),i10)
+!  EQUIVALENCE (C14dat(11),i11)
+!  DOUBLE PRECISION C14
+!  EXTERNAL CLS, INPTRL, INPTIN, C14, LENS
+!  INTRINSIC NINT, DBLE, DABS
+!  CHARACTER str*100
+!  DOUBLE PRECISION dummy
+!  double precision a0_models(N_C14_MODELS)
+!  INTEGER uncertain
+!  !
+!  DATA c1words/'Original Value                        ',  &
+!       'User-defined Value                    ',  &
+!       '                                      ',  &
+!       '                                      '/
+!  DATA c2words/'User-defined Value                    ',  &
+!       'Mass Balance - no fractionation       ',  &
+!       'Mass Balance - with fractionation     ',  &
+!       'Open System (gas-solution equilibrium)'/
+!  !
+!  idone = 0
+!10 CALL CLS
+!  WRITE (*,9000)
+!  IF (Iflag(1).EQ.0) THEN
+!     WRITE (*,9005)
+!  ELSE
+!     WRITE (*,9010) (j,j=1,Iflag(1)+1)
+!     WRITE (*,*)
+!  END IF
+!  ierr = 0
+!  DO j = 1, Iflag(1)+1
+!     IF (Dbdata(Well(j),1).LE.0D0) THEN
+!        WRITE (*,9015) Wllnms(Well(j))(5:36)
+!        ierr = 1
+!     END IF
+!  enddo
+!  IF (ierr.EQ.1) THEN
+!     WRITE (*,9020)
+!     READ (*,9070) ans
+!     RETURN
+!  END IF
+!
+!  DO i = 1, N_C14_MODELS
+!      !if (i .eq. 10) then
+!      !    do j = 1,Iflag(1)+1
+!      !        dummy = C14(i,j)
+!      !        str = ' using gas exchange'
+!      !        if (fg_rev_gas .eq. 0) then
+!      !            str = ' using solid exchange'
+!      !        endif
+!      !        if (Iflag(1) .gt. 0) then
+!      !            if (j .gt. 1) then
+!      !                WRITE (*,9027) j, C14(i,j), trim(str)
+!      !            else
+!      !                WRITE (*,9028) i, Model(i), j, C14(i,j), trim(str)
+!      !            endif
+!      !            if (fg_rev_uncertain .EQ. 1) then
+!      !                WRITE (*,'(T40, A)') 'uncertain, see Mook for gas exchange A0'
+!      !            endif 
+!      !        else
+!      !            WRITE (*,9026) i, Model(i), C14(i,j), trim(str)
+!      !            if (fg_rev_uncertain .EQ. 1) then
+!      !                WRITE (*,'(T40, A)') 'uncertain, see Mook for gas exchange A0'
+!      !            endif                  
+!      !        endif
+!      !    enddo
+!      !    
+!      !else
+!          WRITE (*,9025) i, Model(i), (C14(i,j),j=1,Iflag(1)+1)
+!          a0_models(i) = C14(i,1)
+!      !endif
+!  enddo
+!  if (Iflag(1).eq.0) then
+!    CALL NewExcelA0(&
+!        DBDATA(Well(1),21)/DBDATA(Well(1),41), & ! 13C measured solution
+!        DBDATA(Well(1),22)/DBDATA(Well(1),41), &
+!        C14DAT(4), &           ! 13C solid
+!        C14DAT(1), &           ! 14C solid
+!        C14DAT(5), &           ! 13C UZ
+!        C14DAT(2), &           ! 14C UZ
+!        a0_models, &
+!        wllnms(Well(1)))
+!    
+!	call cleanup_comA0(.TRUE.)
+!  endif
+!  IF (Iflag(4).LT.1 .OR. Iflag(4).GT.N_C14_MODELS) Iflag(4) = 1
+!
+!40 IF (idone.EQ.0) WRITE (*,9035) Model(Iflag(4)) &
+!       (1:LENS(Model(Iflag(4))))
+!  IF (idone.EQ.1) WRITE (*,9030)
+!  READ (*,9070) ans
+!  IF (ans.EQ.' ' .AND. idone.EQ.1) RETURN
+!  IF (ans.NE.' ') THEN
+!     READ (ans,9040,ERR=40) i
+!     IF (i.EQ.0) THEN
+!        j = 0
+!        CALL CLS
+!        GO TO 60
+!     END IF
+!     IF (i.LE.0 .OR. i.GT.N_C14_MODELS) GO TO 40
+!     Iflag(4) = i
+!  END IF
+!  IF (Iflag(4).EQ.1 .OR. Iflag(4).EQ.3) THEN
+!     WRITE (*,9045)
+!     READ (*,9070) ans
+!     IF (ans.NE.' ') GO TO 50
+!     RETURN
+!  END IF
+!  WRITE (*,9050) Model(Iflag(4))(1:LENS(Model(Iflag(4))))
+!  idone = 1
+!  READ (*,9070) ans
+!50 CALL CLS
+!  j = 0
+!  IF (ans.EQ.' ') j = Iflag(4)
+!60 IF ((j.GE.4.AND.j.LE.7) .OR. j.EQ.0) THEN
+!     CALL INPTRL(C14dat(1), &
+!          'C-14 activity in carbonate minerals (% modern)')
+!     CALL INPTRL(C14dat(2),'C-14 activity in soil gas CO2 (% modern)' &
+!          )
+!  END IF
+!  IF (j.EQ.2 .OR. j.EQ.0) THEN
+!     CALL INPTRL(C14dat(8),'C-14 activity in dolomite (% modern)')
+!     CALL INPTRL(C14dat(9),'C-14 activity in calcite (% modern)')
+!     IF (j.EQ.2) CALL INPTRL(C14dat(2), &
+!          'C-14 activity in soil gas CO2 (% modern)' &
+!          )
+!  END IF
+!  IF ((j.GE.5.AND.j.LE.N_C14_MODELS) .OR. j.EQ.0) THEN
+!     ii11 = NINT(C14dat(11))
+!     CALL INPTIN(ii11,'C-13 (TDIC) in initial solution', &
+!          '   (Used only in A0 models)',c1words)
+!     i11 = DBLE(ii11)
+!     IF (DABS(i11-1.0D0).LT.1.0D-6) CALL INPTRL(C14dat(3), &
+!          'delta C-13 (per mil) in the solution')
+!     CALL INPTRL(C14dat(4), &
+!          'delta C-13 (per mil) in carbonate minerals')
+!     ii10 = NINT(C14dat(10))
+!     CALL INPTIN(ii10,'delta C-13 (per mil) in soil gas CO2',' ', &
+!          c2words)
+!     i10 = DBLE(ii10)
+!     IF (DABS(i10-0.D0).LT.1.D-6) CALL INPTRL(C14dat(5), &
+!          'delta C-13 (per mil) in soil gas CO2')
+!     IF (DABS(i10-1.D0).LT.1.D-6 .OR. DABS(i10-2.0D0).LT.1.0D-6) THEN
+!        CALL INPTRL(C14dat(12),'delta C-13 (per mil) in dolomite')
+!        CALL INPTRL(C14dat(13),'delta C-13 (per mil) in calcite')
+!     END IF
+!     IF (Iflag(1).EQ.0) THEN
+!        WRITE (*,9055) C14(-1,1)
+!     ELSE
+!        WRITE (*,9060) (j,C14(-1,j),j=1,Iflag(1)+1)
+!     END IF
+!     WRITE (*,9065)
+!     READ (*,9070) ans
+!  END IF
+!  IF (j.EQ.9) THEN
+!     DO jj = 1, Iflag(1)+1
+!        CALL INPTRL(Usera(jj), &
+!             'user-defined C-14 activity for '//Wllnms(Well(jj) &
+!             )(5:LENS(Wllnms(Well(jj)))))
+!     enddo
+!  END IF
+!  GO TO 10
+!9000 FORMAT (8X,'Initial Carbon-14, A0, (percent modern)',/,13X, &
+!       'for Total Dissolved Carbon',/)
+!9005 FORMAT (9X,'Model',13X,'Initial well',/)
+!9010 FORMAT (9X,'Model',13X,6(:,4X,'Init',I2))
+!9015 FORMAT (' Carbon not positive for ''',A32,'''.')
+!9020 FORMAT (/, &
+!       ' Carbon isotopes cannot be run. Hit <Enter> to continue.')
+!9025   FORMAT (I4,' : ',A,':',6(F10.2))
+!9026   FORMAT (I4,' : ',A,':',F10.2, A) 
+!9027   FORMAT (T28,i1,F10.2, A)   
+!9028   FORMAT (I4,' : ',A,i1,F10.2, A)    
+!9030 FORMAT (/,' Enter number of model to use (<Enter> to quit, 0 to', &
+!       ' edit data for all models)')
+!9035 FORMAT (/,' Enter number of model to use (<Enter> for ''',A,''')')
+!9040 FORMAT (I3)
+!9045 FORMAT (/,' Hit <Enter> to quit or any other key to edit data', &
+!       ' for all models.')
+!9050 FORMAT (/,' Hit <Enter> to input data for ''',A,''',',/, &
+!       ' any other key to enter data for all models.')
+!9055 FORMAT (' C-13 of CO2 gas for initial well: ',F8.3)
+!9060 FORMAT (' C-13 of CO2 gas for initial well',I2,': ',F8.3)
+!9065 FORMAT (' Hit <Enter> to continue')
+!9070 FORMAT (A)
+!    END SUBROUTINE EDITC14xx
+!
+!
+!
 SUBROUTINE EDITC14
   USE max_size
   implicit none
@@ -1267,22 +1684,31 @@ SUBROUTINE EDITC14
   ! may be entered because all the models may be run.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
   COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
        Disalong, Usera(5)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
-  COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
+  COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun  
+  double precision fgk, fgk_rev, fg_rev_gas_c14, fg_rev_solid_c14  
+  integer fg_rev_uncertain, fg_rev_gas
+  COMMON /FontGarnier/ fgk, fgk_rev, fg_rev_gas_c14, fg_rev_solid_c14, &
+    fg_rev_uncertain, fg_rev_gas
   INTEGER idone, i, ierr, j, jj, ii11, ii10, LENS
   CHARACTER*38 c1words(0:3), c2words(0:3)
-  CHARACTER ans*1
+  CHARACTER ans*2
+  character c*1
   DOUBLE PRECISION i10, i11
   EQUIVALENCE (C14dat(10),i10)
   EQUIVALENCE (C14dat(11),i11)
   DOUBLE PRECISION C14
   EXTERNAL CLS, INPTRL, INPTIN, C14, LENS
   INTRINSIC NINT, DBLE, DABS
+  CHARACTER str*100
+  DOUBLE PRECISION dummy, age, local_dfinal
+  double precision a0_models(N_C14_MODELS)
+  INTEGER uncertain
   !
   DATA c1words/'Original Value                        ',  &
        'User-defined Value                    ',  &
@@ -1314,38 +1740,121 @@ SUBROUTINE EDITC14
      READ (*,9070) ans
      RETURN
   END IF
-  DO i = 1, 9
-     WRITE (*,9025) i, Model(i), (C14(i,j),j=1,Iflag(1)+1)
+
+  DO i = 1, N_C14_MODELS
+      age = 0
+      if (dbdata(Well(1),1) .gt.0) then
+        local_dfinal = (dbdata(Well(1),22) + dbdata(Well(1),42)*dbdata(Well(1),44) + dbdata(Well(1),23)*dbdata(Well(1),46))/dbdata(Well(1),1)
+        if ( c14(i,1) .gt. 0 .and. local_dfinal .gt. 0.0) then
+            age = 5730.0/log(2.0)*log(C14(i,1)/local_dfinal)
+        endif
+      endif 
+      WRITE (*,9025) i, Model(i), C14(i,1), age, (C14(i,j),j=2,Iflag(1)+1)
+9025   FORMAT (I4,' : ',A,':',7(F10.2)) 
+      a0_models(i) = C14(i,1)
   enddo
-  IF (Iflag(4).LT.1 .OR. Iflag(4).GT.9) Iflag(4) = 1
-40 IF (idone.EQ.0) WRITE (*,9035) Model(Iflag(4)) &
-       (1:LENS(Model(Iflag(4))))
-  IF (idone.EQ.1) WRITE (*,9030)
-  READ (*,9070) ans
-  IF (ans.EQ.' ' .AND. idone.EQ.1) RETURN
-  IF (ans.NE.' ') THEN
-     READ (ans,9040,ERR=40) i
-     IF (i.EQ.0) THEN
+ ! if (Iflag(1).eq.0) then
+ !   CALL NewExcelA0(&
+ !       DBDATA(Well(1),21)/DBDATA(Well(1),41), & ! 13C measured solution
+ !       DBDATA(Well(1),22)/DBDATA(Well(1),41), &
+ !       C14DAT(4), &           ! 13C solid
+ !       C14DAT(1), &           ! 14C solid
+ !       C14DAT(5), &           ! 13C UZ
+ !       C14DAT(2), &           ! 14C UZ
+ !       a0_models, &
+ !       wllnms(Well(1)))
+	!call cleanup_comA0(.FALSE.)
+ ! endif
+  IF (Iflag(4).LT.1 .OR. Iflag(4).GT.N_C14_MODELS) Iflag(4) = 1
+
+!40 continue
+   write(*,'(/A)') ' <Enter> to quit,'
+   write(*,'(A)')  ' <number> of model to use (Currently ' // Model(Iflag(4))(1:LENS(Model(Iflag(4)))) //'),'
+   write(*,'(A)')  ' <X> to show Excel plot for Revised F and G,'
+   write(*,'(A)')  ' <A> (or any other character) to enter data for all models.'
+   READ (*,9070) ans
+   ans = trim(ans)
+   c = ans(1:1)
+
+   if (lens(ans).eq.0) then
+       return
+   elseif (ans .eq. '1') then
+       Iflag(4) = 1
+   elseif (ans .eq. '2') then
+       Iflag(4) = 2
+   elseif (ans .eq. '3') then
+       Iflag(4) = 3
+   elseif (ans .eq. '4') then
+       Iflag(4) = 4
+   elseif (ans .eq. '5') then
+       Iflag(4) = 5
+   elseif (ans .eq. '6') then
+       Iflag(4) = 6
+   elseif (ans .eq. '7') then
+       Iflag(4) = 7
+   elseif (ans .eq. '8') then
+       Iflag(4) = 8
+   elseif (ans .eq. '9') then
+       Iflag(4) = 9
+   elseif (ans .eq. '10') then
+       Iflag(4) = 10
+   elseif (ans .eq. '11') then
+       Iflag(4) = 11
+   elseif (ans.eq.'X'.or.ans.eq.'x') then
+      CALL NewExcelA0(&
+      DBDATA(Well(1),21)/DBDATA(Well(1),41), & ! 13C measured solution
+      DBDATA(Well(1),22)/DBDATA(Well(1),41), &
+      C14DAT(4), &           ! 13C solid
+      C14DAT(1), &           ! 14C solid
+      C14DAT(5), &           ! 13C UZ
+      C14DAT(2), &           ! 14C UZ
+      a0_models, &
+      wllnms(Well(1)))
+      call cleanup_comA0(.FALSE.)
+   else
         j = 0
         CALL CLS
         GO TO 60
-     END IF
-     IF (i.LE.0 .OR. i.GT.9) GO TO 40
-     Iflag(4) = i
+  endif
+  goto 10
+  
+!40 IF (idone.EQ.0) WRITE (*,9035) Model(Iflag(4)) &
+!       (1:LENS(Model(Iflag(4))))
+!  IF (idone.EQ.1) WRITE (*,9030)
+!  READ (*,9070) ans
+!  IF (ans.EQ.' ' .AND. idone.EQ.1) RETURN
+!  IF (ans.NE.' ') THEN
+!     READ (ans,9040,ERR=40) i
+!     IF (i.EQ.0) THEN
+!        j = 0
+!        CALL CLS
+!        GO TO 60
+!     END IF
+!     IF (i.LE.0 .OR. i.GT.N_C14_MODELS) GO TO 40
+!     Iflag(4) = i
+!  END IF
+!  IF (Iflag(4).EQ.1 .OR. Iflag(4).EQ.3) THEN
+!     WRITE (*,9045)
+!     READ (*,9070) ans
+!     IF (ans.NE.' ') GO TO 50
+!     RETURN
+!  END IF
+!  WRITE (*,9050) Model(Iflag(4))(1:LENS(Model(Iflag(4))))
+!  idone = 1
+!  READ (*,9070) ans
+!50 CALL CLS
+!  j = 0
+!  IF (ans.EQ.' ') j = Iflag(4)
+60 continue
+  IF (j.EQ.9.or.j.eq.0) THEN
+     DO jj = 1, Iflag(1)+1
+        CALL INPTRL(Usera(jj), &
+             'user-defined C-14 activity for '//Wllnms(Well(jj) &
+             )(5:LENS(Wllnms(Well(jj)))))
+     enddo
   END IF
-  IF (Iflag(4).EQ.1 .OR. Iflag(4).EQ.3) THEN
-     WRITE (*,9045)
-     READ (*,9070) ans
-     IF (ans.NE.' ') GO TO 50
-     RETURN
-  END IF
-  WRITE (*,9050) Model(Iflag(4))(1:LENS(Model(Iflag(4))))
-  idone = 1
-  READ (*,9070) ans
-50 CALL CLS
-  j = 0
-  IF (ans.EQ.' ') j = Iflag(4)
-60 IF ((j.GE.4.AND.j.LE.7) .OR. j.EQ.0) THEN
+  
+   IF ((j.GE.4.AND.j.LE.7) .OR. j.EQ.0) THEN
      CALL INPTRL(C14dat(1), &
           'C-14 activity in carbonate minerals (% modern)')
      CALL INPTRL(C14dat(2),'C-14 activity in soil gas CO2 (% modern)' &
@@ -1358,7 +1867,7 @@ SUBROUTINE EDITC14
           'C-14 activity in soil gas CO2 (% modern)' &
           )
   END IF
-  IF ((j.GE.5.AND.j.LE.8) .OR. j.EQ.0) THEN
+  IF ((j.GE.5.AND.j.LE.N_C14_MODELS) .OR. j.EQ.0) THEN
      ii11 = NINT(C14dat(11))
      CALL INPTIN(ii11,'C-13 (TDIC) in initial solution', &
           '   (Used only in A0 models)',c1words)
@@ -1385,22 +1894,22 @@ SUBROUTINE EDITC14
      WRITE (*,9065)
      READ (*,9070) ans
   END IF
-  IF (j.EQ.9) THEN
-     DO jj = 1, Iflag(1)+1
-        CALL INPTRL(Usera(jj), &
-             'user-defined C-14 activity for '//Wllnms(Well(jj) &
-             )(5:LENS(Wllnms(Well(jj)))))
-     enddo
-  END IF
+  !IF (j.EQ.9.or.j.eq.0) THEN
+  !   DO jj = 1, Iflag(1)+1
+  !      CALL INPTRL(Usera(jj), &
+  !           'user-defined C-14 activity for '//Wllnms(Well(jj) &
+  !           )(5:LENS(Wllnms(Well(jj)))))
+  !   enddo
+  !END IF
   GO TO 10
 9000 FORMAT (8X,'Initial Carbon-14, A0, (percent modern)',/,13X, &
        'for Total Dissolved Carbon',/)
-9005 FORMAT (9X,'Model',13X,'Initial well',/)
-9010 FORMAT (9X,'Model',13X,6(:,4X,'Init',I2))
+9005 FORMAT (9X,'Model',13X,'Initial well','      Age'/)
+9010 FORMAT (9X,'Model',13X,(:,5X,'Init',I2),3x,'    Age', 5(:,4X,'Init',I2))
 9015 FORMAT (' Carbon not positive for ''',A32,'''.')
 9020 FORMAT (/, &
        ' Carbon isotopes cannot be run. Hit <Enter> to continue.')
-9025 FORMAT (I4,' : ',A,':',6(F10.2))
+
 9030 FORMAT (/,' Enter number of model to use (<Enter> to quit, 0 to', &
        ' edit data for all models)')
 9035 FORMAT (/,' Enter number of model to use (<Enter> for ''',A,''')')
@@ -1413,10 +1922,8 @@ SUBROUTINE EDITC14
 9060 FORMAT (' C-13 of CO2 gas for initial well',I2,': ',F8.3)
 9065 FORMAT (' Hit <Enter> to continue')
 9070 FORMAT (A)
-END SUBROUTINE EDITC14
-!
-!
-!
+    END SUBROUTINE EDITC14
+    
 SUBROUTINE EDITCISO(IPOS)
   USE max_size
   implicit none
@@ -1426,7 +1933,7 @@ SUBROUTINE EDITCISO(IPOS)
   ! Rayleigh calculations can be selected.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
@@ -1452,7 +1959,7 @@ SUBROUTINE EDITEVAP(IPOS)
   ! Evaporation can be considered.  This also includes dilution.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
@@ -1477,7 +1984,7 @@ SUBROUTINE EDITFACT(IPOS)
   implicit none
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
@@ -1510,7 +2017,7 @@ SUBROUTINE EDITIONEX(IPOS)
   ! exchange is entered.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
@@ -1539,7 +2046,7 @@ SUBROUTINE EDITMIX(IPOS)
   implicit none
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
@@ -1809,7 +2316,7 @@ SUBROUTINE EDITRS(IPOS)
   implicit none
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
   COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
@@ -2077,7 +2584,7 @@ SUBROUTINE ICCARBON
   ! entered.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
   COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
@@ -2183,7 +2690,7 @@ SUBROUTINE ICCARBON
      END IF
   END IF
   GO TO 30
-9000 FORMAT (/,' There are no phases for which isotipic data can', &
+9000 FORMAT (/,' There are no phases for which isotopic data can', &
        ' be entered.',//,' Hit <Enter> to continue.')
 9005 FORMAT (19X,'Isotopic compositions of Carbon in solution',/)
 9010 FORMAT (36X,' Carbon-13  C14 %mod   Carbon-13  C14 %mod',/,' #  ', &
@@ -2383,7 +2890,7 @@ SUBROUTINE INITVALS(INEW)
   !
 
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -3219,7 +3726,7 @@ SUBROUTINE MODELS
   !
 
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -3559,7 +4066,7 @@ SUBROUTINE MODELS214
   !
 
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -4103,7 +4610,7 @@ SUBROUTINE RDPATH2(FILEONE)
   ! passed through untouched by WATEQFP.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
   COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
@@ -4208,7 +4715,7 @@ SUBROUTINE RDPATH214(FILEONE)
   ! passed through untouched by WATEQFP.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION C14dat, Dbdata, P, Delta, Disalong, Usera
   COMMON /DP4   / C14dat(13), Dbdata(0:MAXWELLS,0:50), P(3), Delta(40),  &
@@ -4737,7 +5244,7 @@ SUBROUTINE SCREEN
   !
 
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -5299,7 +5806,7 @@ SUBROUTINE VIEW
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
   INTEGER LENS, iwell, i
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   EXTERNAL LENS, CLS
 
@@ -5347,7 +5854,7 @@ SUBROUTINE VIEW2(iwell)
   !
 
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
   COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
@@ -5534,7 +6041,7 @@ SUBROUTINE VIEW214(iwell)
   INTEGER jcounter
 
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
   COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
@@ -5905,7 +6412,7 @@ SUBROUTINE WELLS
   ! mixing will be considered.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Well, Tunit, Iflag, Inum, Nrun
   COMMON /INT4  / Well(0:5), Tunit, Iflag(6), Inum, Nrun
@@ -6009,7 +6516,7 @@ SUBROUTINE WLLIST(II)
   ! rest of the wells.
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   INTEGER Wunit, Nwlls, Icase, Jele, Nodata, Isdocrs
   COMMON /INT1  / Wunit, Nwlls, Icase, Jele(39,36), Nodata(MAXWELLS,50),  &
@@ -6104,7 +6611,7 @@ SUBROUTINE RUN(NUMRUN)
   CHARACTER Pname*8, Ename*2, Force*1
   COMMON /CHAR3 / Pname(39), Ename(39), Force(39)
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1), &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1), &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -6345,7 +6852,7 @@ SUBROUTINE BALN
   CHARACTER Pname*8, Ename*2, Force*1
   COMMON /CHAR3 / Pname(39), Ename(39), Force(39)
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -6786,7 +7293,7 @@ SUBROUTINE RUNONE(MAXIGNORE)
   IMPLICIT NONE
   !
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION Clmain, Cleach, Pdat, Res, Sfinal, Sinit, Maxdel,  &
        Mindel, Dfinal
@@ -6864,7 +7371,7 @@ SUBROUTINE PRINT
   CHARACTER Pname*8, Ename*2, Force*1
   COMMON /CHAR3 / Pname(39), Ename(39), Force(39)
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   DOUBLE PRECISION Evap, Pcoeff
   COMMON /DP1   / Evap, Pcoeff(39,36)
@@ -6959,7 +7466,7 @@ SUBROUTINE CISO(ISCR)
   CHARACTER Pname*8, Ename*2, Force*1
   COMMON /CHAR3 / Pname(39), Ename(39), Force(39)
   CHARACTER Wllnms*80, Transfer*1, Model*20, Yes*3, Ion*10, Ffact*14
-  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(9), Yes(0:1),  &
+  COMMON /CHAR4 / Wllnms(0:MAXWELLS), Transfer(39), Model(N_C14_MODELS), Yes(0:1),  &
        Ion(4), Ffact(0:1)
   CHARACTER Elelong*12, Pelt*2
   COMMON /CHAR6 / Elelong(0:28), Pelt(39,39)
@@ -7002,12 +7509,15 @@ SUBROUTINE CISO(ISCR)
        ierrn, iw, elmt(5), isot(5), itoterr, LENS
   CHARACTER*8 dispha(39), prepha(39)
   CHARACTER*80 saveout(20), glines(0:10), line
-  double precision fgk
-  COMMON /FontGarnier/ fgk
+  double precision fgk, fgk_rev, fg_rev_gas_c14, fg_rev_solid_c14  
+  integer fg_rev_uncertain, fg_rev_gas
+  COMMON /FontGarnier/ fgk, fgk_rev, fg_rev_gas_c14, fg_rev_solid_c14, &
+    fg_rev_uncertain, fg_rev_gas
   EXTERNAL CLS, CFRACT, SFRACT, RAYLEIGH, C14, ISTATE, LENS
   INTRINSIC DLOG, DABS
   DATA elmt/1, 1, 2, 15, 18/, isot/21, 22, 23, 24, 25/
   double precision epsilon /1e-12/
+  CHARACTER str*100
   ! Only print headers and make netpath.out file on first time through.
 
   IF (ISCR.LT.1) THEN
@@ -7113,15 +7623,16 @@ SUBROUTINE CISO(ISCR)
         Dinit = 10.0D0*Dinit/Cinit-1000.0D0
      END IF
      Cinit = Cinit*(1.0D0-Evap)
-     IF (Nodata(Well(0),isot(i)).EQ.0 .AND. Dbdata(Well(0),elmt(i)) &
-          .GT.0.0D0) THEN
+     IF (Nodata(Well(0),isot(i)).EQ.0 .AND. Dbdata(Well(0),elmt(i)) .GT.0.0D0) THEN
         Dfinal = Dbdata(Well(0),isot(i))/Dbdata(Well(0),elmt(i))
-        IF (elmt(i).EQ.1) Dfinal = (Dbdata(Well(0),isot(i))+Dbdata( &
+        IF (elmt(i).EQ.1) then
+            Dfinal = (Dbdata(Well(0),isot(i))+Dbdata( &
              Well(0),42) &
              *Dbdata(Well(0),isot(i)*2+2) &
              +Dbdata(Well(0),43) &
              *Dbdata(Well(0),isot(i)*2+3)) &
              /Dbdata(Well(0),1)
+        endif
      ELSE
         Dfinal = 0.0D0
      END IF
@@ -7158,7 +7669,7 @@ SUBROUTINE CISO(ISCR)
               !
               !   Write A0 models
               !
-              DO imod = 1, 9
+              DO imod = 1, N_C14_MODELS
                  IF (Imix .EQ. 0) THEN
                     Dinit = C14(imod,1)
                  ELSE
@@ -7181,7 +7692,7 @@ SUBROUTINE CISO(ISCR)
                             age
                        if (imod == 7) then
                           WRITE (Iunit,'(T7, "F-G K", F10.2)') fgk
-                       endif
+                       endif             
                     END IF
                  END IF
               enddo
@@ -7495,8 +8006,19 @@ SUBROUTINE CISO(ISCR)
         END IF
      enddo
   enddo
-  IF (ISCR.EQ.0 .AND. iage.EQ.1) WRITE (Iunit,9175) age,  &
-       Model(Iflag(4))
+  IF (ISCR.EQ.0 .AND. iage.EQ.1) then
+      WRITE (Iunit,9175) age, Model(Iflag(4))
+      !if(Iflag(4) .eq. 10 .and. Iflag(1).eq.0) then
+      !    str = 'using gas exchange'
+      !    if (fg_rev_gas .eq. 0) then 
+      !        str = 'using solid exchange'
+      !    endif
+      !    WRITE (Iunit,'(t47,A)') str
+      !    if (fg_rev_uncertain .eq. 1) then
+      !        WRITE (Iunit,'(t47,A)') 'uncertain, compare to Mook for gas exchange'
+      !    endif
+      !endif
+  endif
   WRITE (Iunit,*)
   CLOSE (Rwunit)
   RETURN
@@ -7544,7 +8066,7 @@ SUBROUTINE CISO(ISCR)
 9165 FORMAT (1X,A)
 9170 FORMAT (1X,A8,1X,F10.5,9X,F10.4)
 9175 FORMAT (1X,73('-'),/,' Adjusted C-14 age in years: ',F7.0,'*',5X, &
-       '* = based on ',A)
+       '* = based on ',A)  
 END SUBROUTINE CISO
 !
 !

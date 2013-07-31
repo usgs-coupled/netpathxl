@@ -4,7 +4,7 @@
 		<Platform Name="Win32"/></Platforms>
 	<Configurations>
 		<Configuration Name="Debug|Win32" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.ilk;*.exe;$(TargetPath)">
-				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" Interfaces="true" WarnInterfaces="true" ModulePath="$(INTDIR)/" ObjectFile="$(INTDIR)/" Traceback="true" BoundsCheck="true" RuntimeLibrary="rtStandardGraphicsDebug"/>
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" WarnInterfaces="true" ModulePath="$(INTDIR)/" ObjectFile="$(INTDIR)/" Traceback="true" BoundsCheck="true" RuntimeLibrary="rtStandardGraphicsDebug" Interfaces="true"/>
 				<Tool Name="VFLinkerTool" OutputFile="../bin/netpathxld.exe" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" GenerateDebugInformation="true" ProgramDatabaseFile="$(OUTDIR)/netpathxl.pdb" SubSystem="subSystemWindows"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TypeLibraryName="$(IntDir)/$(InputName).tlb"/>
@@ -21,8 +21,7 @@
 				<Tool Name="VFCustomBuildTool"/>
 				<Tool Name="VFPreLinkEventTool"/>
 				<Tool Name="VFPreBuildEventTool"/>
-				<Tool Name="VFPostBuildEventTool" CommandLine="ren &quot;$(TargetDir)\netpathxl.exe&quot; netpathxlxx.exe
-ren &quot;$(TargetDir)\netpathxlxx.exe&quot; NetpathXL.exe"/>
+				<Tool Name="VFPostBuildEventTool" CommandLine="ren &quot;$(TargetDir)\netpathxl.exe&quot; netpathxlxx.exe&#xA;ren &quot;$(TargetDir)\netpathxlxx.exe&quot; NetpathXL.exe"/>
 				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration></Configurations>
 	<Files>
 		<Filter Name="Header Files" Filter="fi;fd"/>
@@ -30,7 +29,7 @@ ren &quot;$(TargetDir)\netpathxlxx.exe&quot; NetpathXL.exe"/>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\src\adobjs.f90"/>
 		<File RelativePath="..\src\common.f90"/>
-		<File RelativePath="..\src\excel11s.f90"/>
+		<File RelativePath="..\src\EXCEL.f90"/>
 		<File RelativePath="..\src\netpath.f90"/>
 		<File RelativePath="..\src\npexcel.f90"/>
 		<File RelativePath="..\src\npmod.f90"/>

@@ -70,6 +70,14 @@
       </Component>
     </DirectoryRef>
 
+    <DirectoryRef Id="DocDir">
+      <Component Id="Revised_FontesDOCX" Guid="*">
+        <File Id="Revised_Fontes.docx" Name="Revised_Fontes_and_Garnier_in_NetpathXL.docx" Vital="yes" DiskId='1' Source="$(var.DocSource)\Revised_Fontes_ and_Garnier_ in_NetpathXL.docx" KeyPath="yes">
+          <Shortcut Id='RevisedShortcut' Directory='ShortCutFolder' Name='Revised Fontes and Garnier in NetpathXL' Advertise='yes' />
+        </File>
+      </Component>
+    </DirectoryRef>
+
     <DirectoryRef Id="ExamplesDir">
       <Component Id="Examples" Guid="$(var.ExamplesGuid)">
         <File Id="class.lon" Name="class.lon" DiskId='1' Source="$(var.ExamplesSource)\class.lon" />
@@ -131,6 +139,7 @@
       <ComponentRef Id="NonAdvShortcuts" />-->
       <ComponentRef Id="NetpathxlPDF"/>
       <ComponentRef Id="PlummerPDF"/>
+      <ComponentRef Id="Revised_FontesDOCX" />
     </ComponentGroup>
 
     <ComponentGroup Id="Examples">

@@ -17,7 +17,7 @@
     </Upgrade>
 
     <Condition Message="A later version of [ProductName] is already installed.">NOT NEWERVERSIONDETECTED</Condition>
-    <Condition Message='This installer requires that Microsoft Excel be installed. Please install it and try again.' ><![CDATA[EXCEL_CLSID <> ""]]></Condition>
+    <Condition Message="This installer requires that Microsoft Excel be installed. Please install it and try again." ><![CDATA[Installed OR EXCEL_CLSID <> ""]]></Condition>
 
     <!-- Media -->
     <Media Id="1" Cabinet="$(var.Name).cab" EmbedCab="yes" />
@@ -51,6 +51,7 @@
 
     <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLLOCATION" />
+    <Property Id="DISABLEADVTSHORTCUTS" Value="1" /> <!-- Fixes icons for shortcuts -->
     <UIRef Id="WixUI_InstallDir" />
     <UIRef Id="WixUI_ErrorProgressText" />    
     

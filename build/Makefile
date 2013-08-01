@@ -120,8 +120,8 @@ usage:
 
 FTP_DIR := ~/ftp
 
-TOUCH_COMMAND := ssh srv2rcolkr "find $(FTP_DIR)/netpathxl -name \"*$(RELEASE)*\" | xargs touch -t $(TOUCH_STAMP)"
-CHMOD_COMMAND := ssh srv2rcolkr "find $(FTP_DIR)/netpathxl -name \"*$(RELEASE)*\" | xargs chmod 644"
+TOUCH_COMMAND := ssh -q parkplace "find $(FTP_DIR)/netpathxl -name \"*$(RELEASE)*\" | xargs touch -t $(TOUCH_STAMP)"
+CHMOD_COMMAND := ssh -q parkplace "find $(FTP_DIR)/netpathxl -name \"*$(RELEASE)*\" | xargs chmod 644"
 
 ftp : check_args ftp_netpathxl
 	$(TOUCH_COMMAND)
@@ -136,5 +136,5 @@ touch : check_args
 ftp_netpathxl :
 	tar xvjf $(BIN_PACKAGE) $(SETUP_PACKAGE) README.TXT
 	mv README.TXT README.$(RELEASE).TXT
-	scp $(SETUP_PACKAGE) README.$(RELEASE).TXT srv2rcolkr:$(FTP_DIR)/netpathxl/.
+	scp -q $(SETUP_PACKAGE) README.$(RELEASE).TXT parkplace:$(FTP_DIR)/netpathxl/.
 	rm -rf $(SETUP_PACKAGE) README.$(RELEASE).TXT

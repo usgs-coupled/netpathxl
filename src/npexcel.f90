@@ -3409,8 +3409,9 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     integer i
     character*20 row_string
     character*2 eol
-    character*120 text(250)
+    character*120 text(217)
     TYPE (VARIANT) :: vInt
+    TYPE (VARIANT) :: vBefore, vAfter
     data text / &
 "Using the Revised Fontes and Garnier model of Han and Plummer (2013) as implemented in NetpathXL	       ",&
 "													       ",&
@@ -3632,6 +3633,11 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     
     ! Get the worksheet
     work_sheets = $Workbook_GetWorkSheets(workbookA0, status)
+    vBefore%VT = VT_I4
+    vBefore%VU%LONG_VAL = 2 
+    vAfter%VT = VT_I4
+    vAfter%VU%LONG_VAL = 0  
+    work_sheet = Worksheets_Add(work_sheets)
     vInt%VT = VT_I4
     vInt%VU%LONG_VAL = 2 
     work_sheet = WorkSheets_GetItem(work_sheets, vInt, status)

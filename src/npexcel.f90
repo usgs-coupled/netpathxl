@@ -3410,6 +3410,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     character*20 row_string
     character*2 eol
     character*120 text(217)
+    INTEGER*4 worksheets_count
     TYPE (VARIANT) :: vInt
     TYPE (VARIANT) :: vBefore, vAfter
     data text / &
@@ -3637,9 +3638,13 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     vBefore%VU%LONG_VAL = 2 
     vAfter%VT = VT_I4
     vAfter%VU%LONG_VAL = 0  
-    work_sheet = Worksheets_Add(work_sheets)
+    worksheets_count = Worksheets_GetCount(work_sheets, status)
     vInt%VT = VT_I4
     vInt%VU%LONG_VAL = 2 
+    if (worksheets_count <2) then
+        work_sheet = Worksheets_Add(work_sheets)
+        vInt%VU%LONG_VAL = 1 
+    endif
     work_sheet = WorkSheets_GetItem(work_sheets, vInt, status)
     CALL Check_Status(status, " Unable to get WORKSHEET object")
     call $Worksheet_Select(work_sheet)

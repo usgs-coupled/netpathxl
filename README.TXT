@@ -1,4 +1,4 @@
-NetpathXL @VER@                                @RELEASE_DATE@
+NetpathXL 
 
 To install NetpathXL, double-click NetpathXL-@VER@-@REL@.msi as
 a user with administrator privileges.
@@ -39,6 +39,16 @@ http://wwwbrr.cr.usgs.gov/projects/GWC_coupled/netpath.
 
 Report bugs to dlpark@usgs.gov.
 
+NetpathXL @VER@                                @RELEASE_DATE@
+---------
+svn 11885
+---------
+  Excel 2013 has only one worksheet by default. NetpathXL assumed
+  there were at least two worksheets when writing the explanation
+  for the Han and Plummer plots. Now adds a new worksheet if 
+  necessary. 
+
+NetpathXL 1.4.0                                July 31, 2013
 --------
 svn 4805
 --------

@@ -28,8 +28,10 @@
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\src\adobjs.f90"/>
+		<File RelativePath="..\src\checklang.f90"/>
 		<File RelativePath="..\src\common.f90"/>
 		<File RelativePath="..\src\EXCEL.f90"/>
+		<File RelativePath="..\src\MSO.f90"/>
 		<File RelativePath="..\src\netpath.f90"/>
 		<File RelativePath="..\src\npexcel.f90"/>
 		<File RelativePath="..\src\npmod.f90"/>

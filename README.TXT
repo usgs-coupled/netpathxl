@@ -41,6 +41,15 @@ Report bugs to dlpark@usgs.gov.
 
 NetpathXL @VER@                                @RELEASE_DATE@
 ---------
+svn 12779
+---------
+  DBXL and NetpathXL may not work correctly if the Excel language 
+  environment is not US English. A warning message is displayed
+  with the option to continue or not if another language environment
+  is detected.
+  
+NetpathXL 1.5.0                                November 1, 2016
+---------
 svn 11885
 ---------
   Excel 2013 has only one worksheet by default. NetpathXL assumed

@@ -80,7 +80,7 @@
 	  END IF
 	  l = .FALSE.
 	  CALL $Application_SetVisible(excelapp, l)
-
+      
 	! Here is a sketch of the code below in pseudocode...
 	!
 	!	workbooks = excelapp.GetWorkbooks()
@@ -278,6 +278,8 @@ Subroutine OldExcel
 		  CALL EXIT()
 	  END IF
 	  CALL Check_Status(status, " Unable to create Excel application")
+      
+      CALL checklang
 	  
 	  l = .FALSE.
 	  CALL $Application_SetVisible(excelapp, l)

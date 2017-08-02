@@ -19,7 +19,7 @@ SUBROUTINE checklang
     lid = LanguageSettings_GetLanguageID(langsettings, msoLanguageIDUI, status)
     IF (lid .NE. msoLanguageIDEnglishUS) THEN
 		WRITE (*,*) ""
-		WRITE (*,*) "Warning: NetpathXL may not work using the currently selected language."
+		WRITE (*,*) "Warning: NetpathXL may not work correctly using the currently selected language."
 		WRITE (*,*) "Please select US English in the Excel language settings."
 		WRITE (*,*) "Hit <Q> to quit, or <Enter> to continue"
 		READ  (*,'(A)') ans

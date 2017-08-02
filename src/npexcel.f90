@@ -77,7 +77,11 @@
 	  IF (excelapp == 0) THEN
 		  WRITE (*, '(" Unable to create Excel object; Aborting")')
 		  CALL EXIT()
-	  END IF
+      END IF
+	  CALL Check_Status(status, " Unable to create Excel application")
+      
+      CALL checklang
+      
 	  l = .FALSE.
 	  CALL $Application_SetVisible(excelapp, l)
       
@@ -1457,6 +1461,10 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
         WRITE (*, '(" Unable to create Excel object; Aborting")')
         CALL EXIT()
     END IF
+    CALL Check_Status(status, " Unable to create Excel application")
+      
+    CALL checklang
+      
     l = .TRUE.
     CALL $Application_SetVisible(excelappA0, l)
     CALL $Application_SetWidth(excelappA0, dble(900.), status)

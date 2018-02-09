@@ -1,0 +1,21 @@
+
+# /build/
+/build/*.log
+/build/*.tstamp
+/build/NetpathXL*.gz
+/build/NetpathXL*.sh
+/build/HISTORY
+/build/*.msi
+/build/*.bz2
+
+# /dbxl/
+/dbxl/Debug
+/dbxl/Release
+
+# /msi/
+/msi/bin
+/msi/obj
+
+# /netpathxl/
+/netpathxl/Debug
+/netpathxl/Release

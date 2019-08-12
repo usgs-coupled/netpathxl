@@ -80,7 +80,7 @@
       END IF
 	  CALL Check_Status(status, " Unable to create Excel application")
       
-      CALL checklang
+      CALL checklang(excelapp)
       
 	  l = .FALSE.
 	  CALL $Application_SetVisible(excelapp, l)
@@ -283,7 +283,7 @@ Subroutine OldExcel
 	  END IF
 	  CALL Check_Status(status, " Unable to create Excel application")
       
-      CALL checklang
+      CALL checklang(excelapp)
 	  
 	  l = .FALSE.
 	  CALL $Application_SetVisible(excelapp, l)
@@ -1421,6 +1421,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     character*10 cell_location
     logical*2 l2
     character*1 line_feed
+    character*2048 sheet1A0
 
     ! Variant arguments
     TYPE (VARIANT) :: vBSTR1
@@ -1462,8 +1463,8 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
         CALL EXIT()
     END IF
     CALL Check_Status(status, " Unable to create Excel application")
-      
-    CALL checklang
+
+    CALL checklang(excelappA0)
       
     l = .TRUE.
     CALL $Application_SetVisible(excelappA0, l)
@@ -2087,20 +2088,25 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     vInt = Series_Delete(series, status)
     CALL Check_Status(status, " Unable to delete default series")
     
+    ! Get worksheet name
+    sheet1A0 = $Worksheet_GetName(worksheetA0, status)
+    CALL Check_Status(status, " Unable to get Worksheet name")
+
     ! Add series  X origin
-    call add_line("=Sheet1!$Q$8:$Q$9","=Sheet1!$R$8:$R$9", "Tamers X", "black", 1.0)
+    call add_line("=" // trim(sheet1A0) // "!$Q$8:$Q$9", "=" // trim(sheet1A0) // "!$R$8:$R$9", "Tamers X", "black", 1.0)
+
     ! Add series  Y origin
-    call add_line("=Sheet1!$Q$10:$Q$11","=Sheet1!$R$10:$R$11", "Tamers Y", "black", 1.0)
+    call add_line("=" // trim(sheet1A0) // "!$Q$10:$Q$11", "=" // trim(sheet1A0) // "!$R$10:$R$11", "Tamers Y", "black", 1.0)
     ! Add series  Tamers origin
-    call add_line("=Sheet1!$Q$12:$Q$15","=Sheet1!$R$12:$R$15", "Tamers area", "blue", 2.0)
+    call add_line("=" // trim(sheet1A0) // "!$Q$12:$Q$15", "=" // trim(sheet1A0) // "!$R$12:$R$15", "Tamers area", "blue", 2.0)
     ! Add series  Zero-age line gas ex
     !label = "Zero-age"//line_feed//"(gas ex)"
     label = "Zero-age (gas ex)"
-    call add_line("=Sheet1!$Q$30:$Q$31","=Sheet1!$R$30:$R$31", trim(label), "default", 2.0)
+    call add_line("=" // trim(sheet1A0) // "!$Q$30:$Q$31", "=" // trim(sheet1A0) // "!$R$30:$R$31", trim(label), "default", 2.0)
     ! Add series  Zero-age line solid ex
     !label = "Zero-age"//line_feed//"(solid ex)"
     label = "Zero-age (solid ex)"
-    call add_line("=Sheet1!$Q$27:$Q$28","=Sheet1!$R$27:$R$28", trim(label), "default", 2.0)
+    call add_line("=" // trim(sheet1A0) // "!$Q$27:$Q$28", "=" // trim(sheet1A0) // "!$R$27:$R$28", trim(label), "default", 2.0)
     
     ! UZ gas point
     series_collection = $Chart_SeriesCollection(chartA0)	
@@ -2108,7 +2114,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
         ! x range
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$L8:$L8")
+    bstr1 = ConvertStringToBSTR("=" // trim(sheet1A0) // "!$L8:$L8")
     vBSTR1%VU%PTR_VAL = bstr1    
     call Series_SetXValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
@@ -2116,7 +2122,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
          ! y range
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$M8:$M8")
+    bstr1 = ConvertStringToBSTR("=" // trim(sheet1A0) // "!$M8:$M8")
     vBSTR1%VU%PTR_VAL = bstr1    
     call Series_SetValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
@@ -2141,7 +2147,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
         ! x range
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$Q33:$Q33")
+    bstr1 = ConvertStringToBSTR("=" // trim(sheet1A0) // "!$Q33:$Q33")
     vBSTR1%VU%PTR_VAL = bstr1    
     call Series_SetXValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
@@ -2149,7 +2155,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
          ! y range
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$R33:$R33")
+    bstr1 = ConvertStringToBSTR("=" // trim(sheet1A0) // "!$R33:$R33")
     vBSTR1%VU%PTR_VAL = bstr1    
     call Series_SetValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
@@ -2176,7 +2182,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
         ! x range
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$Q35:$Q35")
+    bstr1 = ConvertStringToBSTR("=" // trim(sheet1A0) // "!$Q35:$Q35")
     vBSTR1%VU%PTR_VAL = bstr1    
     call Series_SetXValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
@@ -2184,7 +2190,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
          ! y range
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$R35:$R35")
+    bstr1 = ConvertStringToBSTR("=" // trim(sheet1A0) // "!$R35:$R35")
     vBSTR1%VU%PTR_VAL = bstr1    
     call Series_SetValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
@@ -2211,7 +2217,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
         ! x range
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$C34:C$1000")
+    bstr1 = ConvertStringToBSTR("=" // trim(sheet1A0) // "!$C34:C$1000")
     vBSTR1%VU%PTR_VAL = bstr1    
     call Series_SetXValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
@@ -2219,7 +2225,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
          ! y range
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$D34:$D1000")
+    bstr1 = ConvertStringToBSTR("=" // trim(sheet1A0) // "!$D34:$D1000")
     vBSTR1%VU%PTR_VAL = bstr1    
     call Series_SetValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
@@ -2253,7 +2259,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
         ! x range
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$C$3:$C$3")
+    bstr1 = ConvertStringToBSTR("=" // trim(sheet1A0) // "!$C$3:$C$3")
     vBSTR1%VU%PTR_VAL = bstr1    
     call Series_SetXValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
@@ -2261,7 +2267,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
          ! y range
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$D$3:$D$3")
+    bstr1 = ConvertStringToBSTR("=" // trim(sheet1A0) // "!$D$3:$D$3")
     vBSTR1%VU%PTR_VAL = bstr1    
     call Series_SetValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
@@ -2293,7 +2299,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
         ! x range
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$L$7:$L$7")
+    bstr1 = ConvertStringToBSTR("=" // trim(sheet1A0) // "!$L$7:$L$7")
     vBSTR1%VU%PTR_VAL = bstr1    
     call Series_SetXValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
@@ -2301,7 +2307,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
          ! y range
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$M$7:$M$7")
+    bstr1 = ConvertStringToBSTR("=" // trim(sheet1A0) // "!$M$7:$M$7")
     vBSTR1%VU%PTR_VAL = bstr1    
     call Series_SetValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
@@ -2327,7 +2333,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
         ! x range
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$Q$37:$Q$37")
+    bstr1 = ConvertStringToBSTR("=" // trim(sheet1A0) // "!$Q$37:$Q$37")
     vBSTR1%VU%PTR_VAL = bstr1    
     call Series_SetXValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
@@ -2335,7 +2341,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
          ! y range
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR("=Sheet1!$R$37:$R$37")
+    bstr1 = ConvertStringToBSTR("=" // trim(sheet1A0) // "!$R$37:$R$37")
     vBSTR1%VU%PTR_VAL = bstr1    
     call Series_SetValues(series, vBSTR1, status)
     status = VariantClear(vBSTR1)
@@ -2365,7 +2371,7 @@ Subroutine NewExcelA0(c13_meas, c14_meas, &
     ! name
     CALL VariantInit(vBSTR1)
     vBSTR1%VT = VT_BSTR
-    bstr1 = ConvertStringToBSTR('Sheet1')
+    bstr1 = ConvertStringToBSTR(trim(sheet1A0))
     vBSTR1%VU%PTR_VAL = bstr1         
     ptr_return = $Chart_Location(chartA0, xlLocationAsObject, vBSTR1, status)
     CALL Check_Status(status, " Unable to set plot location")

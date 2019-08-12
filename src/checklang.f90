@@ -1,16 +1,18 @@
-SUBROUTINE checklang
+SUBROUTINE checklang($APP)
     USE ADOBJECTS
     USE EXCEL
     USE IFCOM
     USE MSO
     IMPLICIT NONE
     EXTERNAL UPCS
+
+    INTEGER(INT_PTR_KIND()), INTENT(IN)     :: $APP
     INTEGER(INT_PTR_KIND()) :: langsettings
     INTEGER(4)              :: status
     INTEGER                 :: lid
     CHARACTER*20            :: ans
     
-    langsettings = $Application_GetLanguageSettings(excelapp, status)
+    langsettings = $Application_GetLanguageSettings($APP, status)
     IF (langsettings == 0) THEN
         WRITE (*, '(" Unable to get LanguageSettings object; Aborting")')
         CALL EXIT()
